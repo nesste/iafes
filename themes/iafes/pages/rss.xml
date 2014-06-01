@@ -1,0 +1,17 @@
+ <rss version="2.0" xmlns:ror="http://rorweb.com/0.1/">
+        <channel> 
+            <title>Posts</title>
+            {% if template|length != '0' %}
+                {% for key in template|keys %}
+                    <item>
+                        <title>{{ template[0][key] }}</title>
+                        <link>{{ template[5][key] }}</link>
+                        <ror:type>{{ template[2][key] }}</ror:type>
+                        <ror:descLong>{{ template[1][key] }}</ror:descLong>
+                        <ror:created>{{ template[4][key] }}</ror:created>
+                        <ror:published>{{ template[3][key] }}</ror:published>
+                    </item>
+                {% endfor %}
+            {% endif %}
+        </channel>
+    </rss>

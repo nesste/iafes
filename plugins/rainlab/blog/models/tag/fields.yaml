@@ -1,0 +1,14 @@
+# ===================================
+#  Field Definitions
+# ===================================
+
+fields:
+  name:
+    label: Tag
+    span: left
+
+  slug:
+    label: Slug
+    span: right
+    attributes:
+      data-input-preset: 'input[name="Tag[name]"]'

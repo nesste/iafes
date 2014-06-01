@@ -1,0 +1,40 @@
+==
+<ul class="unstyled second-nav nav">
+	<li><a data-toggle="collapse" href="#dropdown-menu1">Information<i class="fa fa-caret-down"></i></a>
+		<ul id="dropdown-menu1" class="drop-mn unstyled nav panel-collapse collapse">
+			<li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/venue">Venue</a></li>
+			<li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/travel">Travel</a></li>
+			<li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/accommodation">Accommodation</a></li>
+		</ul>
+	</li>
+	<li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/register">Register</a></li>
+	<li><a data-toggle="collapse" href="#dropdown-menu2">Programme<i class="fa fa-caret-down"></i></a>
+		<ul id="dropdown-menu2" class="drop-mn unstyled nav panel-collapse collapse">
+			{% if currentPage == 'summer-schools' %}
+			    <li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/courses">Courses</a></li>
+			{% else %}
+			    {%  if currentPage == 'student-research-conference' %}
+			        <li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/conference">Conference</a></li>
+			    {% else %}
+			        <li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/workhop">Workshop</a></li>
+			    {% endif %}
+			{% endif %}
+			    <li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/cultural">Cultural</a></li>
+			
+		</ul>
+	</li>
+	{% if currentPage == 'summer-schools' %}
+	    <li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/professors">Professors</a></li>
+	{% else %}
+	    <li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/speakers">Speakers</a></li>
+	{% endif %}
+	<li><a data-toggle="collapse" href="#dropdown-menu3">Events<i class="fa fa-caret-down"></i></a>
+		<ul id="dropdown-menu3" class="drop-mn unstyled nav panel-collapse collapse">
+			<li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/photos">Photos</a></li>
+			<li><a href="{{appPath}}/{{ currentPage }}/{{crntPage}}/blog">Blog</a></li>
+		</ul>
+	</li>
+	{% if vicadis == '1' %}
+	    <li><a href="http://vicadis.net/courses">Access to course materials in VICADIS</a></li>
+	{% endif %}
+</ul>

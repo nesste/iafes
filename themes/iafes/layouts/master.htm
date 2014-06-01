@@ -1,0 +1,121 @@
+description = "Master layout"
+==
+<?php
+function onStart(){
+    
+    $this['url'] = Request::path();
+}
+?>
+==
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>IAFeS</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="{{ ['assets/css/reset.css']|theme }}" rel="stylesheet">
+<link href="{{ ['assets/css/bootstrap.min.css']|theme }}" rel="stylesheet">
+<link href="{{ ['assets/css/font-awesome.min.css']|theme }}" rel="stylesheet">
+<link href="{{ ['assets/css/theme.css']|theme }}" rel="stylesheet">
+<link href="{{ ['assets/css/style.css']|theme }}" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="ROR" href="{{'/rss'|app}}" />
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
+<body data-page="{{ url }}">
+<div id="main-wrapper">
+	<div id="activeLogin"></div>
+	<div class="container">
+		<header>
+			<div class="navbar-header">
+	          <a class="navbar-brand" href="{{ '/'|app }}"><img src="{{ 'assets/images/logo.png'|theme }}" alt="" /></a>
+	        </div>
+		</header>
+		<div class="collapse-menu">
+			<div class="row collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+				<div class="col-md 6 col-xs-6">
+					<p>Menu</p>
+				</div>
+				<div class="col-md 6 col-xs-6">
+			          <i class="fa fa-bars"></i>
+				</div>
+			</div>
+        </div>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="{{ '/'|app }}">Home</a></li>
+				<li><a href="{{ '/iafes-association'|app }}">IAFeS Association</a></li>
+				<li><a href="{{ '/seminars-workshop'|app }}">Seminars/Workshop</a></li>
+				<li><a href="{{ '/netties-conference'|app }}">NETTIES Conference</a></li>
+				<li><a href="{{ '/summer-schools'|app }}">Summer Schools</a></li>
+				<li><a href="{{ '/student-research-conference'|app }}">Student Research Conference</a></li>
+				<li><a href="{{ '/projects'|app }}">Projects</a></li>
+				<li><a href="{{ '/training'|app }}">Training</a></li>
+	        </ul>
+        </div>
+	</div>
+    <div id="{{ page }}">
+    	<div class="container">		
+    		<div class="row">
+    			<div class="col-md-3 col-lg-3 col-sm-3">
+    				<div class="row">
+    					<div class="col-md-12 col-lg-12">
+    					    
+    					    {% if  news  != '1' %} 
+        					    <div class="news">
+        					        <h2>News</h2>
+        					        {%	placeholder news %}
+        					    </div>
+    						{% else %}
+    						    {%  placeholder nav %}
+    				        {% endif %}	 
+    					</div>
+    					<div class="col-md-12 col-lg-12">
+    						{% partial 'social-links.htm' %}
+    					</div>
+    					{% if news == '1' %}
+        					<div class="col-md-12 col-lg-12">
+        					    <div class="news">
+        					        <h2>News</h2>
+        					        {% placeholder news %}
+        					    </div>
+        					</div>
+    					{% endif %}
+    				</div>
+    			</div>
+    			<div class="col-md-7 col-lg-7 col-sm-7 col-xs-12">
+    				<div class="main-content">
+        				<div class="row pageInfo">
+        				    <div class="col-md-6 col-lg-6 col-sm-6 col-xs-7">
+                                {% placeholder pageName %}
+                            </div>
+                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-5 login-user">
+                                {% placeholder user %}
+                            </div>
+        				</div>
+        				<div class="row">
+            				<div class="col-md-12 col-xs-12 col-lg-12">
+                                {% placeholder mainContent %}
+                            </div>
+                        </div>
+    				</div>
+    				{% partial 'footer.htm' %}
+    			</div>
+    			<div class="col-md-2 col-lg-2 col-sm-2 col-xs-12">
+    				{% partial 'search-advertising.htm' %}
+    			</div>
+    		</div><!-- end .row -->
+    	</div><!-- end .container -->
+    </div><!-- end #page -->
+</div><!-- end #main-wrapper -->
+<!-- scripts -->
+<script type="text/javascript" src="{{ 'assets/javascript/jquery.js'|theme }}"></script>
+<script type="text/javascript" src="{{ 'assets/javascript/bootstrap.min.js'|theme }}"></script>
+<script type="text/javascript" src="{{ 'assets/javascript/modernizr.js'|theme }}"></script>
+<script type="text/javascript" src="{{ 'assets/javascript/app.js'|theme }}"></script>
+<script type="text/javascript" src="{{ 'assets/javascript/js.js'|theme }}"></script>
+{% framework extras %}
+</body>
+</html>

@@ -1,0 +1,64 @@
+9999999999s:1685:"a:5:{s:5:"mtime";i:1401279669;s:7:"content";s:742:"title = "reset password"
+url = "/iafes-association/user/reset-password/:code?"
+layout = "master"
+
+[resetPassword]
+paramCode = "code"
+
+[blogPosts]
+postsPerPage = "10"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+==
+<?php
+function onStart(){
+
+	 $this['page'] = 'Reset your password!';
+	 $this['news'] = true;
+	 $this['path'] =  URL::to('/');
+     $this['slug'] = $this->param('code');
+
+}
+?>
+==
+{% put nav %}
+	{% partial "iafes-nav.htm" crntPage = slug appPath = path %}
+{% endput %}
+
+{% put pageName %}
+     <h1>{{ page }}</h1>
+{% endput %}
+
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+   
+{% put mainContent %}
+    {% component 'resetPassword' %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:14:"reset password";s:3:"url";s:45:"/iafes-association/user/reset-password/:code?";s:6:"layout";s:6:"master";s:10:"components";a:2:{s:13:"resetPassword";a:1:{s:9:"paramCode";s:4:"code";}s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:2:"10";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}}}s:4:"code";s:176:"
+function onStart(){
+
+	 $this['page'] = 'Reset your password!';
+	 $this['news'] = true;
+	 $this['path'] =  URL::to('/');
+     $this['slug'] = $this->param('code');
+
+}
+";s:6:"markup";s:295:"{% put nav %}
+	{% partial "iafes-nav.htm" crntPage = slug appPath = path %}
+{% endput %}
+
+{% put pageName %}
+     <h1>{{ page }}</h1>
+{% endput %}
+
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+   
+{% put mainContent %}
+    {% component 'resetPassword' %}
+{% endput %}";}";

@@ -1,0 +1,66 @@
+9999999999s:1429:"a:5:{s:5:"mtime";i:1401044903;s:7:"content";s:611:"title = "custom page"
+url = "/page/:slug"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "3"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[pageView]
+paramId = "slug"
+
+[contactForm]
+==
+<?php
+function onStart(){
+
+
+    $this['slug'] = $this->param('slug');
+   
+   
+}
+?>
+==
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+
+{% put pageName %}
+	<h1>{{ slug }}</h1>
+{% endput %}
+
+{% put mainContent %}
+	{% component 'pageView' %}
+    {% if slug == 'contact-us' %}
+        {% component 'contactForm' %}
+    {% endif %}
+    
+
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:11:"custom page";s:3:"url";s:11:"/page/:slug";s:6:"layout";s:6:"master";s:10:"components";a:3:{s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:1:"3";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}s:8:"pageView";a:1:{s:7:"paramId";s:4:"slug";}s:11:"contactForm";a:0:{}}}s:4:"code";s:83:"
+function onStart(){
+
+
+    $this['slug'] = $this->param('slug');
+   
+   
+}
+";s:6:"markup";s:285:"{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+
+{% put pageName %}
+	<h1>{{ slug }}</h1>
+{% endput %}
+
+{% put mainContent %}
+	{% component 'pageView' %}
+    {% if slug == 'contact-us' %}
+        {% component 'contactForm' %}
+    {% endif %}
+    
+
+{% endput %}";}";

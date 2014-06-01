@@ -1,0 +1,234 @@
+9999999999s:8012:"a:5:{s:5:"mtime";i:1401279669;s:7:"content";s:3831:"title = "index"
+url = "/:page?/:slug?/:menu?"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "15"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[blogCategory]
+paramId = "page"
+postPage = "index"
+postsPerPage = "15"
+noPostsMessage = "No posts found"
+
+[blogPost]
+paramId = "slug"
+SparamId = "page"
+
+[disqus]
+
+
+[subPost]
+SparamId = "menu"
+subPostName = "slug"
+
+[like]
+data-action = "like"
+data-colorscheme = "light"
+data-kid-directed-site = "0"
+data-layout = "standard"
+data-show-faces = "0"
+lang = "en"
+
+[share]
+data-type = "button_count"
+lang = "en"
+==
+<?php
+function onStart(){
+
+    $this['page'] = $this->param('page');
+    if($this['page'] == ''){
+        $this['page'] = 'homepage';
+    }
+	$page = $this['page'];
+
+	$this['path'] =  URL::to('/');
+    $this['slug'] = $this->param('slug');
+    $slug = $this['slug'];
+    
+    $this['menu'] = $this->param('menu');
+   
+    if( $page == 'homepage' || $page == 'iafes-association' || $page == 'training'  || $page == 'projects' || $page == 'home' ){
+        $this['news'] = true;
+    }else if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+     
+	if($page == 'student-research-conference' || $page == 'summer-schools'){
+	    $this['vicadis'] = true;
+	}
+}
+?>
+==
+{% put nav %}
+    {% if ( page == "iafes-association") %}
+		{% partial "iafes-nav.htm" crntPage = slug appPath = path %}
+	{% elseif ( page == "student-research-conference") or (page == "seminars-workshop") or (page == "netties-conference") or (page == "summer-schools") %}
+	    {% partial "globalNav.htm" crntPage = slug appPath = path currentPage = page %}
+    {% elseif ( page == "iafes") or ( page == "netties") or (page == "library") or ( page == "homepage") or (page == "home")  %}	
+	    {% partial "home-nav.htm" %}
+	{% elseif ( page == "projects") %}
+		{% partial "projects-nav.htm" %}
+	{% elseif ( page == "training") %}
+		{% partial "training-nav.htm" %}
+	{% endif %}
+{% endput %}
+
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+
+{% put pageName %}
+    {% if slug != '' %}
+	    {% if menu != '' %}
+	        <h1> {{ slug }} > {{ menu }} </h1>
+	    {% else %}
+	        <h1>{{ slug }}</h1>
+	    {% endif %}
+	{% elseif page == 'homepage' %}
+	    <h1>Welcome to IAFeS</h1>
+	{% else %}
+	    <h1>{{ page }}</h1>
+	{% endif %}
+{% endput %}
+
+{% put mainContent %}
+	{% if (slug == '') %}
+	   {% if page == 'homepage' %}
+	       {% component 'blogPosts' %}
+	   {% else %}
+	       {% if (page == 'iafes-association') or (page == 'training') or (page == 'projects') %}
+	            {% component 'blogPost' %}
+	       {% else %}
+	            {% component 'blogCategory' %}
+	       {% endif %}
+	   {% endif %}
+	{% else %}
+	    {% if menu == '' %}
+	        {% component 'blogPost' %}
+	        <div class="facebook">
+	            <ul class="list-inline">
+	                <li>{% component 'share' %}</li>
+	                <li>{% component 'like' %}</li>         
+	            </ul>
+	        </div>
+	        <div class="disqus">
+	            <div id="disqus_thread"></div>
+                <script type="text/javascript">
+                    var disqus_shortname = 'iafes-website';
+                    (function() {
+                        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                    })();
+                </script>
+	        </div>
+	    {% else %}   
+	        {% component 'subPost' %}
+	    {% endif %}
+	{% endif %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:5:"index";s:3:"url";s:21:"/:page?/:slug?/:menu?";s:6:"layout";s:6:"master";s:10:"components";a:7:{s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:2:"15";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}s:12:"blogCategory";a:4:{s:7:"paramId";s:4:"page";s:8:"postPage";s:5:"index";s:12:"postsPerPage";s:2:"15";s:14:"noPostsMessage";s:14:"No posts found";}s:8:"blogPost";a:2:{s:7:"paramId";s:4:"slug";s:8:"SparamId";s:4:"page";}s:6:"disqus";a:0:{}s:7:"subPost";a:2:{s:8:"SparamId";s:4:"menu";s:11:"subPostName";s:4:"slug";}s:4:"like";a:6:{s:11:"data-action";s:4:"like";s:16:"data-colorscheme";s:5:"light";s:22:"data-kid-directed-site";s:1:"0";s:11:"data-layout";s:8:"standard";s:15:"data-show-faces";s:1:"0";s:4:"lang";s:2:"en";}s:5:"share";a:2:{s:9:"data-type";s:12:"button_count";s:4:"lang";s:2:"en";}}}s:4:"code";s:718:"
+function onStart(){
+
+    $this['page'] = $this->param('page');
+    if($this['page'] == ''){
+        $this['page'] = 'homepage';
+    }
+	$page = $this['page'];
+
+	$this['path'] =  URL::to('/');
+    $this['slug'] = $this->param('slug');
+    $slug = $this['slug'];
+    
+    $this['menu'] = $this->param('menu');
+   
+    if( $page == 'homepage' || $page == 'iafes-association' || $page == 'training'  || $page == 'projects' || $page == 'home' ){
+        $this['news'] = true;
+    }else if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+     
+	if($page == 'student-research-conference' || $page == 'summer-schools'){
+	    $this['vicadis'] = true;
+	}
+}
+";s:6:"markup";s:2479:"{% put nav %}
+    {% if ( page == "iafes-association") %}
+		{% partial "iafes-nav.htm" crntPage = slug appPath = path %}
+	{% elseif ( page == "student-research-conference") or (page == "seminars-workshop") or (page == "netties-conference") or (page == "summer-schools") %}
+	    {% partial "globalNav.htm" crntPage = slug appPath = path currentPage = page %}
+    {% elseif ( page == "iafes") or ( page == "netties") or (page == "library") or ( page == "homepage") or (page == "home")  %}	
+	    {% partial "home-nav.htm" %}
+	{% elseif ( page == "projects") %}
+		{% partial "projects-nav.htm" %}
+	{% elseif ( page == "training") %}
+		{% partial "training-nav.htm" %}
+	{% endif %}
+{% endput %}
+
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+
+{% put pageName %}
+    {% if slug != '' %}
+	    {% if menu != '' %}
+	        <h1> {{ slug }} > {{ menu }} </h1>
+	    {% else %}
+	        <h1>{{ slug }}</h1>
+	    {% endif %}
+	{% elseif page == 'homepage' %}
+	    <h1>Welcome to IAFeS</h1>
+	{% else %}
+	    <h1>{{ page }}</h1>
+	{% endif %}
+{% endput %}
+
+{% put mainContent %}
+	{% if (slug == '') %}
+	   {% if page == 'homepage' %}
+	       {% component 'blogPosts' %}
+	   {% else %}
+	       {% if (page == 'iafes-association') or (page == 'training') or (page == 'projects') %}
+	            {% component 'blogPost' %}
+	       {% else %}
+	            {% component 'blogCategory' %}
+	       {% endif %}
+	   {% endif %}
+	{% else %}
+	    {% if menu == '' %}
+	        {% component 'blogPost' %}
+	        <div class="facebook">
+	            <ul class="list-inline">
+	                <li>{% component 'share' %}</li>
+	                <li>{% component 'like' %}</li>         
+	            </ul>
+	        </div>
+	        <div class="disqus">
+	            <div id="disqus_thread"></div>
+                <script type="text/javascript">
+                    var disqus_shortname = 'iafes-website';
+                    (function() {
+                        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                    })();
+                </script>
+	        </div>
+	    {% else %}   
+	        {% component 'subPost' %}
+	    {% endif %}
+	{% endif %}
+{% endput %}";}";

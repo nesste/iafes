@@ -1,0 +1,23 @@
+# ===================================
+#  Column Definitions
+# ===================================
+
+columns:
+    name:
+        label: Name
+        searchable: yes
+    country:
+        label: Country
+        relation: country
+        select: @name
+        searchable: yes
+    state:
+        label: State
+        relation: state
+        select: @name
+        searchable: yes
+    email:
+        label: Email
+        searchable: yes
+    created_at:
+        label: Registered

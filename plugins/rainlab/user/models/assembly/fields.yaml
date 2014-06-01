@@ -1,0 +1,29 @@
+# ===================================
+#  Field Definitions
+# ===================================
+
+fields:
+
+  name:
+    label: Name
+    span: left
+    placeholder: New general assembly name
+
+  slug:
+    label: slug
+    span: right
+    placeholder: new-general-assembly-slug
+    attributes:
+      data-input-preset: 'input[name="Assembly[name]"]'
+
+  user:
+    tab: Users
+    type: relation
+    commentAbove: Users
+    placeholder: Select a user that this general assembly belongs to
+
+  content:
+    tab: Edit
+    stretch: true
+    type: Eein\Wysiwyg\FormWidgets\Trumbowyg
+    cssClass: no-padding

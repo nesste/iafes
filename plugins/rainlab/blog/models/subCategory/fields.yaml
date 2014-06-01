@@ -1,0 +1,22 @@
+# ===================================
+#  Field Definitions
+# ===================================
+
+fields:
+
+  name:
+    label: Name
+    span: left
+
+  slug:
+    label: Slug
+    span: right
+    attributes:
+        data-input-preset: 'input[name="subCategory[name]"]'
+
+  category:
+      tab: Category
+      type: relation
+      commentAbove: Select category the blog subCategory belongs to
+      placeholder: If list is empty, you should create a category first!
+

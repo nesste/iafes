@@ -1,0 +1,14 @@
+# ===================================
+#  Column Definitions
+# ===================================
+
+columns:
+
+    name:
+        label: Name
+
+    category:
+        label: Category
+        relation: category
+        select: @name
+        searchable: true

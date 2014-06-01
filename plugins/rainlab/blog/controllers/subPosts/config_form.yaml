@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: Blog subPosts
+form: @/plugins/rainlab/blog/models/subPost/fields.yaml
+modelClass: RainLab\Blog\Models\subPost
+defaultRedirect: rainlab/blog/subPosts
+
+create:
+    redirect: rainlab/blog/subPosts/update/:id
+    redirectClose: rainlab/blog/subPosts
+
+update:
+    redirect: rainlab/blog/subPosts
+    redirectClose: rainlab/blog/subPosts

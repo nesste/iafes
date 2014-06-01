@@ -1,0 +1,18 @@
+9999999999s:667:"a:2:{s:5:"mtime";i:1401633582;s:7:"content";s:613:"
+{{ blogPost.content_html|raw }}
+
+<!--
+<p class="info">
+    Posted
+    {% if post.subCategories.count %} in
+        {% for subCategory in post.subCategories %}
+            <a href="{{ blogSubCategoryPage|page({'slug': subCategory.slug}) }}">{{ subCategory.name }}</a>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% else  %} in
+        {% for category in post.categories %}
+            <a href="{{ blogCategoryPage|page({'slug': category.slug}) }}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% endif %}
+    on {{ post.publshed_at|date('M d, Y') }}
+</p>
+-->";}";

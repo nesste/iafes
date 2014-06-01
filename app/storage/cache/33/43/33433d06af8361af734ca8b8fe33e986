@@ -1,0 +1,132 @@
+9999999999s:5136:"a:5:{s:5:"mtime";i:1401482968;s:7:"content";s:2498:"title = "rss feed"
+url = "/feed/rss"
+==
+<?php
+use rainlab\blog\models\Post;
+use rainlab\blog\models\Category;
+
+function onStart(){
+    $path =  URL::to('/');
+    $result = array(
+        '0' => array(),
+        '1' => array(),
+        '2' => array(),
+        '3' => array(),
+        '4' => array(),
+        '5' => array(),
+        '6' => array()
+    );
+  
+    $post = Post::all();
+    for($i = 0; $i < count($post); $i++){
+        $category = Category::join('rainlab_blog_posts_categories','rainlab_blog_categories.id','=','rainlab_blog_posts_categories.category_id')
+             ->join('rainlab_blog_posts','rainlab_blog_posts_categories.post_id','=','rainlab_blog_posts.id')
+             ->where('rainlab_blog_posts.id','=',$post[$i]->id)
+             ->get();
+        foreach($category as $rss){
+            $postName     = $rss->name;
+            $postSlug     = $rss->slug;
+            $postContent  = $rss->content;
+            $categoryName = Category::where('id','=',$rss->category_id)->first()->slug;
+            $dateFormat1  = date_create($rss->published_at);
+    	    $publisedAt   = date_format($dateFormat1,'F j, Y');
+    	    $dateFormat2  = date_create($rss->created_at);
+    	    $createdAt    = date_format($dateFormat2,'F j, Y');
+    	    $link = $path.'/'.$categoryName.'/'.$postSlug;
+            array_push($result[0],$postName);
+            array_push($result[1],$postContent);
+            array_push($result[2],$categoryName);
+            array_push($result[3],$publisedAt);
+            array_push($result[4],$createdAt);
+            array_push($result[5],$link);
+            array_push($result[6],$postSlug);
+            
+            
+        }     
+             
+    }
+    $this['template'] = $result;
+    
+}
+?>
+==
+<rss version="2.0" xmlns:ror="http://rorweb.com/0.1/">
+    <channel> 
+        <title>Posts</title>
+        {% if template|length != '0' %}
+            {% for key in template|keys %}
+                <item>
+                    <title>{{ template[0][key] }}</title>
+                    <link>{{ template[5][key] }}</link>
+                    <ror:type>{{ template[2][key] }}</ror:type>
+                    <ror:descLong>{{ template[1][key] }}</ror:descLong>
+                    <ror:created>{{ template[4][key] }}</ror:created>
+                    <ror:published>{{ template[3][key] }}</ror:published>
+                </item>
+            {% endfor %}
+        {% endif %}
+    </channel>
+</rss>";s:8:"settings";a:3:{s:5:"title";s:8:"rss feed";s:3:"url";s:9:"/feed/rss";s:10:"components";a:0:{}}s:4:"code";s:1737:"
+use rainlab\blog\models\Post;
+use rainlab\blog\models\Category;
+
+function onStart(){
+    $path =  URL::to('/');
+    $result = array(
+        '0' => array(),
+        '1' => array(),
+        '2' => array(),
+        '3' => array(),
+        '4' => array(),
+        '5' => array(),
+        '6' => array()
+    );
+  
+    $post = Post::all();
+    for($i = 0; $i < count($post); $i++){
+        $category = Category::join('rainlab_blog_posts_categories','rainlab_blog_categories.id','=','rainlab_blog_posts_categories.category_id')
+             ->join('rainlab_blog_posts','rainlab_blog_posts_categories.post_id','=','rainlab_blog_posts.id')
+             ->where('rainlab_blog_posts.id','=',$post[$i]->id)
+             ->get();
+        foreach($category as $rss){
+            $postName     = $rss->name;
+            $postSlug     = $rss->slug;
+            $postContent  = $rss->content;
+            $categoryName = Category::where('id','=',$rss->category_id)->first()->slug;
+            $dateFormat1  = date_create($rss->published_at);
+    	    $publisedAt   = date_format($dateFormat1,'F j, Y');
+    	    $dateFormat2  = date_create($rss->created_at);
+    	    $createdAt    = date_format($dateFormat2,'F j, Y');
+    	    $link = $path.'/'.$categoryName.'/'.$postSlug;
+            array_push($result[0],$postName);
+            array_push($result[1],$postContent);
+            array_push($result[2],$categoryName);
+            array_push($result[3],$publisedAt);
+            array_push($result[4],$createdAt);
+            array_push($result[5],$link);
+            array_push($result[6],$postSlug);
+            
+            
+        }     
+             
+    }
+    $this['template'] = $result;
+    
+}
+";s:6:"markup";s:705:"<rss version="2.0" xmlns:ror="http://rorweb.com/0.1/">
+    <channel> 
+        <title>Posts</title>
+        {% if template|length != '0' %}
+            {% for key in template|keys %}
+                <item>
+                    <title>{{ template[0][key] }}</title>
+                    <link>{{ template[5][key] }}</link>
+                    <ror:type>{{ template[2][key] }}</ror:type>
+                    <ror:descLong>{{ template[1][key] }}</ror:descLong>
+                    <ror:created>{{ template[4][key] }}</ror:created>
+                    <ror:published>{{ template[3][key] }}</ror:published>
+                </item>
+            {% endfor %}
+        {% endif %}
+    </channel>
+</rss>";}";

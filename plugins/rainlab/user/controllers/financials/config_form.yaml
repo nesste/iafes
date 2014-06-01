@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: User Financial
+form: @/plugins/rainlab/user/models/financial/fields.yaml
+modelClass: RainLab\User\Models\Financial
+defaultRedirect: rainlab/user/financials
+
+create:
+    redirect: rainlab/user/financials/update/:id
+    redirectClose: rainlab/user/financials
+
+update:
+    redirect: rainlab/user/financials
+    redirectClose: rainlab/user/financials

@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: User General Assembly
+form: @/plugins/rainlab/user/models/assembly/fields.yaml
+modelClass: RainLab\User\Models\Assembly
+defaultRedirect: rainlab/user/assemblies
+
+create:
+    redirect: rainlab/user/assemblies/update/:id
+    redirectClose: rainlab/user/assemblies
+
+update:
+    redirect: rainlab/user/assemblies
+    redirectClose: rainlab/user/assemblies

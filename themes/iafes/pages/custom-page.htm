@@ -1,0 +1,42 @@
+title = "custom page"
+url = "/page/:slug"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "3"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[pageView]
+paramId = "slug"
+
+[contactForm]
+==
+<?php
+function onStart(){
+
+
+    $this['slug'] = $this->param('slug');
+   
+   
+}
+?>
+==
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+
+{% put pageName %}
+	<h1>{{ slug }}</h1>
+{% endput %}
+
+{% put mainContent %}
+	{% component 'pageView' %}
+    {% if slug == 'contact-us' %}
+        {% component 'contactForm' %}
+    {% endif %}
+    
+
+{% endput %}

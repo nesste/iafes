@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: Blog subCategory
+form: @/plugins/rainlab/blog/models/subCategory/fields.yaml
+modelClass: RainLab\Blog\Models\subCategory
+defaultRedirect: rainlab/blog/subCategories
+
+create:
+    redirect: rainlab/blog/subCategories/update/:id
+    redirectClose: rainlab/blog/subCategories
+
+update:
+    redirect: rainlab/blog/subCategories
+    redirectClose: rainlab/blog/subCategories

@@ -1,0 +1,37 @@
+title = "login"
+url = "/iafes-association/login/:code?"
+layout = "master"
+
+[account]
+redirect = "usersection"
+paramCode = "code"
+
+[blogPosts]
+postsPerPage = "3"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+==
+<?php
+function onStart(){
+	$this['page'] = "Sign in";
+	
+	$this['news'] = false;
+}
+?>
+==
+{% put nav %}
+	{% partial 'iafes-nav.htm'%}
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+{% put pageName %}
+    <h1>{{ page }}</h1>
+{% endput %}
+
+{% put mainContent %}
+	{% component 'account' %}
+{% endput %}

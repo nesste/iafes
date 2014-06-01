@@ -1,0 +1,29 @@
+# ===================================
+#  Column Definitions
+# ===================================
+
+columns:
+
+  title:
+    label: Title
+    searchable: true
+
+  author:
+    label: Author
+    relation: user
+    select: @login
+    searchable: true
+
+  post:
+    label: Post
+    relation: post
+    select: @name
+    searchable: true
+
+  created_at:
+    label: Created
+    type: date
+
+  updated_at:
+    label: Updated
+    type: date

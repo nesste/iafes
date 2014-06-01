@@ -1,0 +1,19 @@
+# ===================================
+#  List Behavior Config
+# ===================================
+
+title: Manage General Assembly
+list: @/plugins/rainlab/user/models/assembly/columns.yaml
+modelClass: RainLab\User\Models\Assembly
+recordUrl: rainlab/user/assemblies/update/:id
+noRecordsMessage: backend::lang.list.no_records
+recordsPerPage: 20
+showCheckboxes: yes
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt
+
+
+

@@ -1,0 +1,19 @@
+# ===================================
+#  List Behavior Config
+# ===================================
+
+title: Manage Users Financial
+list: @/plugins/rainlab/user/models/financial/columns.yaml
+modelClass: RainLab\User\Models\Financial
+recordUrl: rainlab/user/informations/update/:id
+noRecordsMessage: backend::lang.list.no_records
+recordsPerPage: 20
+showCheckboxes: yes
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt
+
+
+

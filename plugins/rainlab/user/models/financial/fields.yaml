@@ -1,0 +1,29 @@
+# ===================================
+#  Field Definitions
+# ===================================
+
+fields:
+
+  name:
+    label: Name
+    span: left
+    placeholder: New financial name
+
+  slug:
+    label: slug
+    span: right
+    placeholder: new-financial-slug
+    attributes:
+      data-input-preset: 'input[name="Financial[name]"]'
+
+  user:
+    tab: Users
+    type: relation
+    commentAbove: Users
+    placeholder: Select a user that this financial belongs to
+
+  content:
+    tab: Edit
+    stretch: true
+    type: Eein\Wysiwyg\FormWidgets\Trumbowyg
+    cssClass: no-padding

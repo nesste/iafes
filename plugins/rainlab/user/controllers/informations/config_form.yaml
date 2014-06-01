@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: User Information
+form: @/plugins/rainlab/user/models/information/fields.yaml
+modelClass: RainLab\User\Models\Information
+defaultRedirect: rainlab/user/informations
+
+create:
+    redirect: rainlab/user/informations/update/:id
+    redirectClose: rainlab/user/informations
+
+update:
+    redirect: rainlab/user/informations
+    redirectClose: rainlab/user/informations
