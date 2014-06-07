@@ -3,8 +3,8 @@
 # ===================================
 
 columns:
-    name: Name
+    name:
+        label: Name
+        searchable: yes
+
     code: Code
-    enabled:
-        label: Enabled
-        type: switch

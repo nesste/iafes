@@ -18,7 +18,6 @@ function onStart(){
 	$this['news'] = false;
 	$this['search'] = $this->param('slug');
 	$search = $this['search'];
-
 	$split = explode(' ',$search);
 	$results = array();
 	for($j = 0; $j < count($split); $j++){

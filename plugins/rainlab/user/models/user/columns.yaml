@@ -6,6 +6,13 @@ columns:
     name:
         label: Name
         searchable: yes
+
+    university:
+        label: university
+        relation: university
+        select: @name
+        searchable: yes
+
     country:
         label: Country
         relation: country

@@ -63,6 +63,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('rainlab/user/locations'),
                         'permissions' => ['user:access_locations'],
                     ],
+                     'universities' => [
+                        'label'       => 'All Universities',
+                        'icon'        => 'icon-globe',
+                        'url'         => Backend::url('rainlab/user/universities'),
+                        'permissions' => ['user:access_universities'],
+                    ],
                     'informations' => [
                         'label'       => 'User Information',
                         'icon'        => 'icon-user',
@@ -116,6 +122,14 @@ class Plugin extends PluginBase
                 'category'    => 'Users',
                 'icon'        => 'icon-globe',
                 'url'         => Backend::url('rainlab/user/locations'),
+                'sort'        => 100
+            ],
+            'universities' => [
+                'label'       => 'Universities',
+                'description' => 'Manage available user universities.',
+                'category'    => 'Users',
+                'icon'        => 'icon-globe',
+                'url'         => Backend::url('rainlab/user/universities'),
                 'sort'        => 100
             ],
             'informations' => [

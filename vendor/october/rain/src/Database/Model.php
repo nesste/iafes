@@ -12,6 +12,7 @@ use October\Rain\Database\Relations\BelongsToMany;
 use October\Rain\Database\Relations\HasMany;
 use October\Rain\Database\Relations\HasOne;
 use October\Rain\Database\Relations\MorphMany;
+use October\Rain\Database\Relations\MorphToMany;
 use October\Rain\Database\Relations\MorphOne;
 use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
@@ -163,6 +164,14 @@ class Model extends EloquentModel
     public $morphMany = [];
 
     /**
+     * protected $morphToMany = [
+     *     'tag' => ['Tag', 'table' => 'tagables', 'name' => 'tagable']
+     * ];
+     */
+    public $morphToMany = [];
+    public $morphedByMany = [];
+
+    /**
      * protected $attachOne = [
      *     'picture' => ['October\Rain\Database\Attach\File', 'public' => false]
      * ];
@@ -186,7 +195,7 @@ class Model extends EloquentModel
     /**
      * @var array Excepted relationship types, used to cycle and verify relationships.
      */
-    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'attachOne', 'attachMany', 'hasManyThrough'];
+    protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
      * @var string A unique session key used for deferred binding.
@@ -236,8 +245,7 @@ class Model extends EloquentModel
         if (!$this->exists) {
             $this->syncOriginal();
         }
-        else {
-            $fresh = static::find($this->getKey());
+        elseif ($fresh = static::find($this->getKey())) {
             $this->setRawAttributes($fresh->getAttributes(), true);
         }
 
@@ -522,6 +530,16 @@ class Model extends EloquentModel
                 $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['type'], $relation['id'], $relation['localKey'], $relationName);
                 break;
 
+            case 'morphToMany':
+                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], false, $relationName);
+                break;
+
+            case 'morphedByMany':
+                $relation = $this->validateRelationArgs($relationName, ['table', 'primaryKey', 'foreignKey', 'pivot', 'timestamps'], ['name']);
+                $relationObj = $this->$relationType($relation[0], $relation['name'], $relation['table'], $relation['primaryKey'], $relation['foreignKey'], $relationName);
+                break;
+
             case 'attachOne':
             case 'attachMany':
                 $relation = $this->validateRelationArgs($relationName, ['public', 'localKey']);
@@ -579,14 +597,14 @@ class Model extends EloquentModel
     private function applyRelationFilters($args, $relation)
     {
         /*
-         * Pivot data (belongsToMany)
+         * Pivot data (belongsToMany, morphToMany, morphByMany)
          */
         if ($pivotData = $args['pivot']) {
             $relation->withPivot($pivotData);
         }
 
         /*
-         * Pivot timestamps (belongsToMany)
+         * Pivot timestamps (belongsToMany, morphToMany, morphByMany)
          */
         if ($args['timestamps']) {
             $relation->withTimestamps();
@@ -741,7 +759,7 @@ class Model extends EloquentModel
 
     /**
      * Define a many-to-many relationship.
-     * This code is a duplicate of Eloquent but uses a Rain relation class.
+     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
      * @return \October\Rain\Database\Relations\BelongsToMany
      */
     public function belongsToMany($related, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
@@ -758,6 +776,43 @@ class Model extends EloquentModel
 
         $query = $instance->newQuery();
         return new BelongsToMany($query, $this, $table, $primaryKey, $foreignKey, $relationName);
+    }
+
+    /**
+     * Define a polymorphic many-to-many relationship.
+     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphToMany
+     */
+    public function morphToMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $inverse = false, $relationName = null)
+    {
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
+        $primaryKey = $primaryKey ?: $name.'_id';
+        $instance = new $related;
+        $foreignKey = $foreignKey ?: $instance->getForeignKey();
+
+        if (is_null($table))
+            $table = $this->joiningTable($related);
+
+        $query = $instance->newQuery();
+        return new MorphToMany($query, $this, $name, $table, $primaryKey, $foreignKey, $relationName, $inverse);
+    }
+
+    /**
+     * Define a polymorphic many-to-many inverse relationship.
+     * This code is almost a duplicate of Eloquent but uses a Rain relation class.
+     * @return \October\Rain\Database\Relations\MorphToMany
+     */
+    public function morphedByMany($related, $name, $table = null, $primaryKey = null, $foreignKey = null, $relationName = null)
+    {
+        if (is_null($relationName))
+            $relationName = $this->getRelationCaller();
+
+        $primaryKey = $primaryKey ?: $this->getForeignKey();
+        $foreignKey = $foreignKey ?: $name.'_id';
+
+        return $this->morphToMany($related, $name, $table, $primaryKey, $foreignKey, true, $relationName);
     }
 
     /**
@@ -817,6 +872,8 @@ class Model extends EloquentModel
         switch ($relationType) {
 
             case 'belongsToMany':
+            case 'morphToMany':
+            case 'morphedByMany':
                 // Nulling the relationship
                 if (!$value) {
                     if ($this->exists) $relationObj->detach();
@@ -1099,7 +1156,7 @@ class Model extends EloquentModel
         $binding->slave_type = get_class($record);
         $binding->slave_id = $record->getKey();
         $binding->session_key = $sessionKey;
-        $binding->bind = true;
+        $binding->is_bind = true;
         $binding->save();
         return $binding;
     }
@@ -1115,7 +1172,7 @@ class Model extends EloquentModel
         $binding->slave_type = get_class($record);
         $binding->slave_id = $record->getKey();
         $binding->session_key = $sessionKey;
-        $binding->bind = false;
+        $binding->is_bind = false;
         $binding->save();
         return $binding;
     }
@@ -1163,7 +1220,7 @@ class Model extends EloquentModel
              */
             $relationObj = $this->$relationName();
 
-            if ($binding->bind)
+            if ($binding->is_bind)
                 $relationObj->add($slaveModel);
             else
                 $relationObj->remove($slaveModel);
@@ -1187,6 +1244,8 @@ class Model extends EloquentModel
             $type == 'hasMany' ||
             $type == 'hasOne' ||
             $type == 'morphMany' ||
+            $type == 'morphToMany' ||
+            $type == 'morphedByMany' ||
             $type == 'morphOne' ||
             $type == 'attachMany' ||
             $type == 'attachOne' ||
@@ -1222,7 +1281,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        if ($_attr = $this->fireEvent('model.afterGetAttribute', [$key, $attr], true))
+        if ($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true))
             return $_attr;
 
         return $attr;
@@ -1314,7 +1373,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        $this->fireEvent('model.afterSetAttribute', [$key, $value]);
+        $this->fireEvent('model.setAttribute', [$key, $value]);
 
         return $result;
     }
@@ -1446,20 +1505,22 @@ class Model extends EloquentModel
      */
     public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
     {
-        if (isset($this->{$slugAttribute}))
-            return;
+        if (!isset($this->{$slugAttribute})) {
+            if (!is_array($sourceAttributes))
+                $sourceAttributes = [$sourceAttributes];
 
-        if (!is_array($sourceAttributes))
-            $sourceAttributes = [$sourceAttributes];
+            $slugArr = [];
+            foreach ($sourceAttributes as $attribute) {
+                $slugArr[] = $this->getAttribute($attribute);
+            }
 
-        $slugArr = [];
-        foreach ($sourceAttributes as $attribute) {
-            $slugArr[] = $this->getAttribute($attribute);
+            $slug = implode(' ', $slugArr);
+            $slug = substr($slug, 0, $maxLength);
+            $slug = Str::slug($slug);
         }
-
-        $slug = implode(' ', $slugArr);
-        $slug = substr($slug, 0, $maxLength);
-        $slug = Str::slug($slug);
+        else {
+            $slug = $this->{$slugAttribute};
+        }
 
         return $this->{$slugAttribute} = $this->getUniqueAttributeValue($slugAttribute, $slug);
     }

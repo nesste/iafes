@@ -23,11 +23,19 @@ use rainlab\user\models\Financial;
 
 function onStart(){
 
+     $this['news'] = true;
+	 $this['path'] =  URL::to('/');
+     $this['slug'] = $this->param('code');
+
 	if(Auth::check()){
 	    $id = Auth::getUser()->id;
     	$this['page'] = $this->param('code');
     	$page = $this['page'];
-    	
+    	if(Auth::getUser()->avatar == null){
+    	   $this['image'] = $this['path'].'/themes/iafes/assets/images/user.jpg';
+    	}else{
+    	    $this['image'] =  Auth::getUser()->avatar->getPath();
+    	}
     	if($page == 'information'){
     	    $post = Information::where('user_id','=',$id)->first();
     	}else if($page == 'general-assembly'){
@@ -40,10 +48,7 @@ function onStart(){
 	    }
 	    
 	}
-	
-	 $this['news'] = true;
-	 $this['path'] =  URL::to('/');
-     $this['slug'] = $this->param('code');
+
 
 }
 ?>
@@ -58,7 +63,7 @@ function onStart(){
 
 {% put user %}
     {% if user %}
-        <p>Hello <a data-toggle="collapse" href="#signOut">{{ user.name }}<i class="fa fa-caret-down"></i></a></p>
+        <p>Hello <a data-toggle="collapse" href="#signOut"><img src="{{ image }}" alt="" /> {{ user.name }}<i class="fa fa-caret-down"></i></a></p>
         <ul id="signOut" class="panel-collapse collapse">
             <i class="fa fa-caret-up"></i>
             <li><a href="{{path}}/iafes-association/user/settings">Settings</a></li>

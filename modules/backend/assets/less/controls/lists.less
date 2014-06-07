@@ -51,6 +51,26 @@
 //       </table>
 //   </div>
 //
+
+//
+// List containers
+//
+
+.list-preview {
+    padding: 20px 0 0;
+    margin-bottom: 20px;
+    background: white;
+    border: 1px solid @color-list-border;
+
+    .control-list:last-child > table {
+        margin-bottom: 0;
+    }
+}
+
+//
+// List control
+//
+
 .control-list {
     p.no-data {
         padding: 18px 20px;
@@ -206,11 +226,18 @@ table.table.data {
             }
         }
 
-        tr.error {
+        tr.hidden {
             td, th, td a, th a {
-                color: #b2341c;
+                display: none;
             }
         }
+
+        tr.strike {
+            td, th, td a, th a {
+                text-decoration: line-through;
+            }
+        }
+
 
         tr.processing {
             td, th, td a, th a {
@@ -218,7 +245,13 @@ table.table.data {
             }
         }
 
-        tr.success {
+        tr.negative {
+            td, th, td a, th a {
+                color: #b2341c;
+            }
+        }
+
+        tr.positive {
             td, th, td a, th a {
                 color: #278731;
             }
@@ -232,7 +265,7 @@ table.table.data {
 
         tr.new, tr.important {
             td, th, td a, th a {
-                font-weight: bold;
+                font-weight: 600;
             }
         }
 

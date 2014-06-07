@@ -1,0 +1,13 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+
+    name:
+        label: University
+        span: auto
+
+    country:
+        label: Countries
+        type: relation

@@ -3,9 +3,6 @@
 # ===================================
 
 fields:
-    enabled:
-        label: Enabled
-        type: checkbox
 
     name:
         label: Name
@@ -14,4 +11,4 @@ fields:
     code:
         label: Code
         span: auto
-        comment: Enter a unique code to identify this country.
+        comment: Enter a unique code to identify this University.

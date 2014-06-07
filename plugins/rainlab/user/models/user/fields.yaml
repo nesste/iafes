@@ -21,14 +21,31 @@ fields:
     span: right
     label: Password Confirmation
 
+  address:
+    label: Address 
+
+  university:
+    label: University
+    span: left
+    type: relation
+    placeholder: Select a University
+
+  position:
+    label: Position
+    span: right
+    type: relation
+    placeholder: Select a Position
+
   country:
     label: Country
     type: relation
+    span: left
     placeholder: Select a Country    
 
   state:
     label: State
     type: relation
+    span: right
     placeholder: Select a State
 
 secondaryTabs:

@@ -30,7 +30,9 @@ class User extends UserBase
 
     public $belongsTo = [
     	'country' => ['RainLab\User\Models\Country', 'table' => 'rainlab_user_countries'],
-        'state' => ['RainLab\User\Models\State', 'table' => 'rainlab_user_states']
+        'state' => ['RainLab\User\Models\State', 'table' => 'rainlab_user_states'],
+        'university' => ['RainLab\User\Models\University', 'table' => 'rainlab_user_universities'],
+        'position' => ['RainLab\User\Models\Position', 'table' => 'rainlab_user_positions']
     ];
 
 
@@ -41,7 +43,7 @@ class User extends UserBase
     /**
      * @var array The attributes that are mass assignable.
      */
-    protected $fillable = ['name', 'email', 'password', 'password_confirmation'];
+    protected $fillable = ['name', 'email', 'password', 'password_confirmation','address'];
 
     /**
      * Purge attributes from data set.
@@ -81,5 +83,6 @@ class User extends UserBase
         else
             return '//www.gravatar.com/avatar/' . md5(strtolower(trim($this->email))) . '?s='.$size.'&d='.urlencode($default);
     }
+
 
 }

@@ -1,0 +1,31 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: University
+
+# Model Form Field configuration
+form: @/plugins/rainlab/user/models/university/fields.yaml
+
+# Model Class name
+modelClass: RainLab\User\Models\University
+
+# Default redirect location
+defaultRedirect: rainlab/user/universities
+
+# Create page
+create:
+    title: Create Universities
+    redirect: rainlab/user/universities/update/:id
+    redirectClose: rainlab/user/universities
+
+# Update page
+update:
+    title: Edit Universities
+    redirect: rainlab/user/universities
+    redirectClose: rainlab/user/universities
+
+# Preview page
+preview:
+    title: Preview Universities

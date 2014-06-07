@@ -32,7 +32,8 @@ class Country extends Model
      * @var array Relations
      */
     public $hasMany = [
-        'states' => ['RainLab\User\Models\State']
+        'states' => ['RainLab\User\Models\State'],
+        'universities' => ['RainLab\User\Models\University']
     ];
 
     /**

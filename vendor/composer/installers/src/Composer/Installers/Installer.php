@@ -15,12 +15,14 @@ class Installer extends LibraryInstaller
     private $supportedTypes = array(
         'agl'          => 'AglInstaller',
         'annotatecms'  => 'AnnotateCmsInstaller',
+        'bitrix'       => 'BitrixInstaller',
         'cakephp'      => 'CakePHPInstaller',
         'codeigniter'  => 'CodeIgniterInstaller',
         'concrete5'    => 'Concrete5Installer',
         'craft'        => 'CraftInstaller',
         'croogo'       => 'CroogoInstaller',
         'drupal'       => 'DrupalInstaller',
+        'dolibarr'     => 'DolibarrInstaller',
         'elgg'         => 'ElggInstaller',
         'piwik'        => 'PiwikInstaller',
         'fuel'         => 'FuelInstaller',
@@ -34,7 +36,9 @@ class Installer extends LibraryInstaller
         'mako'         => 'MakoInstaller',
         'modxevo'      => 'MODXEvoInstaller',
         'mediawiki'    => 'MediaWikiInstaller',
+        'microweber'    => 'MicroweberInstaller',
         'modulework'   => 'MODULEWorkInstaller',
+        'moodle'       => 'MoodleInstaller',
         'october'      => 'OctoberInstaller',
         'oxid'         => 'OxidInstaller',
         'phpbb'        => 'PhpBBInstaller',
@@ -51,6 +55,7 @@ class Installer extends LibraryInstaller
         'zikula'       => 'ZikulaInstaller',
         'typo3-flow'   => 'TYPO3FlowInstaller',
         'typo3-cms'    => 'TYPO3CmsInstaller',
+        'tusk'         => 'TuskInstaller',
     );
 
     /**

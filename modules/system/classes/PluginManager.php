@@ -256,6 +256,9 @@ class PluginManager
         if (!isset($this->plugins[$identifier]))
             $identifier = $this->normalizeIdentifier($identifier);
 
+        if (!isset($this->plugins[$identifier]))
+            return null;
+
         return $this->plugins[$identifier];
     }
 
@@ -346,6 +349,12 @@ class PluginManager
     //
     // Disability
     //
+
+    public function clearDisabledCache()
+    {
+        File::delete($this->metaPath.'/disabled.json');
+        $this->disabledPlugins = [];
+    }
 
     /**
      * Loads all disables plugins from the meta file.

@@ -10,6 +10,7 @@ use Cms\Classes\CmsPropertyHelper;
 use System\Classes\ApplicationException;
 use October\Rain\Support\ValidationException;
 use RainLab\User\Models\Settings as UserSettings;
+use RainLab\User\Models\University as UniversityName;
 use Exception;
 
 class Account extends ComponentBase
@@ -61,6 +62,12 @@ class Account extends ComponentBase
         }
 
         $this->page['user'] = $this->user();
+        
+
+    }
+
+    public function university(){
+        return UniversityName::where('id','=',Auth::getUser()->university_id)->first()->name;
     }
 
     /**
@@ -72,6 +79,7 @@ class Account extends ComponentBase
             return null;
 
         return Auth::getUser();
+
     }
 
     /**

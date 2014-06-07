@@ -1,0 +1,14 @@
+# ===================================
+#  List Column Definitions
+# ===================================
+
+columns:
+    name:
+        label: Name
+        searchable: yes
+
+    user:
+        label: User
+        relation: user
+        select: @name
+        searchable: yes

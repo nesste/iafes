@@ -448,17 +448,32 @@ header{
 	   .login-user{
 	       position:relative;
 	       
-	       a:hover{
-	           text-decoration:none;
+	       a{
+	           &:hover{
+    	           text-decoration:none;
+    	       }
+    	       
+    	       .image-wrapper{
+    	           display:inline-block;
+    	           float:none;
+    	           padding:0;
+    	       }
+	           
+	           img{
+	            
+	               float:none;
+	               width:25px;
+	               margin-top:-4px;
+	           }
 	       }
+	       
 	       
 	       ul{
 	           position:absolute;
 	           right:9px;
 	           top:23px;
 	           background: @main-green;
-               border: 1px solid #eee;
-               padding: 5px;
+               box-shadow: 0px 1px 2px #999;
                border-radius:3px;
                z-index:50;
                margin:0;
@@ -467,15 +482,23 @@ header{
                    position:absolute;
                    color:@main-green;
                    top:-10px;
-                   left:36px;
+                   left:46px;
                    font-size:14px;
                }
 	           
 	           li{
+	               padding: 5px 10px;
+	               
+	               &:hover{
+	                    background:#12BB61;   
+	                    border-radius:3px;
+	               }
+	               
 	               a{
 	                   cursor:pointer;
 	                   color: #fff;
 	               }
+	               
 	           }
 	       }
 	       

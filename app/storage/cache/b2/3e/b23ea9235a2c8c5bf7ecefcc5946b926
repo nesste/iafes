@@ -1,0 +1,23 @@
+9999999999s:626:"a:2:{s:5:"mtime";i:1401635365;s:7:"content";s:572:"{% if not user %}
+
+    <div class="row">
+
+        <div style="margin-top:20px;" class="col-md-12">
+            {% partial __SELF__ ~ '::signin' %}
+			<div class="forgot-password">Forgot your password? <a href="{{'/'|app}}/iafes-association/user/reset-password">click here </a>to reset it!</div>
+        </div>
+<!--
+        <div class="col-md-6">
+            <h3>Register</h3>
+            {% partial __SELF__ ~ '::register' %}
+        </div>
+-->
+    </div>
+
+{% else %}
+
+    {% partial __SELF__ ~ '::activation_check' %}
+
+    {% partial __SELF__ ~ '::update' %}
+
+{% endif %}";}";

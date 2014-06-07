@@ -1,0 +1,159 @@
+9999999999s:6569:"a:5:{s:5:"mtime";i:1401729771;s:7:"content";s:3191:"title = "search"
+url = "/search/:slug"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "3"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+==
+<?php
+use rainlab\blog\models\Post;
+use rainlab\blog\models\Tag;
+use rainlab\blog\models\Category;
+
+function onStart(){
+	$path =  URL::to('/');
+	$this['news'] = false;
+	$this['search'] = $this->param('slug');
+	$search = $this['search'];
+	$split = explode(' ',$search);
+	$results = array();
+	for($j = 0; $j < count($split); $j++){
+	    $tagName = Tag::where('slug','=',$split[$j])->first();
+	    if(isset($tagName)){
+    	    $tag = $tagName->id;
+    	    $query = Post::join('rainlab_blog_posts_tags','rainlab_blog_posts.id','=','rainlab_blog_posts_tags.post_id')
+    	           ->join('rainlab_blog_tags','rainlab_blog_posts_tags.tag_id','=','rainlab_blog_tags.id')
+    	           ->where('rainlab_blog_tags.id','=',$tag)
+    	           ->get();
+    	    for($i = 0; $i < count($query); $i++){
+    	        $query2 = Category::join('rainlab_blog_posts_categories','rainlab_blog_categories.id','=','rainlab_blog_posts_categories.category_id')
+    	                ->join('rainlab_blog_posts','rainlab_blog_posts_categories.post_id','=','rainlab_blog_posts.id')
+    	                ->where('rainlab_blog_posts.id','=',$query[$i]->post_id)
+    	                ->get();
+    	        foreach($query2 as $post){
+    	            $postName = $post->name;
+    	            $postSlug = $post->slug;
+    	            $postDate = date_create($post->published_at);
+    	            $dateFormat = date_format($postDate,'F j, Y');
+    	            $postContent = $post->content;
+    	            $categorySlug = Category::where('id','=',$post->category_id)->first()->slug;
+    	            $template = "<ul class='post-list'>
+                                    <li>
+                                        <h3><a href='$path/$categorySlug/$postSlug'> $postName </a></h3>
+                                        <p class='info'>
+                                            Posted in <a href='$path/$categorySlug'> $categorySlug </a>
+                                            on $dateFormat
+                                        </p>
+                                        <p class='content-blk'> $postContent </p>
+                                    </li>
+                                </ul>";
+                    if(!in_array($template, $results, true)){
+                        array_push($results,$template);
+                    }            
+    	        }
+    	   }
+    	   $this['template'] = $results;
+    	}else{
+    	    $this['error'] = 'No results has been found!';   
+    	}
+	}
+}
+?>
+==
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+{% put pageName %}
+    <ul class="list-inline">
+        <li><h1>Search results for: </h1></li>
+        <li><span> {{ search }} </span></li>
+    </ul>
+   
+{% endput %}
+
+{% put mainContent %}
+	{% if template|length != '0' %}
+	        {% for key in template|keys %}
+	            {{ template[key]|raw }}
+	        {% endfor %}
+	{% else %}
+	    <p>{{ error }}</p>
+	{% endif %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:6:"search";s:3:"url";s:13:"/search/:slug";s:6:"layout";s:6:"master";s:10:"components";a:1:{s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:1:"3";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}}}s:4:"code";s:2539:"
+use rainlab\blog\models\Post;
+use rainlab\blog\models\Tag;
+use rainlab\blog\models\Category;
+
+function onStart(){
+	$path =  URL::to('/');
+	$this['news'] = false;
+	$this['search'] = $this->param('slug');
+	$search = $this['search'];
+	$split = explode(' ',$search);
+	$results = array();
+	for($j = 0; $j < count($split); $j++){
+	    $tagName = Tag::where('slug','=',$split[$j])->first();
+	    if(isset($tagName)){
+    	    $tag = $tagName->id;
+    	    $query = Post::join('rainlab_blog_posts_tags','rainlab_blog_posts.id','=','rainlab_blog_posts_tags.post_id')
+    	           ->join('rainlab_blog_tags','rainlab_blog_posts_tags.tag_id','=','rainlab_blog_tags.id')
+    	           ->where('rainlab_blog_tags.id','=',$tag)
+    	           ->get();
+    	    for($i = 0; $i < count($query); $i++){
+    	        $query2 = Category::join('rainlab_blog_posts_categories','rainlab_blog_categories.id','=','rainlab_blog_posts_categories.category_id')
+    	                ->join('rainlab_blog_posts','rainlab_blog_posts_categories.post_id','=','rainlab_blog_posts.id')
+    	                ->where('rainlab_blog_posts.id','=',$query[$i]->post_id)
+    	                ->get();
+    	        foreach($query2 as $post){
+    	            $postName = $post->name;
+    	            $postSlug = $post->slug;
+    	            $postDate = date_create($post->published_at);
+    	            $dateFormat = date_format($postDate,'F j, Y');
+    	            $postContent = $post->content;
+    	            $categorySlug = Category::where('id','=',$post->category_id)->first()->slug;
+    	            $template = "<ul class='post-list'>
+                                    <li>
+                                        <h3><a href='$path/$categorySlug/$postSlug'> $postName </a></h3>
+                                        <p class='info'>
+                                            Posted in <a href='$path/$categorySlug'> $categorySlug </a>
+                                            on $dateFormat
+                                        </p>
+                                        <p class='content-blk'> $postContent </p>
+                                    </li>
+                                </ul>";
+                    if(!in_array($template, $results, true)){
+                        array_push($results,$template);
+                    }            
+    	        }
+    	   }
+    	   $this['template'] = $results;
+    	}else{
+    	    $this['error'] = 'No results has been found!';   
+    	}
+	}
+}
+";s:6:"markup";s:461:"{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+{% put pageName %}
+    <ul class="list-inline">
+        <li><h1>Search results for: </h1></li>
+        <li><span> {{ search }} </span></li>
+    </ul>
+   
+{% endput %}
+
+{% put mainContent %}
+	{% if template|length != '0' %}
+	        {% for key in template|keys %}
+	            {{ template[key]|raw }}
+	        {% endfor %}
+	{% else %}
+	    <p>{{ error }}</p>
+	{% endif %}
+{% endput %}";}";

@@ -1,0 +1,13 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+
+    name:
+        label: Position
+        span: auto
+
+    user:
+        label: User
+        type: relation
