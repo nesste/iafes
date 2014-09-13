@@ -1,0 +1,28 @@
+<div class="container">
+    <div id="slides{{ galleryId }}">
+	    {% for photo in photos.getQuery(galleryId) %}
+  		  <img src="{{ photo.getPath() }}" />
+  		{% endfor %}
+     	<a href="#" class="slidesjs-previous slidesjs-navigation"><i class="icon-chevron-left icon-large"></i></a>
+     	<a href="#" class="slidesjs-next slidesjs-navigation"><i class="icon-chevron-right icon-large"></i></a>
+    </div>
+</div>
+<script>
+$(function() {
+	$('#slides{{ galleryId }}').slidesjs({
+        width: {{ width }},
+        height: {{ height }},
+        navigation: false,
+        {% if fade %}
+        pagination: {
+          effect: "fade"
+        },
+        effect: {
+          fade: {
+            speed: {{ fadespeed }}
+          }
+        }
+      {% endif %}
+	});
+});
+</script>

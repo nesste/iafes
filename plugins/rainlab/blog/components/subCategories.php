@@ -1,13 +1,13 @@
 <?php namespace RainLab\Blog\Components;
 
 use Cms\Classes\ComponentBase;
-use RainLab\Blog\Models\subCategory as BlogSubCategory;
+use RainLab\Blog\Models\Subcategory as BlogSubCategory;
 use Cms\Classes\CmsPropertyHelper;
 use Request;
 use App;
 use DB;
 
-class subCategories extends ComponentBase
+class Subcategories extends ComponentBase
 {
     public $subCategories;
     public $subCategoryPage;
@@ -75,5 +75,13 @@ class subCategories extends ComponentBase
         }
 
         return $subCategories->get();
+    }
+
+    protected function loadPosts()
+    {
+        $currentPage = $this->param('slug');
+        App::make('paginator')->setCurrentPage($currentPage);
+
+        return $this->subCategories->posts()->paginate($this->property('postsPerPage'));
     }
 }

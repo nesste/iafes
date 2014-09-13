@@ -1,0 +1,16 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+name: Gallery
+form: @/plugins/shahiemseymor/gallery/models/galleries/fields.yaml
+modelClass: ShahiemSeymor\Gallery\Models\Galleries
+defaultRedirect: shahiemseymor/gallery/galleries
+
+create:
+    redirect: shahiemseymor/gallery/galleries/update/:id
+    redirectClose: shahiemseymor/gallery/galleries
+
+update:
+    redirect: shahiemseymor/gallery/galleries
+    redirectClose: shahiemseymor/gallery/galleries

@@ -1,18 +1,26 @@
+<div class="content">{{ blogPost.content_html|raw }}</div>
 
-{{ blogPost.content_html|raw }}
-
-<!--
-<p class="info">
-    Posted
-    {% if post.subCategories.count %} in
-        {% for subCategory in post.subCategories %}
-            <a href="{{ blogSubCategoryPage|page({'slug': subCategory.slug}) }}">{{ subCategory.name }}</a>{% if not loop.last %}, {% endif %}
+{% if blogPost.featured_images.count %}
+    <div class="featured-images text-center">
+        {% for image in blogPost.featured_images %}
+            <p>
+                <img
+                    data-src="{{ image.filename }}"
+                    src="{{ image.path }}"
+                    alt="{{ image.description }}"
+                    style="max-width: 100%" />
+            </p>
         {% endfor %}
-    {% else  %} in
+    </div>
+{% endif %}
+
+<!--<p class="info">
+    Posted
+    {% if post.categories.count %} in
         {% for category in post.categories %}
-            <a href="{{ blogCategoryPage|page({'slug': category.slug}) }}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
+            <a href="{{ category.url }}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
         {% endfor %}
     {% endif %}
-    on {{ post.publshed_at|date('M d, Y') }}
+    on {{ post.published_at|date('M d, Y') }}
 </p>
 -->

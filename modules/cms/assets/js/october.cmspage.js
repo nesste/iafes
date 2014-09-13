@@ -40,7 +40,7 @@
                 success: function(data) {
                     this.success(data).done(function(){
                         $.oc.stripeLoadIndicator.hide()
-                        $('#cms-master-tabs').ocTab('addTab', data.title, data.tab, tabId, $form.data('type-icon'))
+                        $('#cms-master-tabs').ocTab('addTab', data.tabTitle, data.tab, tabId, $form.data('type-icon'))
                     }).always(function(){
                         $.oc.stripeLoadIndicator.hide()
                     })
@@ -82,6 +82,21 @@
          */
         $('#cms-master-tabs').on('closed.oc.tab', function(event){
             updateModifiedCounter()
+
+            if ($('> div.tab-content > div.tab-pane', '#cms-master-tabs').length == 0)
+                setPageTitle('')
+        })
+
+        /*
+         * Listen for the onBeforeRequest event
+         */
+        $('#cms-master-tabs').on('oc.beforeRequest', function(event) {
+            var $form = $(event.target)
+
+            if ( $('.components .layout-cell.error-component', $form).length > 0) {
+                if (!confirm('The form contains unknown components. Their properties will be lost on save. Do you want to save the form?'))
+                    event.preventDefault()
+            }
         })
 
         /*
@@ -92,6 +107,11 @@
                 return
 
             var dataId = $(event.target).closest('li').attr('data-tab-id')
+
+            var title = $(event.target).attr('title')
+            if (title)
+                setPageTitle(title)
+
             $('#cms-side-panel [data-control=filelist]').fileList('markActive', dataId)
             $('#cms-side-panel form').trigger('oc.list.setActiveItem', [dataId])
         })
@@ -123,6 +143,9 @@
             var $primaryCollapseIcon = $('<a href="javascript:;" class="tab-collapse-icon primary"><i class="icon-chevron-down"></i></a>')
             var $primaryPanel = $('.control-tabs.primary', data.pane)
             var $secondaryPanel = $('.control-tabs.secondary', data.pane)
+            var $primaryTabContainer = $('.nav-tabs', $primaryPanel)
+
+            $primaryTabContainer.addClass('master-area')
 
             if ($primaryPanel.length > 0) {
                 $secondaryPanel.append($primaryCollapseIcon);
@@ -169,6 +192,8 @@
                 $panel.trigger('unmodified.oc.tab')
                 updateModifiedCounter()
             })
+
+            addTokenExpanderToEditor(data.pane, $form)
         })
 
         /*
@@ -202,8 +227,10 @@
                     $('[data-control=preview-button]', this).attr('href', data.pageUrl)
             }
 
-            if (data.title !== undefined)
-                $('#cms-master-tabs').ocTab('updateTitle', $(this).closest('.tab-pane'), data.title)
+            if (data.tabTitle !== undefined) {
+                $('#cms-master-tabs').ocTab('updateTitle', $(this).closest('.tab-pane'), data.tabTitle)
+                setPageTitle(data.tabTitle)
+            }
 
             var tabId = $('input[name=templateType]', this).val() + '-'
                         + $('input[name=theme]', this).val() + '-'
@@ -251,8 +278,9 @@
                },
                success: function(data) {
                     this.success(data).done(function(){
-                        $('#cms-master-tabs').ocTab('addTab', data.title, data.tab, tabId, $form.data('type-icon') + ' new-template')
+                        $('#cms-master-tabs').ocTab('addTab', data.tabTitle, data.tab, tabId, $form.data('type-icon') + ' new-template')
                         $('#layout-side-panel').trigger('close.oc.sidePanel')
+                        setPageTitle(data.tabTitle)
                     }).always(function(){
                         $.oc.stripeLoadIndicator.hide()
                     })
@@ -338,8 +366,13 @@
         })
 
         function updateComponentListClass(pane) {
-            var $componentList = $('.control-componentlist', pane)
-            $componentList.toggleClass('has-components', $('.layout', $componentList).children().length > 0)
+            var $componentList = $('.control-componentlist', pane),
+                $primaryPanel = $('.control-tabs.primary', pane),
+                $primaryTabContainer = $('.nav-tabs', $primaryPanel),
+                hasComponents = $('.layout', $componentList).children(':not(.hidden)').length > 0
+
+            $primaryTabContainer.toggleClass('component-area', hasComponents)
+            $componentList.toggleClass('has-components', hasComponents)
         }
 
         function updateFormEditorMode(pane, initialization) {
@@ -403,6 +436,54 @@
             })
         }
 
+        function addTokenExpanderToEditor(pane, $form) {
+            var group = $('[data-field-name=markup]', pane),
+                editor = $('[data-control=codeeditor]', group),
+                toolbar = editor.codeEditor('getToolbar'),
+                canExpand = false
+
+            if (editor.data('oc.tokenexpander'))
+                return
+
+            editor.tokenExpander()
+
+            var breakButton = $('<li />').prop({ 'class': 'tokenexpander-button' }).append(
+                $('<a />').prop({ 'href': 'javascript:; '}).append(
+                    $('<i />').prop({ 'class': 'icon-code-fork' })
+                )
+            )
+
+            breakButton.hide().on('click', function(){
+                handleExpandToken(editor, $form)
+                return false
+            })
+
+            $('ul:first', toolbar).prepend(breakButton)
+
+            editor
+                .on('show.oc.tokenexpander', function(){
+                    canExpand = true
+                    breakButton.show()
+                })
+                .on('hide.oc.tokenexpander', function(){
+                    canExpand = false
+                    breakButton.hide()
+                })
+                .on('dblclick', function(e){
+                    if ((e.metaKey || e.ctrlKey) && canExpand) {
+                        handleExpandToken(editor, $form)
+                    }
+                })
+        }
+
+        function handleExpandToken(editor, $form) {
+            editor.tokenExpander('expandToken', function(token, value){
+                return $form.request('onExpandMarkupToken', {
+                    data: { tokenType: token, tokenName: value }
+                })
+            })
+        }
+
         function handleMtimeMismatch(form) {
             var $form = $(form)
             $form.popup({ handler: 'onOpenConcurrencyResolveForm' })
@@ -446,7 +527,7 @@
                 success: function(data) {
                     this.success(data).done(function(){
                         $.oc.stripeLoadIndicator.hide()
-                        $('#cms-master-tabs').ocTab('updateTab', tab, data.title, data.tab)
+                        $('#cms-master-tabs').ocTab('updateTab', tab, data.tabTitle, data.tab)
                         $('#cms-master-tabs').ocTab('unmodifyTab', tab)
                         updateModifiedCounter()
                     }).always(function(){
@@ -458,6 +539,13 @@
                     $.oc.stripeLoadIndicator.hide()
                 }
             })
+        }
+
+        function setPageTitle(title) {
+            if (title.length)
+                $.oc.layout.setPageTitle(title + ' | ')
+            else
+                $.oc.layout.setPageTitle(title)
         }
 
         /*

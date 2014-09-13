@@ -4,9 +4,10 @@ use Lang;
 use Backend;
 use BackendMenu;
 use BackendAuth;
-use Cms\Classes\MarkupManager;
 use Backend\Classes\WidgetManager;
 use October\Rain\Support\ModuleServiceProvider;
+use System\Classes\SettingsManager;
+use Cms\Classes\ComponentManager;
 
 class ServiceProvider extends ModuleServiceProvider
 {
@@ -85,52 +86,12 @@ class ServiceProvider extends ModuleServiceProvider
          */
         BackendAuth::registerCallback(function($manager) {
             $manager->registerPermissions('October.Cms', [
-                'cms.manage_content'   => ['label' => 'Manage content', 'tab' => 'Cms'],
-                'cms.manage_assets'    => ['label' => 'Manage assets', 'tab' => 'Cms'],
-                'cms.manage_pages'     => ['label' => 'Manage pages', 'tab' => 'Cms'],
-                'cms.manage_layouts'   => ['label' => 'Manage layouts', 'tab' => 'Cms'],
-            ]);
-        });
-
-        /*
-         * Register markup tags
-         */
-        MarkupManager::instance()->registerCallback(function($manager){
-            $manager->registerFunctions([
-                // Global helpers
-                'post' => 'post',
-
-                // Form helpers
-                'form_ajax'         => ['Form', 'ajax'],
-                'form_open'         => ['Form', 'open'],
-                'form_close'        => ['Form', 'close'],
-                'form_token'        => ['Form', 'token'],
-                'form_session_key'  => ['Form', 'sessionKey'],
-                'form_token'        => ['Form', 'token'],
-                'form_model'        => ['Form', 'model'],
-                'form_label'        => ['Form', 'label'],
-                'form_text'         => ['Form', 'text'],
-                'form_password'     => ['Form', 'password'],
-                'form_checkbox'     => ['Form', 'checkbox'],
-                'form_radio'        => ['Form', 'radio'],
-                'form_file'         => ['Form', 'file'],
-                'form_select'       => ['Form', 'select'],
-                'form_select_range' => ['Form', 'selectRange'],
-                'form_select_month' => ['Form', 'selectMonth'],
-                'form_submit'       => ['Form', 'submit'],
-                'form_macro'        => ['Form', '__call'],
-                'form_value'        => ['Form', 'value'],
-            ]);
-
-            $manager->registerFilters([
-                // String helpers
-                'slug'     => ['Str', 'slug'],
-                'plural'   => ['Str', 'plural'],
-                'singular' => ['Str', 'singular'],
-                'finish'   => ['Str', 'finish'],
-                'snake'    => ['Str', 'snake'],
-                'camel'    => ['Str', 'camel'],
-                'studly'   => ['Str', 'studly'],
+                'cms.manage_content'   => ['label' => 'cms::lang.permissions.manage_content', 'tab' => 'Cms'],
+                'cms.manage_assets'    => ['label' => 'cms::lang.permissions.manage_assets', 'tab' => 'Cms'],
+                'cms.manage_pages'     => ['label' => 'cms::lang.permissions.manage_pages', 'tab' => 'Cms'],
+                'cms.manage_layouts'   => ['label' => 'cms::lang.permissions.manage_layouts', 'tab' => 'Cms'],
+                'cms.manage_partials'  => ['label' => 'cms::lang.permissions.manage_partials', 'tab' => 'Cms'],
+                'cms.manage_themes'    => ['label' => 'cms::lang.permissions.manage_themes', 'tab' => 'Cms']
             ]);
         });
 
@@ -141,6 +102,28 @@ class ServiceProvider extends ModuleServiceProvider
             $manager->registerFormWidget('Cms\FormWidgets\Components');
         });
 
+        /*
+         * Register settings
+         */
+        SettingsManager::instance()->registerCallback(function($manager){
+            $manager->registerSettingItems('October.Cms', [
+                'theme' => [
+                    'label'       => 'cms::lang.theme.settings_menu',
+                    'description' => 'cms::lang.theme.settings_menu_description',
+                    'category'    => SettingsManager::CATEGORY_CMS,
+                    'icon'        => 'icon-picture-o',
+                    'url'         => Backend::URL('cms/themes'),
+                    'order'       => 200
+                ]
+            ]);
+        });
+
+        /*
+         * Register components
+         */
+        ComponentManager::instance()->registerComponents(function($manager){
+            $manager->registerComponent('Cms\Classes\ViewBag', 'viewBag');
+        });
     }
 
     /**

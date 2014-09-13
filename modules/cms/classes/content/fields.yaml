@@ -9,12 +9,13 @@ fields:
     path: content_toolbar
     cssClass: collapse-visible
 
+  components: Cms\FormWidgets\Components
+
 secondaryTabs:
   stretch: true
   fields:
-    content:
+    markup:
       tab: cms::lang.editor.content
-      type: codeeditor
       stretch: true
-      options:
-        language: html
+      type: codeeditor
+      language: html

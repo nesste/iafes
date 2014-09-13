@@ -19,12 +19,12 @@
  * Service definition for Resourceviews (v1beta1).
  *
  * <p>
- * The Google Resource Views API provides views of VMs.
+ * The Resource View API allows users to create and manage logical sets of Google Compute Engine instances.
  * </p>
  *
  * <p>
  * For more information about this service, see the API
- * <a href="http://code.google.com/apis/cloud/resourceviews/v1/using_rest.html" target="_blank">Documentation</a>
+ * <a href="https://developers.google.com/compute/" target="_blank">Documentation</a>
  * </p>
  *
  * @author Google, Inc.
@@ -33,6 +33,10 @@ class Google_Service_Resourceviews extends Google_Service
 {
   /** View and manage your data across Google Cloud Platform services. */
   const CLOUD_PLATFORM = "https://www.googleapis.com/auth/cloud-platform";
+  /** View and manage your Google Compute Engine resources. */
+  const COMPUTE = "https://www.googleapis.com/auth/compute";
+  /** View your Google Compute Engine resources. */
+  const COMPUTE_READONLY = "https://www.googleapis.com/auth/compute.readonly";
   /** View and manage your Google Cloud Platform management resources and deployment status information. */
   const NDEV_CLOUDMAN = "https://www.googleapis.com/auth/ndev.cloudman";
   /** View your Google Cloud Platform management resources and deployment status information. */
@@ -464,8 +468,8 @@ class Google_Service_Resourceviews_RegionViews_Resource extends Google_Service_R
    * Specifies a nextPageToken returned by a previous list request. This token can be used to request
     * the next page of results from a previous list request.
    * @opt_param int maxResults
-   * Maximum count of results to be returned. Acceptable values are 0 to 500, inclusive. (Default:
-    * 50)
+   * Maximum count of results to be returned. Acceptable values are 0 to 5000, inclusive. (Default:
+    * 5000)
    * @return Google_Service_Resourceviews_RegionViewsListResponse
    */
   public function listRegionViews($projectName, $region, $optParams = array())
@@ -489,8 +493,8 @@ class Google_Service_Resourceviews_RegionViews_Resource extends Google_Service_R
    * Specifies a nextPageToken returned by a previous list request. This token can be used to request
     * the next page of results from a previous list request.
    * @opt_param int maxResults
-   * Maximum count of results to be returned. Acceptable values are 0 to 500, inclusive. (Default:
-    * 50)
+   * Maximum count of results to be returned. Acceptable values are 0 to 5000, inclusive. (Default:
+    * 5000)
    * @return Google_Service_Resourceviews_RegionViewsListResourcesResponse
    */
   public function listresources($projectName, $region, $resourceViewName, $optParams = array())
@@ -613,8 +617,8 @@ class Google_Service_Resourceviews_ZoneViews_Resource extends Google_Service_Res
    * Specifies a nextPageToken returned by a previous list request. This token can be used to request
     * the next page of results from a previous list request.
    * @opt_param int maxResults
-   * Maximum count of results to be returned. Acceptable values are 0 to 500, inclusive. (Default:
-    * 50)
+   * Maximum count of results to be returned. Acceptable values are 0 to 5000, inclusive. (Default:
+    * 5000)
    * @return Google_Service_Resourceviews_ZoneViewsListResponse
    */
   public function listZoneViews($projectName, $zone, $optParams = array())
@@ -638,8 +642,8 @@ class Google_Service_Resourceviews_ZoneViews_Resource extends Google_Service_Res
    * Specifies a nextPageToken returned by a previous list request. This token can be used to request
     * the next page of results from a previous list request.
    * @opt_param int maxResults
-   * Maximum count of results to be returned. Acceptable values are 0 to 500, inclusive. (Default:
-    * 50)
+   * Maximum count of results to be returned. Acceptable values are 0 to 5000, inclusive. (Default:
+    * 5000)
    * @return Google_Service_Resourceviews_ZoneViewsListResourcesResponse
    */
   public function listresources($projectName, $zone, $resourceViewName, $optParams = array())
@@ -699,6 +703,7 @@ class Google_Service_Resourceviews_Label extends Google_Model
 
 class Google_Service_Resourceviews_RegionViewsAddResourcesRequest extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $resources;
 
   public function setResources($resources)
@@ -730,6 +735,7 @@ class Google_Service_Resourceviews_RegionViewsInsertResponse extends Google_Mode
 
 class Google_Service_Resourceviews_RegionViewsListResourcesResponse extends Google_Collection
 {
+  protected $collection_key = 'members';
   public $members;
   public $nextPageToken;
 
@@ -756,6 +762,7 @@ class Google_Service_Resourceviews_RegionViewsListResourcesResponse extends Goog
 
 class Google_Service_Resourceviews_RegionViewsListResponse extends Google_Collection
 {
+  protected $collection_key = 'resourceViews';
   public $nextPageToken;
   protected $resourceViewsType = 'Google_Service_Resourceviews_ResourceView';
   protected $resourceViewsDataType = 'array';
@@ -783,6 +790,7 @@ class Google_Service_Resourceviews_RegionViewsListResponse extends Google_Collec
 
 class Google_Service_Resourceviews_RegionViewsRemoveResourcesRequest extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $resources;
 
   public function setResources($resources)
@@ -798,9 +806,11 @@ class Google_Service_Resourceviews_RegionViewsRemoveResourcesRequest extends Goo
 
 class Google_Service_Resourceviews_ResourceView extends Google_Collection
 {
+  protected $collection_key = 'members';
   public $creationTime;
   public $description;
   public $id;
+  public $kind;
   protected $labelsType = 'Google_Service_Resourceviews_Label';
   protected $labelsDataType = 'array';
   public $lastModified;
@@ -837,6 +847,16 @@ class Google_Service_Resourceviews_ResourceView extends Google_Collection
   public function getId()
   {
     return $this->id;
+  }
+
+  public function setKind($kind)
+  {
+    $this->kind = $kind;
+  }
+
+  public function getKind()
+  {
+    return $this->kind;
   }
 
   public function setLabels($labels)
@@ -902,6 +922,7 @@ class Google_Service_Resourceviews_ResourceView extends Google_Collection
 
 class Google_Service_Resourceviews_ZoneViewsAddResourcesRequest extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $resources;
 
   public function setResources($resources)
@@ -933,6 +954,7 @@ class Google_Service_Resourceviews_ZoneViewsInsertResponse extends Google_Model
 
 class Google_Service_Resourceviews_ZoneViewsListResourcesResponse extends Google_Collection
 {
+  protected $collection_key = 'members';
   public $members;
   public $nextPageToken;
 
@@ -959,6 +981,7 @@ class Google_Service_Resourceviews_ZoneViewsListResourcesResponse extends Google
 
 class Google_Service_Resourceviews_ZoneViewsListResponse extends Google_Collection
 {
+  protected $collection_key = 'resourceViews';
   public $nextPageToken;
   protected $resourceViewsType = 'Google_Service_Resourceviews_ResourceView';
   protected $resourceViewsDataType = 'array';
@@ -986,6 +1009,7 @@ class Google_Service_Resourceviews_ZoneViewsListResponse extends Google_Collecti
 
 class Google_Service_Resourceviews_ZoneViewsRemoveResourcesRequest extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $resources;
 
   public function setResources($resources)

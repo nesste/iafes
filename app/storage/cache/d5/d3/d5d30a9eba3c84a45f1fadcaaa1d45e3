@@ -1,0 +1,95 @@
+9999999999s:2103:"a:5:{s:5:"mtime";i:1410102405;s:7:"content";s:948:"title = "iafes-association"
+url = "/iafes-association/:slug?"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "10"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[blogPost]
+paramId = "slug"
+SparamId = "page"
+==
+<?php
+function onStart(){
+	
+	$this['page'] = 'iafes-association';
+	
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    $this['news'] = true;
+	
+}
+?>
+==
+{% put nav %}
+	{% partial 'iafes-nav.htm' crntPage = slug appPath = path %}
+{% endput %}
+	
+	
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+
+
+{% put mainContent %}
+    {% component 'blogPost' %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:17:"iafes-association";s:3:"url";s:25:"/iafes-association/:slug?";s:6:"layout";s:6:"master";s:10:"components";a:2:{s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:2:"10";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}s:8:"blogPost";a:2:{s:7:"paramId";s:4:"slug";s:8:"SparamId";s:4:"page";}}}s:4:"code";s:271:"
+function onStart(){
+	
+	$this['page'] = 'iafes-association';
+	
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    $this['news'] = true;
+	
+}
+";s:6:"markup";s:411:"{% put nav %}
+	{% partial 'iafes-nav.htm' crntPage = slug appPath = path %}
+{% endput %}
+	
+	
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+
+
+{% put mainContent %}
+    {% component 'blogPost' %}
+{% endput %}";}";

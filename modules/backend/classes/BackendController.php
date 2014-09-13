@@ -43,7 +43,7 @@ class BackendController extends ControllerBase
          */
         $module = isset($params[0]) ? $params[0] : 'backend';
         $controller = isset($params[1]) ? $params[1] : 'index';
-        self::$action = $action = isset($params[2]) ? $params[2] : 'index';
+        self::$action = $action = isset($params[2]) ? $this->parseAction($params[2]) : 'index';
         self::$params = $controllerParams = array_slice($params, 3);
         $controllerClass = '\\'.$module.'\Controllers\\'.$controller;
         if ($controllerObj = $this->findController($controllerClass, $action, '/modules'))
@@ -55,13 +55,13 @@ class BackendController extends ControllerBase
         if (count($params) >= 2) {
             list($author, $plugin) = $params;
             $controller = isset($params[2]) ? $params[2] : 'index';
-            self::$action = $action = isset($params[3]) ? $params[3] : 'index';
+            self::$action = $action = isset($params[3]) ? $this->parseAction($params[3]) : 'index';
             self::$params = $controllerParams = array_slice($params, 4);
             $controllerClass = '\\'.$author.'\\'.$plugin.'\Controllers\\'.$controller;
             if ($controllerObj = $this->findController($controllerClass, $action, Config::get('cms.pluginsDir', '/plugins')))
                 return $controllerObj->run($action, $controllerParams);
         }
-        
+
         /*
          * Fall back on Cms controller
          */
@@ -75,7 +75,7 @@ class BackendController extends ControllerBase
      * @param string $action Specifies a method name to execute.
      * @return ControllerBase Returns the backend controller object
      */
-    private function findController($controller, $action, $dirPrefix = null)
+    protected function findController($controller, $action, $dirPrefix = null)
     {
         /*
          * Workaround: Composer does not support case insensitivity.
@@ -96,5 +96,18 @@ class BackendController extends ControllerBase
             return $controllerObj;
 
         return false;
+    }
+
+    /**
+     * Process the action name, since dashes are not supported in PHP methods.
+     * @param  string $actionName
+     * @return string
+     */
+    protected function parseAction($actionName)
+    {
+        if (strpos($actionName, '-') !== false)
+            return camel_case($actionName);
+
+        return $actionName;
     }
 }

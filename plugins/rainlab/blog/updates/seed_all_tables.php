@@ -1,7 +1,6 @@
 <?php namespace RainLab\Blog\Updates;
 
 use RainLab\Blog\Models\Category;
-use RainLab\Blog\Models\subCategory;
 use October\Rain\Database\Updates\Seeder;
 
 class SeedAllTables extends Seeder

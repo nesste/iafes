@@ -15,20 +15,49 @@ class SettingsManager
     use \October\Rain\Support\Traits\Singleton;
 
     /**
+     * Allocated category types
+     */
+    const CATEGORY_CMS = 'system::lang.system.categories.cms';
+    const CATEGORY_MISC = 'system::lang.system.categories.misc';
+    const CATEGORY_MAIL = 'system::lang.system.categories.mail';
+    const CATEGORY_LOGS = 'system::lang.system.categories.logs';
+    const CATEGORY_SHOP = 'system::lang.system.categories.shop';
+    const CATEGORY_TEAM = 'system::lang.system.categories.team';
+    const CATEGORY_USERS = 'system::lang.system.categories.users';
+    const CATEGORY_SOCIAL = 'system::lang.system.categories.social';
+    const CATEGORY_SYSTEM = 'system::lang.system.categories.system';
+    const CATEGORY_EVENTS = 'system::lang.system.categories.events';
+    const CATEGORY_CUSTOMERS = 'system::lang.system.categories.customers';
+    const CATEGORY_MYSETTINGS = 'system::lang.system.categories.my_settings';
+
+    /**
      * @var array Cache of registration callbacks.
      */
-    private $callbacks = [];
+    protected $callbacks = [];
 
     /**
      * @var array List of registered items.
      */
-    private $items;
+    protected $items;
     
     /**
      * @var array Flat collection of all items.
      */
-    private $allItems;
+    protected $allItems;
 
+    /**
+     * @var string Active plugin or module owner.
+     */
+    protected $contextOwner;
+
+    /**
+     * @var string Active item code.
+     */
+    protected $contextItemCode;
+
+    /**
+     * @var array Settings item defaults.
+     */
     static $itemDefaults = [
         'code'        => null,
         'label'       => null,
@@ -36,7 +65,9 @@ class SettingsManager
         'icon'        => null,
         'url'         => null,
         'permissions' => [],
-        'order'       => 100
+        'order'       => 500,
+        'context'     => 'system',
+        'keywords'    => null
     ];
 
     /**
@@ -107,12 +138,40 @@ class SettingsManager
     /**
      * Returns a collection of all settings
      */
-    public function listItems()
+    public function listItems($context = null)
     {
         if ($this->items === null)
             $this->loadItems();
 
+        if ($context !== null)
+            return $this->filterByContext($this->items, $context);
+
         return $this->items;
+    }
+
+    /**
+     * Filters a set of items by a given context.
+     * @param  array $items
+     * @param  string $context
+     * @return array
+     */
+    protected function filterByContext($items, $context)
+    {
+        $filteredItems = [];
+        foreach ($items as $categoryName => $category) {
+
+            $filteredCategory = [];
+            foreach ($category as $item) {
+                $itemContext = is_array($item->context) ? $item->context : [$item->context];
+                if (in_array($context, $itemContext))
+                    $filteredCategory[] = $item;
+            }
+
+            if (count($filteredCategory))
+                $filteredItems[$categoryName] = $filteredCategory;
+        }
+
+        return $filteredItems;
     }
 
     /**
@@ -183,6 +242,33 @@ class SettingsManager
     }
 
     /**
+     * Sets the navigation context.
+     * @param string $owner Specifies the setting items owner plugin or module in the format Vendor/Module.
+     * @param string $code Specifies the settings item code.
+     */
+    public static function setContext($owner, $code)
+    {
+        $instance = self::instance();
+
+        $instance->contextOwner = strtolower($owner);
+        $instance->contextItemCode = strtolower($code);
+    }
+
+    /**
+     * Returns information about the current settings context.
+     * @return mixed Returns an object with the following fields:
+     * - itemCode
+     * - owner
+     */
+    public function getContext()
+    {
+        return (object)[
+            'itemCode' => $this->contextItemCode,
+            'owner' => $this->contextOwner 
+        ];
+    }
+
+    /**
      * Locates a setting item object by it's owner and code
      * @param string $owner
      * @param string $code
@@ -210,7 +296,7 @@ class SettingsManager
      * @param array $items A collection of setting items
      * @return array The filtered settings items
      */
-    private function filterItemPermissions($user, array $items)
+    protected function filterItemPermissions($user, array $items)
     {
         array_filter($items, function($item) use ($user) {
             if (!$item->permissions || !count($item->permissions))

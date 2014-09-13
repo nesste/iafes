@@ -1,11 +1,13 @@
 <?php namespace Backend\FormWidgets;
 
+use Str;
 use Input;
 use Validator;
 use System\Models\File;
 use System\Classes\SystemException;
 use Backend\Classes\FormWidgetBase;
 use October\Rain\Support\ValidationException;
+use Exception;
 
 /**
  * File upload field
@@ -63,15 +65,35 @@ class FileUpload extends FormWidgetBase
         $this->vars['imageWidth'] = $this->imageWidth;
     }
 
+    /**
+     * Returns the attachment relation object from the model,
+     * supports nesting via HTML array.
+     * @return Relation
+     */
+    protected function getRelationObject()
+    {
+        $model = $this->model;
+        $relations = Str::evalHtmlArray($this->columnName);
+        $lastField = array_pop($relations);
+
+        foreach ($relations as $relation) {
+            $model = $model->{$relation};
+        }
+
+        return $model->$lastField();
+    }
+
     protected function getFileList()
     {
-        $columnName = $this->columnName;
-        $list = $this->model->$columnName()->withDeferred($this->sessionKey)->orderBy('sort_order')->get();
+        $list = $this->getRelationObject()->withDeferred($this->sessionKey)->orderBy('sort_order')->get();
 
-        // Set the thumb for each file
+        /*
+         * Set the thumb for each file
+         */
         foreach ($list as $file) {
             $file->thumb = $file->getThumb($this->imageWidth, $this->imageHeight, ['mode' => 'crop']);
         }
+
         return $list;
     }
 
@@ -94,8 +116,7 @@ class FileUpload extends FormWidgetBase
     public function onRemoveAttachment()
     {
         if (($file_id = post('file_id')) && ($file = File::find($file_id))) {
-            $columnName = $this->columnName;
-            $this->model->$columnName()->remove($file, $this->sessionKey);
+            $this->getRelationObject()->remove($file, $this->sessionKey);
         }
     }
 
@@ -143,7 +164,7 @@ class FileUpload extends FormWidgetBase
 
             throw new SystemException('Unable to find file, it may no longer exist');
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             return json_encode(['error' => $ex->getMessage()]);
         }
     }
@@ -155,6 +176,14 @@ class FileUpload extends FormWidgetBase
     {
         $this->addCss('css/fileupload.css', 'core');
         $this->addJs('js/fileupload.js', 'core');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSaveData($value)
+    {
+        return FormWidgetBase::NO_SAVE_DATA;
     }
 
     /**
@@ -186,8 +215,7 @@ class FileUpload extends FormWidgetBase
             if (!$uploadedFile->isValid())
                 throw new SystemException('File is not valid');
 
-            $columnName = $this->columnName;
-            $fileRelation = $this->model->$columnName();
+            $fileRelation = $this->getRelationObject();
 
             $file = new File();
             $file->data = $uploadedFile;
@@ -200,7 +228,7 @@ class FileUpload extends FormWidgetBase
             $result = $file;
 
         }
-        catch (\Exception $ex) {
+        catch (Exception $ex) {
             $result = json_encode(['error' => $ex->getMessage()]);
         }
 

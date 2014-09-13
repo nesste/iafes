@@ -11,7 +11,7 @@ return array(
     |
     */
 
-    'activeTheme' => 'iafes',
+    'activeTheme' => 'demo',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,6 +22,30 @@ return array(
     |
     */
     'loadModules' => ['System', 'Backend', 'Cms'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sepcific plugins to disable
+    |--------------------------------------------------------------------------
+    |
+    | Specify plugin codes which will always be disabled in the application.
+    |
+    */
+    'disablePlugins' => ['Autumn.Pages'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prevents application updates
+    |--------------------------------------------------------------------------
+    |
+    | If using composer or git to download updates to the core files, set this
+    | value to 'true' to prevent the update gateway from trying to download
+    | these files again as part of the application update process. Plugins
+    | and themes will still be downloaded.
+    |
+    */
+
+    'disableCoreUpdates' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -96,7 +120,7 @@ return array(
     |
     */
 
-    'customErrorPage' => false,
+    'customErrorPage' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -114,10 +138,10 @@ return array(
 
     /*
     |--------------------------------------------------------------------------
-    | Determines if the asset minifcation is enabled.
+    | Determines if the asset minification is enabled.
     |--------------------------------------------------------------------------
     |
-    | If the minifcation is enabled, combined assets are compressed (minified).
+    | If the minification is enabled, combined assets are compressed (minified).
     | It is recommended to disable the minification during the development, and
     | enable it in the production mode.
     |
@@ -160,6 +184,17 @@ return array(
 
     /*
     |--------------------------------------------------------------------------
+    | Temporary directory
+    |--------------------------------------------------------------------------
+    |
+    | Specifies a directory used by the application for temporarily storing files.
+    |
+    */
+
+    'tempDir' => storage_path().'/temp',
+
+    /*
+    |--------------------------------------------------------------------------
     | Default permission mask
     |--------------------------------------------------------------------------
     |
@@ -168,5 +203,17 @@ return array(
     */
 
     'defaultMask' => ['file' => '777', 'folder' => '777'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Convert Line Endings
+    |--------------------------------------------------------------------------
+    |
+    | Determines if October should convert line endings from the windows style
+    | \r\n to the unix style \n.
+    |
+    */
+
+    'convertLineEndings' => false,
 
 );

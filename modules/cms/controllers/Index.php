@@ -1,25 +1,28 @@
 <?php namespace Cms\Controllers;
 
-use Config;
 use URL;
 use Lang;
 use Flash;
+use Event;
+use Config;
 use Request;
 use Response;
 use Exception;
 use BackendMenu;
-use Backend\Classes\WidgetManager;
 use Backend\Classes\Controller;
+use Backend\Classes\WidgetManager;
+use Cms\Widgets\AssetList;
 use Cms\Widgets\TemplateList;
 use Cms\Widgets\ComponentList;
-use Cms\Widgets\AssetList;
 use Cms\Classes\Page;
-use Cms\Classes\Partial;
-use Cms\Classes\Layout;
-use Cms\Classes\Content;
 use Cms\Classes\Theme;
-use System\Classes\ApplicationException;
 use Cms\Classes\Router;
+use Cms\Classes\Layout;
+use Cms\Classes\Partial;
+use Cms\Classes\Content;
+use Cms\Classes\ComponentManager;
+use Cms\Classes\ComponentPartial;
+use System\Classes\ApplicationException;
 use Backend\Traits\InspectableContainer;
 use October\Rain\Router\Router as RainRouter;
 
@@ -75,9 +78,17 @@ class Index extends Controller
         catch (Exception $ex) {
             $this->handleError($ex);
         }
+    }
 
+    //
+    // Pages
+    //
+
+    public function index()
+    {
         $this->addJs('/modules/cms/assets/js/october.cmspage.js', 'core');
         $this->addJs('/modules/cms/assets/js/october.dragcomponents.js', 'core');
+        $this->addJs('/modules/cms/assets/js/october.tokenexpander.js', 'core');
         $this->addCss('/modules/cms/assets/css/october.components.css', 'core');
 
         // Preload Ace editor modes explicitly, because they could be changed dynamically
@@ -90,14 +101,7 @@ class Index extends Controller
 
         $this->bodyClass = 'compact-container side-panel-not-fixed';
         $this->pageTitle = Lang::get('cms::lang.cms.menu_label');
-    }
-
-    //
-    // Pages
-    //
-
-    public function index()
-    {
+        $this->pageTitleTemplate = '%s CMS | October';
     }
 
     public function index_onOpenTemplate()
@@ -116,7 +120,7 @@ class Index extends Controller
         }
 
         return [
-            'title' => $this->getTabTitle($type, $template),
+            'tabTitle' => $this->getTabTitle($type, $template),
             'tab'   => $this->makePartial('form_page', [
                 'form'          => $widget,
                 'templateType'  => $type,
@@ -133,10 +137,11 @@ class Index extends Controller
         $templatePath = trim(Request::input('templatePath'));
         $template = $templatePath ? $this->loadTemplate($type, $templatePath) : $this->createTemplate($type);
 
-        $settings = $this->upgradeSettings(Request::input('settings'));
+        $settings = Request::input('settings') ?: [];
+        $settings = $this->upgradeSettings($settings);
 
         $templateData = [];
-        if (Request::input('settings'))
+        if ($settings)
             $templateData['settings'] = $settings;
 
         $fields = ['markup', 'code', 'fileName', 'content'];
@@ -157,12 +162,18 @@ class Index extends Controller
         $template->fill($templateData);
         $template->save();
 
+        /*
+         * Extensibility
+         */
+        Event::fire('cms.template.save', [$this, $template, $type]);
+        $this->fireEvent('template.save', [$template, $type]);
+
         Flash::success(Lang::get('cms::lang.template.saved'));
 
         $result = [
-            'templatePath' => $template->fileName,
+            'templatePath'  => $template->fileName,
             'templateMtime' => $template->mtime,
-            'title'        => $this->getTabTitle($type, $template)
+            'tabTitle'      => $this->getTabTitle($type, $template)
         ];
 
         if ($type == 'page') {
@@ -192,7 +203,7 @@ class Index extends Controller
         $this->vars['templatePath'] = '';
 
         return [
-            'title' => $this->getTabTitle($type, $template),
+            'tabTitle' => $this->getTabTitle($type, $template),
             'tab'   => $this->makePartial('form_page', [
                 'form'          => $widget,
                 'templateType'  => $type,
@@ -223,6 +234,12 @@ class Index extends Controller
             $error = $ex->getMessage();
         }
 
+        /*
+         * Extensibility
+         */
+        Event::fire('cms.template.delete', [$this, $type]);
+        $this->fireEvent('template.delete', [$type]);
+
         return [
             'deleted' => $deleted,
             'error'   => $error,
@@ -234,9 +251,15 @@ class Index extends Controller
     {
         $this->validateRequestTheme();
 
-        $this->loadTemplate(
-            Request::input('templateType'), 
-            trim(Request::input('templatePath')))->delete();
+        $type = Request::input('templateType');
+
+        $this->loadTemplate($type, trim(Request::input('templatePath')))->delete();
+
+        /*
+         * Extensibility
+         */
+        Event::fire('cms.template.delete', [$this, $type]);
+        $this->fireEvent('template.delete', [$type]);
     }
 
     public function onGetTemplateList()
@@ -247,6 +270,32 @@ class Index extends Controller
         return [
             'layouts' => $page->getLayoutOptions()
         ];
+    }
+
+    public function onExpandMarkupToken()
+    {
+        if (!$alias = post('tokenName'))
+            throw new ApplicationException(trans('cms::lang.component.no_records'));
+
+        // Can only expand components at this stage
+        if ((!$type = post('tokenType')) && $type != 'component')
+            return;
+
+        if (!($names = (array) post('component_names')) || !($aliases = (array) post('component_aliases')))
+            throw new ApplicationException(trans('cms::lang.component.not_found', ['name' => $alias]));
+
+        if (($index = array_get(array_flip($aliases), $alias, false)) === false)
+            throw new ApplicationException(trans('cms::lang.component.not_found', ['name' => $alias]));
+
+        if (!$componentName = array_get($names, $index))
+            throw new ApplicationException(trans('cms::lang.component.not_found', ['name' => $alias]));
+
+        $manager = ComponentManager::instance();
+        $componentObj = $manager->makeComponent($componentName);
+        $partial = ComponentPartial::load($componentObj, 'default');
+        $content = $partial->getContent();
+        $content = str_replace('__SELF__', $alias, $content);
+        return $content;
     }
 
     //
@@ -374,7 +423,7 @@ class Index extends Controller
      * @param string $markup The markup to convert to unix style endings
      * @return string
      */
-    private function convertLineEndings($markup)
+    protected function convertLineEndings($markup)
     {
         $markup = str_replace("\r\n", "\n", $markup);
         $markup = str_replace("\r", "\n", $markup);

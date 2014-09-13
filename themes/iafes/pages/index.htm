@@ -41,15 +41,16 @@ lang = "en"
 function onStart(){
 
     $this['page'] = $this->param('page');
+    
     if($this['page'] == ''){
         $this['page'] = 'homepage';
     }
 	$page = $this['page'];
-
+   
 	$this['path'] =  URL::to('/');
     $this['slug'] = $this->param('slug');
     $slug = $this['slug'];
-    
+
     $this['menu'] = $this->param('menu');
    
     if( $page == 'homepage' || $page == 'iafes-association' || $page == 'training'  || $page == 'projects' || $page == 'home' ){
@@ -67,16 +68,10 @@ function onStart(){
 ?>
 ==
 {% put nav %}
-    {% if ( page == "iafes-association") %}
-		{% partial "iafes-nav.htm" crntPage = slug appPath = path %}
-	{% elseif ( page == "student-research-conference") or (page == "seminars-workshop") or (page == "netties-conference") or (page == "summer-schools") %}
+	{% if ( page == "student-research-conference") or (page == "seminars-workshop") or (page == "netties-conference") or (page == "summer-schools") %}
 	    {% partial "globalNav.htm" crntPage = slug appPath = path currentPage = page %}
     {% elseif ( page == "iafes") or ( page == "netties") or (page == "library") or ( page == "homepage") or (page == "home")  %}	
 	    {% partial "home-nav.htm" %}
-	{% elseif ( page == "projects") %}
-		{% partial "projects-nav.htm" %}
-	{% elseif ( page == "training") %}
-		{% partial "training-nav.htm" %}
 	{% endif %}
 {% endput %}
 
@@ -131,8 +126,8 @@ function onStart(){
                     })();
                 </script>
 	        </div>
-	    {% else %}   
-	        {% component 'subPost' %}
+	    {% else %}
+			{% component 'subPost' %}
 	    {% endif %}
 	{% endif %}
 {% endput %}

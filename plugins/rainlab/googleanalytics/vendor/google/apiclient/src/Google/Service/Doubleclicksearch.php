@@ -532,6 +532,7 @@ class Google_Service_Doubleclicksearch_Availability extends Google_Model
 
 class Google_Service_Doubleclicksearch_Conversion extends Google_Collection
 {
+  protected $collection_key = 'customMetric';
   public $adGroupId;
   public $adId;
   public $advertiserId;
@@ -791,6 +792,7 @@ class Google_Service_Doubleclicksearch_Conversion extends Google_Collection
 
 class Google_Service_Doubleclicksearch_ConversionList extends Google_Collection
 {
+  protected $collection_key = 'conversion';
   protected $conversionType = 'Google_Service_Doubleclicksearch_Conversion';
   protected $conversionDataType = 'array';
   public $kind;
@@ -870,6 +872,7 @@ class Google_Service_Doubleclicksearch_CustomMetric extends Google_Model
 
 class Google_Service_Doubleclicksearch_Report extends Google_Collection
 {
+  protected $collection_key = 'rows';
   protected $filesType = 'Google_Service_Doubleclicksearch_ReportFiles';
   protected $filesDataType = 'array';
   public $id;
@@ -973,6 +976,98 @@ class Google_Service_Doubleclicksearch_Report extends Google_Collection
   }
 }
 
+class Google_Service_Doubleclicksearch_ReportApiColumnSpec extends Google_Model
+{
+  public $columnName;
+  public $customDimensionName;
+  public $endDate;
+  public $groupByColumn;
+  public $headerText;
+  public $platformSource;
+  public $savedColumnName;
+  public $startDate;
+
+  public function setColumnName($columnName)
+  {
+    $this->columnName = $columnName;
+  }
+
+  public function getColumnName()
+  {
+    return $this->columnName;
+  }
+
+  public function setCustomDimensionName($customDimensionName)
+  {
+    $this->customDimensionName = $customDimensionName;
+  }
+
+  public function getCustomDimensionName()
+  {
+    return $this->customDimensionName;
+  }
+
+  public function setEndDate($endDate)
+  {
+    $this->endDate = $endDate;
+  }
+
+  public function getEndDate()
+  {
+    return $this->endDate;
+  }
+
+  public function setGroupByColumn($groupByColumn)
+  {
+    $this->groupByColumn = $groupByColumn;
+  }
+
+  public function getGroupByColumn()
+  {
+    return $this->groupByColumn;
+  }
+
+  public function setHeaderText($headerText)
+  {
+    $this->headerText = $headerText;
+  }
+
+  public function getHeaderText()
+  {
+    return $this->headerText;
+  }
+
+  public function setPlatformSource($platformSource)
+  {
+    $this->platformSource = $platformSource;
+  }
+
+  public function getPlatformSource()
+  {
+    return $this->platformSource;
+  }
+
+  public function setSavedColumnName($savedColumnName)
+  {
+    $this->savedColumnName = $savedColumnName;
+  }
+
+  public function getSavedColumnName()
+  {
+    return $this->savedColumnName;
+  }
+
+  public function setStartDate($startDate)
+  {
+    $this->startDate = $startDate;
+  }
+
+  public function getStartDate()
+  {
+    return $this->startDate;
+  }
+}
+
 class Google_Service_Doubleclicksearch_ReportFiles extends Google_Model
 {
   public $byteCount;
@@ -1001,7 +1096,8 @@ class Google_Service_Doubleclicksearch_ReportFiles extends Google_Model
 
 class Google_Service_Doubleclicksearch_ReportRequest extends Google_Collection
 {
-  protected $columnsType = 'Google_Service_Doubleclicksearch_ReportRequestColumns';
+  protected $collection_key = 'orderBy';
+  protected $columnsType = 'Google_Service_Doubleclicksearch_ReportApiColumnSpec';
   protected $columnsDataType = 'array';
   public $downloadFormat;
   protected $filtersType = 'Google_Service_Doubleclicksearch_ReportRequestFilters';
@@ -1162,84 +1258,15 @@ class Google_Service_Doubleclicksearch_ReportRequest extends Google_Collection
   }
 }
 
-class Google_Service_Doubleclicksearch_ReportRequestColumns extends Google_Model
-{
-  public $columnName;
-  public $endDate;
-  public $groupByColumn;
-  public $headerText;
-  public $savedColumnName;
-  public $startDate;
-
-  public function setColumnName($columnName)
-  {
-    $this->columnName = $columnName;
-  }
-
-  public function getColumnName()
-  {
-    return $this->columnName;
-  }
-
-  public function setEndDate($endDate)
-  {
-    $this->endDate = $endDate;
-  }
-
-  public function getEndDate()
-  {
-    return $this->endDate;
-  }
-
-  public function setGroupByColumn($groupByColumn)
-  {
-    $this->groupByColumn = $groupByColumn;
-  }
-
-  public function getGroupByColumn()
-  {
-    return $this->groupByColumn;
-  }
-
-  public function setHeaderText($headerText)
-  {
-    $this->headerText = $headerText;
-  }
-
-  public function getHeaderText()
-  {
-    return $this->headerText;
-  }
-
-  public function setSavedColumnName($savedColumnName)
-  {
-    $this->savedColumnName = $savedColumnName;
-  }
-
-  public function getSavedColumnName()
-  {
-    return $this->savedColumnName;
-  }
-
-  public function setStartDate($startDate)
-  {
-    $this->startDate = $startDate;
-  }
-
-  public function getStartDate()
-  {
-    return $this->startDate;
-  }
-}
-
 class Google_Service_Doubleclicksearch_ReportRequestFilters extends Google_Collection
 {
-  protected $columnType = 'Google_Service_Doubleclicksearch_ReportRequestFiltersColumn';
+  protected $collection_key = 'values';
+  protected $columnType = 'Google_Service_Doubleclicksearch_ReportApiColumnSpec';
   protected $columnDataType = '';
   public $operator;
   public $values;
 
-  public function setColumn(Google_Service_Doubleclicksearch_ReportRequestFiltersColumn $column)
+  public function setColumn(Google_Service_Doubleclicksearch_ReportApiColumnSpec $column)
   {
     $this->column = $column;
   }
@@ -1270,39 +1297,13 @@ class Google_Service_Doubleclicksearch_ReportRequestFilters extends Google_Colle
   }
 }
 
-class Google_Service_Doubleclicksearch_ReportRequestFiltersColumn extends Google_Model
-{
-  public $columnName;
-  public $savedColumnName;
-
-  public function setColumnName($columnName)
-  {
-    $this->columnName = $columnName;
-  }
-
-  public function getColumnName()
-  {
-    return $this->columnName;
-  }
-
-  public function setSavedColumnName($savedColumnName)
-  {
-    $this->savedColumnName = $savedColumnName;
-  }
-
-  public function getSavedColumnName()
-  {
-    return $this->savedColumnName;
-  }
-}
-
 class Google_Service_Doubleclicksearch_ReportRequestOrderBy extends Google_Model
 {
-  protected $columnType = 'Google_Service_Doubleclicksearch_ReportRequestOrderByColumn';
+  protected $columnType = 'Google_Service_Doubleclicksearch_ReportApiColumnSpec';
   protected $columnDataType = '';
   public $sortOrder;
 
-  public function setColumn(Google_Service_Doubleclicksearch_ReportRequestOrderByColumn $column)
+  public function setColumn(Google_Service_Doubleclicksearch_ReportApiColumnSpec $column)
   {
     $this->column = $column;
   }
@@ -1320,32 +1321,6 @@ class Google_Service_Doubleclicksearch_ReportRequestOrderBy extends Google_Model
   public function getSortOrder()
   {
     return $this->sortOrder;
-  }
-}
-
-class Google_Service_Doubleclicksearch_ReportRequestOrderByColumn extends Google_Model
-{
-  public $columnName;
-  public $savedColumnName;
-
-  public function setColumnName($columnName)
-  {
-    $this->columnName = $columnName;
-  }
-
-  public function getColumnName()
-  {
-    return $this->columnName;
-  }
-
-  public function setSavedColumnName($savedColumnName)
-  {
-    $this->savedColumnName = $savedColumnName;
-  }
-
-  public function getSavedColumnName()
-  {
-    return $this->savedColumnName;
   }
 }
 
@@ -1478,6 +1453,11 @@ class Google_Service_Doubleclicksearch_ReportRequestTimeRange extends Google_Mod
   }
 }
 
+class Google_Service_Doubleclicksearch_ReportRow extends Google_Model
+{
+
+}
+
 class Google_Service_Doubleclicksearch_SavedColumn extends Google_Model
 {
   public $kind;
@@ -1517,6 +1497,7 @@ class Google_Service_Doubleclicksearch_SavedColumn extends Google_Model
 
 class Google_Service_Doubleclicksearch_SavedColumnList extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_Doubleclicksearch_SavedColumn';
   protected $itemsDataType = 'array';
   public $kind;
@@ -1544,6 +1525,7 @@ class Google_Service_Doubleclicksearch_SavedColumnList extends Google_Collection
 
 class Google_Service_Doubleclicksearch_UpdateAvailabilityRequest extends Google_Collection
 {
+  protected $collection_key = 'availabilities';
   protected $availabilitiesType = 'Google_Service_Doubleclicksearch_Availability';
   protected $availabilitiesDataType = 'array';
 
@@ -1560,6 +1542,7 @@ class Google_Service_Doubleclicksearch_UpdateAvailabilityRequest extends Google_
 
 class Google_Service_Doubleclicksearch_UpdateAvailabilityResponse extends Google_Collection
 {
+  protected $collection_key = 'availabilities';
   protected $availabilitiesType = 'Google_Service_Doubleclicksearch_Availability';
   protected $availabilitiesDataType = 'array';
 

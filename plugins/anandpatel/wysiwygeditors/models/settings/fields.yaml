@@ -1,0 +1,54 @@
+fields:
+  editor:
+    label: Select editor from list
+    type: dropdown
+    default: tinymce
+    span: left
+    comment: select from below list for which you want to use Wysiwyg Editors
+    options:
+       tinymce: Tiny MCE
+       ckeditor: CKEditor
+       richeditor: October`s Rich Editor
+
+
+  all_codeeditor_as_wysiwyg:
+      label: All Code Editors
+      type: switch
+      span: left
+      comment: Replace all instance of Code Editor to Wysiwyg Editor including all plugins, CMS (pages, layout, partials, content)
+      default: false
+
+  all_codeeditor_except_page_layout_as_wysiwyg:
+      label: All codeeditor except CMS (Page,Layout)
+      type: switch
+      span: right
+      default: false
+      comment: replace all instance of Code Editor to Wysiwyg Editor including all plugins, CMS(partials,content)
+
+  cms_page_as_wysiwyg:
+      label: CMS - Page
+      type: switch
+      span: left
+      default: false
+      comment: Use Wysiwyg editor in CMS page
+
+  cms_content_as_wysiwyg:
+    label: CMS - Content
+    type: switch
+    span: right
+    default: false
+    comment: Use Wysiwyg editor in CMS Content
+
+  cms_partial_as_wysiwyg:
+      label: CMS - Partial
+      type: switch
+      span: left
+      default: false
+      comment: Use Wysiwyg editor in CMS Partial
+
+  cms_layout_as_wysiwyg:
+      label: CMS - Layout
+      type: switch
+      span: right
+      default: false
+      comment: Use Wysiwyg editor in CMS Layout

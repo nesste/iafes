@@ -17,6 +17,7 @@ class Installer extends LibraryInstaller
         'annotatecms'  => 'AnnotateCmsInstaller',
         'bitrix'       => 'BitrixInstaller',
         'cakephp'      => 'CakePHPInstaller',
+        'chef'         => 'ChefInstaller',
         'codeigniter'  => 'CodeIgniterInstaller',
         'concrete5'    => 'Concrete5Installer',
         'craft'        => 'CraftInstaller',
@@ -45,6 +46,8 @@ class Installer extends LibraryInstaller
         'piwik'        => 'PiwikInstaller',
         'pimcore'      => 'PimcoreInstaller',
         'ppi'          => 'PPIInstaller',
+        'puppet'       => 'PuppetInstaller',
+        'redaxo'       => 'RedaxoInstaller',
         'roundcube'    => 'RoundcubeInstaller',
         'shopware'     => 'ShopwareInstaller',
         'silverstripe' => 'SilverStripeInstaller',
@@ -139,7 +142,7 @@ class Installer extends LibraryInstaller
         if (!empty($this->supportedTypes[$frameworkType])) {
             $frameworkClass = 'Composer\\Installers\\' . $this->supportedTypes[$frameworkType];
             /** @var BaseInstaller $framework */
-            $framework = new $frameworkClass;
+            $framework = new $frameworkClass(null, $this->composer);
             $locations = array_keys($framework->getLocations());
             $pattern = $locations ? '(' . implode('|', $locations) . ')' : false;
         }

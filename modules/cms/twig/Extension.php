@@ -9,7 +9,7 @@ use Twig_SimpleFilter;
 use Twig_SimpleFunction;
 use Cms\Classes\Controller;
 use Cms\Classes\CmsException;
-use Cms\Classes\MarkupManager;
+use System\Classes\ApplicationException;
 
 /**
  * The CMS Twig extension class implements the basic CMS Twig functions and filters.
@@ -22,12 +22,7 @@ class Extension extends Twig_Extension
     /**
      * @var \Cms\Classes\Controller A reference to the CMS controller.
      */
-    private $controller;
-
-    /**
-     * @var \Cms\Classes\MarkupManager A reference to the markup manager instance.
-     */
-    private $markupManager;
+    protected $controller;
 
     /**
      * Creates the extension instance.
@@ -36,7 +31,6 @@ class Extension extends Twig_Extension
     public function __construct(Controller $controller)
     {
         $this->controller = $controller;
-        $this->markupManager = MarkupManager::instance();
     }
 
     /**
@@ -56,25 +50,13 @@ class Extension extends Twig_Extension
      */
     public function getFunctions()
     {
-        $functions = [
+        return [
             new Twig_SimpleFunction('page', [$this, 'pageFunction'], ['is_safe' => ['html']]),
             new Twig_SimpleFunction('partial', [$this, 'partialFunction'], ['is_safe' => ['html']]),
             new Twig_SimpleFunction('content', [$this, 'contentFunction'], ['is_safe' => ['html']]),
             new Twig_SimpleFunction('component', [$this, 'componentFunction'], ['is_safe' => ['html']]),
             new Twig_SimpleFunction('placeholder', [$this, 'placeholderFunction'], ['is_safe' => ['html']]),
         ];
-
-        /*
-         * Include extensions provided by plugins
-         */
-        foreach ($this->markupManager->listFunctions() as $name => $callable) {
-            if (!is_callable($callable))
-                continue;
-
-            $functions[] = new Twig_SimpleFunction($name, $callable, ['is_safe' => ['html']]);
-        }
-
-        return $functions;
     }
 
     /**
@@ -84,23 +66,10 @@ class Extension extends Twig_Extension
      */
     public function getFilters()
     {
-        $filters = [
-            new Twig_SimpleFilter('app', [$this, 'appFilter'], ['is_safe' => ['html']]),
+        return [
             new Twig_SimpleFilter('page', [$this, 'pageFilter'], ['is_safe' => ['html']]),
             new Twig_SimpleFilter('theme', [$this, 'themeFilter'], ['is_safe' => ['html']]),
         ];
-
-        /*
-         * Include extensions provided by plugins
-         */
-        foreach ($this->markupManager->listFilters() as $name => $callable) {
-            if (!is_callable($callable))
-                continue;
-
-            $filters[] = new Twig_SimpleFilter($name, $callable, ['is_safe' => ['html']]);
-        }
-
-        return $filters;
     }
 
     /**
@@ -110,7 +79,7 @@ class Extension extends Twig_Extension
      */
     public function getTokenParsers()
     {
-        $parsers = [
+        return [
             new PageTokenParser,
             new PartialTokenParser,
             new ContentTokenParser,
@@ -123,16 +92,6 @@ class Extension extends Twig_Extension
             new ScriptsTokenParser,
             new StylesTokenParser,
         ];
-
-        $extraParsers = $this->markupManager->listTokenParsers();
-        foreach ($extraParsers as $obj) {
-            if (!$obj instanceof Twig_TokenParser)
-                continue;
-
-            $parsers[] = $obj;
-        }
-
-        return $parsers;
     }
 
     /**
@@ -211,16 +170,6 @@ class Extension extends Twig_Extension
     }
 
     /**
-     * Converts supplied URL to one relative to the website root.
-     * @param mixed $url Specifies the application-relative URL
-     * @return string
-     */
-    public function appFilter($url)
-    {
-        return URL::to($url);
-    }
-
-    /**
      * Looks up the URL for a supplied page and returns it relative to the website root.
      * @param mixed $name Specifies the Cms Page file name.
      * @param array $parameters Route parameters to consider in the URL.
@@ -260,8 +209,8 @@ class Extension extends Twig_Extension
     /**
      * Closes a layout block.
      */
-    public function endBlock()
+    public function endBlock($append = true)
     {
-        Block::endBlock();
+        Block::endBlock($append);
     }
 }

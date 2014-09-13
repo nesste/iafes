@@ -1,0 +1,56 @@
+title = "iafes-association"
+url = "/iafes-association/:slug?"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "10"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[blogPost]
+paramId = "slug"
+SparamId = "page"
+==
+<?php
+function onStart(){
+	
+	$this['page'] = 'iafes-association';
+	
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    $this['news'] = true;
+	
+}
+?>
+==
+{% put nav %}
+	{% partial 'iafes-nav.htm' crntPage = slug appPath = path %}
+{% endput %}
+	
+	
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+
+
+{% put mainContent %}
+    {% component 'blogPost' %}
+{% endput %}

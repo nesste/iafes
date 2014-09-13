@@ -18,10 +18,21 @@ recordUrl: rainlab/blog/posts/update/:id
 noRecordsMessage: backend::lang.list.no_records
 
 # Records to display per page
-recordsPerPage: 10
+recordsPerPage: 25
+
+# Displays the list column set up button
+showSetup: true
+
+# Displays the sorting link on each column
+showSorting: true
+
+# Default sorting column
+defaultSort:
+    column: published_at
+    direction: desc
 
 # Display checkboxes next to each record
-# showCheckboxes: yes
+showCheckboxes: true
 
 # Toolbar widget configuration
 toolbar:
@@ -32,5 +43,5 @@ toolbar:
     search:
         prompt: backend::lang.list.search_prompt
 
-
-
+# Filter widget configuration
+filter: config_filter.yaml

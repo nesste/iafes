@@ -1,0 +1,27 @@
+9999999999s:851:"a:2:{s:5:"mtime";i:1410607139;s:7:"content";s:797:"<div class="content">{{ blogPost.content_html|raw }}</div>
+
+{% if blogPost.featured_images.count %}
+    <div class="featured-images text-center">
+        {% for image in blogPost.featured_images %}
+            <p>
+                <img
+                    data-src="{{ image.filename }}"
+                    src="{{ image.path }}"
+                    alt="{{ image.description }}"
+                    style="max-width: 100%" />
+            </p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!--<p class="info">
+    Posted
+    {% if post.categories.count %} in
+        {% for category in post.categories %}
+            <a href="{{ category.url }}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% endif %}
+    on {{ post.published_at|date('M d, Y') }}
+</p>
+-->
+";}";

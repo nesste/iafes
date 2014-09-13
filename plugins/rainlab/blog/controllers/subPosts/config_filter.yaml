@@ -1,0 +1,18 @@
+# ===================================
+# Filter Scope Definitions
+# ===================================
+scopes:
+
+    post:
+
+        # Filter name
+        label: Post
+
+        # Model Class nameQ
+        modelClass: RainLab\Blog\Models\Post
+
+        # Model attribute to display for the name
+        nameColumn: name
+
+        # SQL Conditions
+        conditions: post_id in (:filtered)

@@ -1,4 +1,4 @@
-9999999999s:1772:"a:2:{s:5:"mtime";i:1401633582;s:7:"content";s:1717:"<ul class="post-list">
+9999999999s:1778:"a:2:{s:5:"mtime";i:1403532501;s:7:"content";s:1723:"<ul class="post-list">
     {% for post in blogPosts %}
         <li>
             {% for category in post.categories %}
@@ -13,13 +13,13 @@
                 {% endif %}
                 on {{ post.publshed_at|date('M d, Y') }}
             </p>
-            <p class="content-blk"> 
+            <span class="content-blk"> 
                 {% if post.excerpt %}
                     {{ post.excerpt }}
                 {% else %}
                    {{ post.content|raw }} 
                 {% endif %}
-            </p>
+            </span>
         </li>
     {% else %}
         <li class="no-data">{{ blogNoPostsMessage }}</li>

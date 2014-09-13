@@ -7,6 +7,7 @@ use Redirect;
 use Validator;
 use BackendAuth;
 use Backend\Models\User;
+use Backend\Models\AccessLog;
 use Backend\Classes\Controller;
 use System\Classes\VersionManager;
 use System\Classes\ApplicationException;
@@ -76,6 +77,9 @@ class Auth extends Controller
         // Load version updates
         VersionManager::instance()->updateAll();
 
+        // Log the sign in event
+        AccessLog::add($user);
+
         // Redirect to the intended page after successful sign in
         return Redirect::intended(Backend::url('backend'));
     }
@@ -130,7 +134,7 @@ class Auth extends Controller
             'link' => $link,
         ];
 
-        Mail::send('backend::emails.restore', $data, function($message) use ($user)
+        Mail::send('backend::mail.restore', $data, function($message) use ($user)
         {
             $message->to($user->email, $user->full_name)->subject(trans('backend::lang.account.password_reset'));
         });

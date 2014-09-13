@@ -73,7 +73,6 @@ class AssetList extends WidgetBase
     {
         $this->addCss('css/assetlist.css', 'core');
         $this->addJs('js/assetlist.js', 'core');
-        $this->addJs('/modules/backend/widgets/form/assets/js/form.js', 'core');
     }
 
     /**
@@ -641,7 +640,7 @@ class AssetList extends WidgetBase
                 if ($this->pathMatchesSearch($words, $path)) {
                     $result[] = (object)[
                         'type'=>'file',
-                        'path'=>$path,
+                        'path'=>File::normalizePath($path),
                         'name'=>$item->getFilename(),
                         'editable'=>in_array(strtolower($item->getExtension()), $editableAssetTypes)
                     ];

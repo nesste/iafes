@@ -16,6 +16,8 @@ class Manager
 
     protected $user;
 
+    protected $throttle = [];
+
     protected $userModel = 'October\Rain\Auth\Models\User';
 
     protected $groupModel = 'October\Rain\Auth\Models\Group';
@@ -182,7 +184,7 @@ class Manager
         if (!$user)
             throw new Exception("A user was not found with the given credentials.");
 
-        $userId = $user->getId();
+        $userId = $user->getKey();
         return $this->findThrottleByUserId($userId, $ipAddress);
     }
 
@@ -191,13 +193,17 @@ class Manager
      */
     public function findThrottleByUserId($userId, $ipAddress = null)
     {
+        $cacheKey = md5($userId.$ipAddress);
+        if (isset($this->throttle[$cacheKey]))
+            return $this->throttle[$cacheKey];
+
         $model = $this->createThrottleModel();
         $query = $model->where('user_id', '=', $userId);
 
         if ($ipAddress) {
             $query->where(function($query) use ($ipAddress) {
                 $query->where('ip_address', '=', $ipAddress);
-                $query->orWhere('ip_address', '=', NULL);
+                $query->orWhere('ip_address', '=', null);
             });
         }
 
@@ -210,7 +216,7 @@ class Manager
             $throttle->save();
         }
 
-        return $throttle;
+        return $this->throttle[$cacheKey] = $throttle;
     }
 
     //
@@ -328,7 +334,7 @@ class Manager
          * Throttle check
          */
         if ($this->useThrottle) {
-            $throttle = $this->findThrottleByUserId($user->getId());
+            $throttle = $this->findThrottleByUserId($user->getKey());
 
             if ($throttle->is_banned || $throttle->checkSuspended()) {
                 $this->logout();
@@ -355,7 +361,7 @@ class Manager
         /*
          * Create session/cookie data to persist the session
          */
-        $toPersist = [$user->getId(), $user->getPersistCode()];
+        $toPersist = [$user->getKey(), $user->getPersistCode()];
         Session::put($this->sessionKey, $toPersist);
 
         if ($remember)

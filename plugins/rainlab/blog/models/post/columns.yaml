@@ -5,35 +5,36 @@
 columns:
 
   name:
-    label: name
+    label: Name
     searchable: true
 
-  author:
-    label: Author
-    relation: user
-    select: @login
-    searchable: true
+  # author:
+  #   label: Author
+  #   relation: user
+  #   select: @login
+  #   searchable: true
 
   categories:
     label: Categories
     relation: categories
-    select: @name
+    select: name
     searchable: true
 
-  subCategories:
-    label: subCategories
-    relation: subCategories
-    select: @name
+  subcategories:
+    label: Sub categories
+    relation: subcategories
+    select: name
     searchable: true
-
 
   created_at:
     label: Created
     type: date
+    invisible: true
 
   updated_at:
     label: Updated
     type: date
+    invisible: true
 
   published_at:
     label: Published

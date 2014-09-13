@@ -39,6 +39,7 @@ class Google_Service_Mirror extends Google_Service
   public $accounts;
   public $contacts;
   public $locations;
+  public $settings;
   public $subscriptions;
   public $timeline;
   public $timeline_attachments;
@@ -164,6 +165,26 @@ class Google_Service_Mirror extends Google_Service
               'path' => 'locations',
               'httpMethod' => 'GET',
               'parameters' => array(),
+            ),
+          )
+        )
+    );
+    $this->settings = new Google_Service_Mirror_Settings_Resource(
+        $this,
+        $this->serviceName,
+        'settings',
+        array(
+          'methods' => array(
+            'get' => array(
+              'path' => 'settings/{id}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'id' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
             ),
           )
         )
@@ -526,6 +547,38 @@ class Google_Service_Mirror_Locations_Resource extends Google_Service_Resource
 }
 
 /**
+ * The "settings" collection of methods.
+ * Typical usage is:
+ *  <code>
+ *   $mirrorService = new Google_Service_Mirror(...);
+ *   $settings = $mirrorService->settings;
+ *  </code>
+ */
+class Google_Service_Mirror_Settings_Resource extends Google_Service_Resource
+{
+
+  /**
+   * Gets a single setting by ID. (settings.get)
+   *
+   * @param string $id
+   * The ID of the setting. The following IDs are valid:
+  - locale - The key to the user’s
+    * language/locale (BCP 47 identifier) that Glassware should use to render localized content.
+  -
+    * timezone - The key to the user’s current time zone region as defined in the tz database.
+    * Example: America/Los_Angeles.
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_Mirror_Setting
+   */
+  public function get($id, $optParams = array())
+  {
+    $params = array('id' => $id);
+    $params = array_merge($params, $optParams);
+    return $this->call('get', array($params), "Google_Service_Mirror_Setting");
+  }
+}
+
+/**
  * The "subscriptions" collection of methods.
  * Typical usage is:
  *  <code>
@@ -783,6 +836,7 @@ class Google_Service_Mirror_TimelineAttachments_Resource extends Google_Service_
 
 class Google_Service_Mirror_Account extends Google_Collection
 {
+  protected $collection_key = 'userData';
   protected $authTokensType = 'Google_Service_Mirror_AuthToken';
   protected $authTokensDataType = 'array';
   public $features;
@@ -881,6 +935,7 @@ class Google_Service_Mirror_Attachment extends Google_Model
 
 class Google_Service_Mirror_AttachmentsListResponse extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_Mirror_Attachment';
   protected $itemsDataType = 'array';
   public $kind;
@@ -949,6 +1004,7 @@ class Google_Service_Mirror_Command extends Google_Model
 
 class Google_Service_Mirror_Contact extends Google_Collection
 {
+  protected $collection_key = 'sharingFeatures';
   protected $acceptCommandsType = 'Google_Service_Mirror_Command';
   protected $acceptCommandsDataType = 'array';
   public $acceptTypes;
@@ -1086,6 +1142,7 @@ class Google_Service_Mirror_Contact extends Google_Collection
 
 class Google_Service_Mirror_ContactsListResponse extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_Mirror_Contact';
   protected $itemsDataType = 'array';
   public $kind;
@@ -1205,6 +1262,7 @@ class Google_Service_Mirror_Location extends Google_Model
 
 class Google_Service_Mirror_LocationsListResponse extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_Mirror_Location';
   protected $itemsDataType = 'array';
   public $kind;
@@ -1232,6 +1290,7 @@ class Google_Service_Mirror_LocationsListResponse extends Google_Collection
 
 class Google_Service_Mirror_MenuItem extends Google_Collection
 {
+  protected $collection_key = 'values';
   public $action;
   public $id;
   public $payload;
@@ -1329,6 +1388,7 @@ class Google_Service_Mirror_MenuValue extends Google_Model
 
 class Google_Service_Mirror_Notification extends Google_Collection
 {
+  protected $collection_key = 'userActions';
   public $collection;
   public $itemId;
   public $operation;
@@ -1424,8 +1484,46 @@ class Google_Service_Mirror_NotificationConfig extends Google_Model
   }
 }
 
+class Google_Service_Mirror_Setting extends Google_Model
+{
+  public $id;
+  public $kind;
+  public $value;
+
+  public function setId($id)
+  {
+    $this->id = $id;
+  }
+
+  public function getId()
+  {
+    return $this->id;
+  }
+
+  public function setKind($kind)
+  {
+    $this->kind = $kind;
+  }
+
+  public function getKind()
+  {
+    return $this->kind;
+  }
+
+  public function setValue($value)
+  {
+    $this->value = $value;
+  }
+
+  public function getValue()
+  {
+    return $this->value;
+  }
+}
+
 class Google_Service_Mirror_Subscription extends Google_Collection
 {
+  protected $collection_key = 'operation';
   public $callbackUrl;
   public $collection;
   public $id;
@@ -1530,6 +1628,7 @@ class Google_Service_Mirror_Subscription extends Google_Collection
 
 class Google_Service_Mirror_SubscriptionsListResponse extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_Mirror_Subscription';
   protected $itemsDataType = 'array';
   public $kind;
@@ -1557,6 +1656,7 @@ class Google_Service_Mirror_SubscriptionsListResponse extends Google_Collection
 
 class Google_Service_Mirror_TimelineItem extends Google_Collection
 {
+  protected $collection_key = 'recipients';
   protected $attachmentsType = 'Google_Service_Mirror_Attachment';
   protected $attachmentsDataType = 'array';
   public $bundleId;
@@ -1853,6 +1953,7 @@ class Google_Service_Mirror_TimelineItem extends Google_Collection
 
 class Google_Service_Mirror_TimelineListResponse extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_Mirror_TimelineItem';
   protected $itemsDataType = 'array';
   public $kind;

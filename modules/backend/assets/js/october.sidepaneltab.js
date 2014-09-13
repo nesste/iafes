@@ -115,7 +115,10 @@
     }
 
     SidePanelTab.prototype.updatePanelPosition = function() {
-        this.$el.height($(document).height() - this.mainNavHeight)
+        if (!this.panelFixed() || Modernizr.touch)
+            this.$el.height($(document).height() - this.mainNavHeight)
+        else 
+            this.$el.css('height', '')
 
         if (this.panelVisible && $(window).width() > this.options.breakpoint && this.panelFixed())
             this.hideSidePanel()
@@ -136,14 +139,22 @@
     SidePanelTab.prototype.fixPanel = function() {
         $(document.body).toggleClass('side-panel-not-fixed')
 
-        var fixed = this.panelFixed()
+        var self = this
 
-        fixed
-            ? this.updateActiveTab()
-            : this.hideSidePanel()
+        window.setTimeout(function() {
+            var fixed = self.panelFixed()
 
-        if (typeof(localStorage) !== 'undefined')
-            localStorage.ocSidePanelFixed = fixed ? 1 : 0
+            if (fixed) {
+                self.updateActiveTab()
+                $(document.body).addClass('side-panel-fix-shadow')
+            } else {
+                $(document.body).removeClass('side-panel-fix-shadow')
+                self.hideSidePanel()
+            }
+
+            if (typeof(localStorage) !== 'undefined')
+                localStorage.ocSidePanelFixed = fixed ? 1 : 0
+        }, 0)
     }
 
     SidePanelTab.DEFAULTS = {

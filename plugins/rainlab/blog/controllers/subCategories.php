@@ -2,9 +2,9 @@
 
 use BackendMenu;
 use Backend\Classes\Controller;
-use RainLab\Blog\Models\subCategory;
+use RainLab\Blog\Models\Subcategory;
 
-class subCategories extends Controller
+class Subcategories extends Controller
 {
     public $implement = [
         'Backend.Behaviors.FormController',
@@ -18,7 +18,7 @@ class subCategories extends Controller
     {
         parent::__construct();
 
-        BackendMenu::setContext('RainLab.Blog', 'blog', 'subCategories');
+        BackendMenu::setContext('RainLab.Blog', 'blog', 'subcategories');
     
     }
 

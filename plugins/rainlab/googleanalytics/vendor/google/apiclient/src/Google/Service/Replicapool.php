@@ -196,7 +196,32 @@ class Google_Service_Replicapool extends Google_Service
         'replicas',
         array(
           'methods' => array(
-            'get' => array(
+            'delete' => array(
+              'path' => '{projectName}/zones/{zone}/pools/{poolName}/replicas/{replicaName}',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'projectName' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'poolName' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'replicaName' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'get' => array(
               'path' => '{projectName}/zones/{zone}/pools/{poolName}/replicas/{replicaName}',
               'httpMethod' => 'GET',
               'parameters' => array(
@@ -301,7 +326,7 @@ class Google_Service_Replicapool_Pools_Resource extends Google_Service_Resource
    * @param string $zone
    * The zone for this replica pool.
    * @param string $poolName
-   * The name of the replica pool to delete.
+   * The name of the replica pool for this request.
    * @param Google_PoolsDeleteRequest $postBody
    * @param array $optParams Optional parameters.
    */
@@ -319,7 +344,7 @@ class Google_Service_Replicapool_Pools_Resource extends Google_Service_Resource
    * @param string $zone
    * The zone for this replica pool.
    * @param string $poolName
-   * The name of the replica pool to get more information about.
+   * The name of the replica pool for this request.
    * @param array $optParams Optional parameters.
    * @return Google_Service_Replicapool_Pool
    */
@@ -379,7 +404,7 @@ class Google_Service_Replicapool_Pools_Resource extends Google_Service_Resource
    * @param string $zone
    * The zone for this replica pool.
    * @param string $poolName
-   * The name of the replica pool to resize.
+   * The name of the replica pool for this request.
    * @param array $optParams Optional parameters.
    *
    * @opt_param int numReplicas
@@ -402,7 +427,7 @@ class Google_Service_Replicapool_Pools_Resource extends Google_Service_Resource
    * @param string $zone
    * The zone for this replica pool.
    * @param string $poolName
-   * The name of the replica pool to update.
+   * The name of the replica pool for this request.
    * @param Google_Template $postBody
    * @param array $optParams Optional parameters.
    */
@@ -426,6 +451,27 @@ class Google_Service_Replicapool_Replicas_Resource extends Google_Service_Resour
 {
 
   /**
+   * Deletes a replica from the pool. (replicas.delete)
+   *
+   * @param string $projectName
+   * The project ID for this request.
+   * @param string $zone
+   * The zone where the replica lives.
+   * @param string $poolName
+   * The replica pool name for this request.
+   * @param string $replicaName
+   * The name of the replica for this request.
+   * @param Google_ReplicasDeleteRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_Replicapool_Replica
+   */
+  public function delete($projectName, $zone, $poolName, $replicaName, Google_Service_Replicapool_ReplicasDeleteRequest $postBody, $optParams = array())
+  {
+    $params = array('projectName' => $projectName, 'zone' => $zone, 'poolName' => $poolName, 'replicaName' => $replicaName, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('delete', array($params), "Google_Service_Replicapool_Replica");
+  }
+  /**
    * Gets information about a specific replica. (replicas.get)
    *
    * @param string $projectName
@@ -435,7 +481,7 @@ class Google_Service_Replicapool_Replicas_Resource extends Google_Service_Resour
    * @param string $poolName
    * The replica pool name for this request.
    * @param string $replicaName
-   * The name of the replica to get more information about.
+   * The name of the replica for this request.
    * @param array $optParams Optional parameters.
    * @return Google_Service_Replicapool_Replica
    */
@@ -480,14 +526,15 @@ class Google_Service_Replicapool_Replicas_Resource extends Google_Service_Resour
    * @param string $poolName
    * The replica pool name for this request.
    * @param string $replicaName
-   * The name of the replica to restart in the pool.
+   * The name of the replica for this request.
    * @param array $optParams Optional parameters.
+   * @return Google_Service_Replicapool_Replica
    */
   public function restart($projectName, $zone, $poolName, $replicaName, $optParams = array())
   {
     $params = array('projectName' => $projectName, 'zone' => $zone, 'poolName' => $poolName, 'replicaName' => $replicaName);
     $params = array_merge($params, $optParams);
-    return $this->call('restart', array($params));
+    return $this->call('restart', array($params), "Google_Service_Replicapool_Replica");
   }
 }
 
@@ -533,6 +580,7 @@ class Google_Service_Replicapool_AccessConfig extends Google_Model
 
 class Google_Service_Replicapool_Action extends Google_Collection
 {
+  protected $collection_key = 'envVariables';
   public $commands;
   protected $envVariablesType = 'Google_Service_Replicapool_EnvVariable';
   protected $envVariablesDataType = 'array';
@@ -790,6 +838,7 @@ class Google_Service_Replicapool_Label extends Google_Model
 
 class Google_Service_Replicapool_Metadata extends Google_Collection
 {
+  protected $collection_key = 'items';
   public $fingerPrint;
   protected $itemsType = 'Google_Service_Replicapool_MetadataItem';
   protected $itemsDataType = 'array';
@@ -843,6 +892,7 @@ class Google_Service_Replicapool_MetadataItem extends Google_Model
 
 class Google_Service_Replicapool_NetworkInterface extends Google_Collection
 {
+  protected $collection_key = 'accessConfigs';
   protected $accessConfigsType = 'Google_Service_Replicapool_AccessConfig';
   protected $accessConfigsDataType = 'array';
   public $network;
@@ -957,6 +1007,7 @@ class Google_Service_Replicapool_NewDiskInitializeParams extends Google_Model
 
 class Google_Service_Replicapool_Pool extends Google_Collection
 {
+  protected $collection_key = 'targetPools';
   public $autoRestart;
   public $baseInstanceName;
   public $currentNumReplicas;
@@ -1129,6 +1180,7 @@ class Google_Service_Replicapool_Pool extends Google_Collection
 
 class Google_Service_Replicapool_PoolsDeleteRequest extends Google_Collection
 {
+  protected $collection_key = 'abandonInstances';
   public $abandonInstances;
 
   public function setAbandonInstances($abandonInstances)
@@ -1144,6 +1196,7 @@ class Google_Service_Replicapool_PoolsDeleteRequest extends Google_Collection
 
 class Google_Service_Replicapool_PoolsListResponse extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $nextPageToken;
   protected $resourcesType = 'Google_Service_Replicapool_Pool';
   protected $resourcesDataType = 'array';
@@ -1266,8 +1319,24 @@ class Google_Service_Replicapool_ReplicaStatus extends Google_Model
   }
 }
 
+class Google_Service_Replicapool_ReplicasDeleteRequest extends Google_Model
+{
+  public $abandonInstance;
+
+  public function setAbandonInstance($abandonInstance)
+  {
+    $this->abandonInstance = $abandonInstance;
+  }
+
+  public function getAbandonInstance()
+  {
+    return $this->abandonInstance;
+  }
+}
+
 class Google_Service_Replicapool_ReplicasListResponse extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $nextPageToken;
   protected $resourcesType = 'Google_Service_Replicapool_Replica';
   protected $resourcesDataType = 'array';
@@ -1295,6 +1364,7 @@ class Google_Service_Replicapool_ReplicasListResponse extends Google_Collection
 
 class Google_Service_Replicapool_ServiceAccount extends Google_Collection
 {
+  protected $collection_key = 'scopes';
   public $email;
   public $scopes;
 
@@ -1321,6 +1391,7 @@ class Google_Service_Replicapool_ServiceAccount extends Google_Collection
 
 class Google_Service_Replicapool_Tag extends Google_Collection
 {
+  protected $collection_key = 'items';
   public $fingerPrint;
   public $items;
 
@@ -1347,6 +1418,7 @@ class Google_Service_Replicapool_Tag extends Google_Collection
 
 class Google_Service_Replicapool_Template extends Google_Collection
 {
+  protected $collection_key = 'healthChecks';
   protected $actionType = 'Google_Service_Replicapool_Action';
   protected $actionDataType = '';
   protected $healthChecksType = 'Google_Service_Replicapool_HealthCheck';
@@ -1398,6 +1470,7 @@ class Google_Service_Replicapool_Template extends Google_Collection
 
 class Google_Service_Replicapool_VmParams extends Google_Collection
 {
+  protected $collection_key = 'serviceAccounts';
   public $baseInstanceName;
   public $canIpForward;
   public $description;

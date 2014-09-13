@@ -1,12 +1,13 @@
 title = "search"
-url = "/search/:slug"
+url = "/search/:slug?"
 layout = "master"
 
 [blogPosts]
+pageParam = ":page"
 postsPerPage = "3"
+noPostsMessage = "No posts found"
 categoryPage = "index"
 postPage = "index"
-noPostsMessage = "No posts found"
 ==
 <?php
 use rainlab\blog\models\Post;
@@ -18,6 +19,9 @@ function onStart(){
 	$this['news'] = false;
 	$this['search'] = $this->param('slug');
 	$search = $this['search'];
+	if($search == ''){
+		$this['search'] = 'Nothing';
+	}
 	$split = explode(' ',$search);
 	$results = array();
 	for($j = 0; $j < count($split); $j++){
@@ -38,7 +42,7 @@ function onStart(){
     	            $postSlug = $post->slug;
     	            $postDate = date_create($post->published_at);
     	            $dateFormat = date_format($postDate,'F j, Y');
-    	            $postContent = $post->content;
+    	            $postContent = $post->excerpt;
     	            $categorySlug = Category::where('id','=',$post->category_id)->first()->slug;
     	            $template = "<ul class='post-list'>
                                     <li>
@@ -57,7 +61,7 @@ function onStart(){
     	   }
     	   $this['template'] = $results;
     	}else{
-    	    $this['error'] = 'No results has been found!';   
+    	   $this['error'] = 'No results has been found!';   
     	}
 	}
 }
@@ -77,9 +81,9 @@ function onStart(){
 
 {% put mainContent %}
 	{% if template|length != '0' %}
-	        {% for key in template|keys %}
-	            {{ template[key]|raw }}
-	        {% endfor %}
+        {% for key in template|keys %}
+            {{ template[key]|raw }}
+        {% endfor %}
 	{% else %}
 	    <p>{{ error }}</p>
 	{% endif %}

@@ -6,6 +6,9 @@ use RainLab\Blog\Models\Post;
 
 class Tag extends Model
 {
+
+    use \October\Rain\Database\Traits\Validation;
+
     public $table = 'rainlab_blog_tags';
 
     /*

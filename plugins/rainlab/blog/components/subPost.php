@@ -1,18 +1,18 @@
 <?php namespace RainLab\Blog\Components;
 
 use Cms\Classes\ComponentBase;
-use RainLab\Blog\Models\subPost as BlogSubPost;
+use RainLab\Blog\Models\Subpost as BlogSubPost;
 use RainLab\Blog\Models\Post as BlogPost;
 
-class subPost extends ComponentBase
+class Subpost extends ComponentBase
 {
     public $subpost;
 
     public function componentDetails()
     {
         return [
-            'name'        => 'Blog subPost',
-            'description' => 'Displays a blog post on the page.'
+            'name'        => 'Blog Sub post',
+            'description' => 'Displays a blog sub post on the page.'
         ];
     }
 
@@ -20,7 +20,7 @@ class subPost extends ComponentBase
     {
         return [
             'SparamId' => [
-                'description' => 'The URL route parameter used for looking up the subPost by its slug.',
+                'description' => 'The URL route parameter used for looking up the Sub post by its slug.',
                 'title'       => 'subPost',
                 'default'     => 'menu',
                 'type'        => 'string'
@@ -38,6 +38,7 @@ class subPost extends ComponentBase
     {
         
         $this->subpost = $this->page['subPostBlog'] = $this->loadPost();    
+       
     }
 
     protected function loadPost()

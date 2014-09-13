@@ -3,16 +3,16 @@
 # ===================================
 
 # Model List Column configuration
-list: @/plugins/rainlab/blog/models/subCategory/columns.yaml
+list: @/plugins/rainlab/blog/models/subcategory/columns.yaml
 
 # Model Class name
-modelClass: RainLab\Blog\Models\subCategory
+modelClass: RainLab\Blog\Models\Subcategory
 
 # List Title
 title: Manage Blog subCategories
 
 # Link URL for each record
-recordUrl: rainlab/blog/subCategories/update/:id
+recordUrl: rainlab/blog/subcategories/update/:id
 
 # Message to display if the list is empty
 noRecordsMessage: backend::lang.list.no_records

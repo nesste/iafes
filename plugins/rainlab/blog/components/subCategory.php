@@ -1,22 +1,22 @@
 <?php namespace RainLab\Blog\Components;
 
 use Cms\Classes\ComponentBase;
-use RainLab\Blog\Models\subCategory as BlogSubCategory;
+use RainLab\Blog\Models\Subcategory as BlogSubCategory;
 use Cms\Classes\CmsPropertyHelper;
 use App;
 use Redirect;
 
-class subCategory extends ComponentBase
+class Subcategory extends ComponentBase
 {
-    public $subCategory;
+    public $Subcategory;
     public $postPage;
     public $posts;
 
     public function componentDetails()
     {
         return [
-            'name'        => 'Blog subCategory',
-            'description' => 'Displays posts from a specific subCategory.'
+            'name'        => 'Blog Sub category',
+            'description' => 'Displays posts from a specific Subc ategory.'
         ];
     }
 
@@ -24,7 +24,7 @@ class subCategory extends ComponentBase
     {
         return [
             'paramId' => [
-                'description' => 'The URL route parameter used for looking up the subCategory by its slug.',
+                'description' => 'The URL route parameter used for looking up the Sub category by its slug.',
                 'title'       => 'Slug param name',
                 'default'     => 'slug',
                 'type'        => 'string'
@@ -33,7 +33,7 @@ class subCategory extends ComponentBase
                 'title' => 'Post page',
                 'description' => 'Name of the blog post page file for the "Learn more" links. This property is used by the default component partial.',
                 'type'=>'dropdown',
-                'default' => '/category/subCategory'
+                'default' => '/category/Subcategory'
             ],
             'postsPerPage' => [
                 'title' => 'Posts per',
@@ -53,15 +53,15 @@ class subCategory extends ComponentBase
 
     public function getPostPageOptions()
     {
-        return CmsPropertyHelper::listPages();;
+        return Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
 
     public function onRun()
     {
-        $this->subCategory = $this->page['blogSubCategory'] = $this->loadSubCategory();
+        $this->Subcategory = $this->page['blogSubCategory'] = $this->loadSubCategory();
         $this->postPage = $this->page['blogPostPage'] = $this->property('postPage');
 
-        if ($this->subCategory) {
+        if ($this->Subcategory) {
             $this->posts = $this->page['blogPosts'] = $this->loadPosts();
 
             $currentPage = $this->param('page');
@@ -76,11 +76,4 @@ class subCategory extends ComponentBase
         return BlogSubCategory::where('slug', '=', $slug)->first();
     }
 
-    protected function loadPosts()
-    {
-        $currentPage = $this->param('page');
-        App::make('paginator')->setCurrentPage($currentPage);
-
-        return $this->subCategory->posts()->paginate($this->property('postsPerPage'));
-    }
 }

@@ -3,14 +3,14 @@
 use Auth;
 use Mail;
 use Flash;
+use Input;
 use Redirect;
 use Validator;
+use Cms\Classes\Page;
 use Cms\Classes\ComponentBase;
-use Cms\Classes\CmsPropertyHelper;
 use System\Classes\ApplicationException;
 use October\Rain\Support\ValidationException;
 use RainLab\User\Models\Settings as UserSettings;
-use RainLab\User\Models\University as UniversityName;
 use Exception;
 
 class Account extends ComponentBase
@@ -44,7 +44,7 @@ class Account extends ComponentBase
 
     public function getRedirectOptions()
     {
-        return array_merge([''=>'- none -'], CmsPropertyHelper::listPages());
+        return [''=>'- none -'] + Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
 
     /**
@@ -62,12 +62,6 @@ class Account extends ComponentBase
         }
 
         $this->page['user'] = $this->user();
-        
-
-    }
-
-    public function university(){
-        return UniversityName::where('id','=',Auth::getUser()->university_id)->first()->name;
     }
 
     /**
@@ -79,7 +73,6 @@ class Account extends ComponentBase
             return null;
 
         return Auth::getUser();
-
     }
 
     /**
@@ -126,7 +119,7 @@ class Account extends ComponentBase
          */
         $data = post();
 
-        if (!post('password_confirmation'))
+        if (!array_key_exists('password_confirmation', Input::all()))
             $data['password_confirmation'] = post('password');
 
         $rules = [
@@ -235,7 +228,7 @@ class Account extends ComponentBase
             if (!$user)
                 throw new Exception('You must be logged in first!');
 
-            if ($user->isActivated())
+            if ($user->is_activated)
                 throw new Exception('Your account is already activated!');
 
             Flash::success('Activation email has been sent to your nominated email address.');
@@ -275,7 +268,7 @@ class Account extends ComponentBase
             'code' => $code
         ];
 
-        Mail::send('rainlab.user::emails.activate', $data, function($message) use ($user)
+        Mail::send('rainlab.user::mail.activate', $data, function($message) use ($user)
         {
             $message->to($user->email, $user->name);
         });

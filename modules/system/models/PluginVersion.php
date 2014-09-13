@@ -1,11 +1,13 @@
 <?php namespace System\Models;
 
+use Lang;
 use Model;
 use Config;
 use System\Classes\PluginManager;
 
 class PluginVersion extends Model
 {
+    use \October\Rain\Database\Traits\Purgeable;
 
     public $table = 'system_plugin_versions';
 
@@ -45,7 +47,7 @@ class PluginVersion extends Model
         if ($pluginObj) {
             $pluginInfo = $pluginObj->pluginDetails();
             foreach ($pluginInfo as $attribute => $info) {
-                $this->{$attribute} = $info;
+                $this->{$attribute} = Lang::get($info);
             }
 
             if ($this->is_disabled)
@@ -54,11 +56,14 @@ class PluginVersion extends Model
                 $manager->enablePlugin($this->code, true);
 
             $this->disabledBySystem = $pluginObj->disabled;
-            $this->disabledByConfig = in_array($this->code, Config::get('cms.disablePlugins', []));
+
+            if (($configDisabled = Config::get('cms.disablePlugins')) && is_array($configDisabled)) {
+                $this->disabledByConfig = in_array($this->code, $configDisabled);
+            }
         }
         else {
             $this->name = $this->code;
-            $this->description = 'Plugin has been removed from the file system.';
+            $this->description = Lang::get('system::lang.plugins.unknown_plugin');
             $this->orphaned = true;
         }
 

@@ -5,6 +5,7 @@ use Cms\Classes\CodeBase;
 use System\Classes\SystemException;
 use Cms\Classes\FileHelper;
 use October\Rain\Support\ValidationException;
+use Cms\Classes\ViewBag;
 
 /**
  * This is a base class for CMS objects that have multiple sections - pages, partials and layouts.
@@ -47,6 +48,12 @@ class CmsCompoundObject extends CmsObject
 
     protected $settingsValidationMessages = [];
 
+    protected $viewBagValidationRules = [];
+
+    protected $viewBagValidationMessages = [];
+
+    protected $viewBagCache = false;
+
     /**
      * Loads the object from a file.
      * @param \Cms\Classes\Theme $theme Specifies the theme the object belongs to.
@@ -59,9 +66,9 @@ class CmsCompoundObject extends CmsObject
         if (($obj = parent::load($theme, $fileName)) === null)
             return null;
 
-        $parsedData = CmsException::capture($obj, 200, function() use ($obj) {
-             return SectionParser::parse($obj->content);
-        });
+        CmsException::mask($obj, 200);
+        $parsedData = SectionParser::parse($obj->content);
+        CmsException::unmask();
 
         $obj->settings = $parsedData['settings'];
         $obj->code = $parsedData['code'];
@@ -133,8 +140,8 @@ class CmsCompoundObject extends CmsObject
 
             $settingParts = explode(' ', $setting);
             $settingName = $settingParts[0];
-            if (!$manager->hasComponent($settingName))
-                continue;
+            // if (!$manager->hasComponent($settingName))
+            //     continue;
 
             $components[$setting] = $value;
             unset($this->settings[$setting]);
@@ -181,6 +188,9 @@ class CmsCompoundObject extends CmsObject
 
         $trim($this->settings);
 
+        if (array_key_exists('components', $this->settings) && count($this->settings['components']) == 0)
+            unset($this->settings['components']);
+
         $this->validate();
 
         $content = [];
@@ -201,6 +211,33 @@ class CmsCompoundObject extends CmsObject
         $this->content = trim(implode(PHP_EOL.'=='.PHP_EOL, $content));
         parent::save();
     }
+
+    /**
+     * Returns the configured view bag component.
+     * This method is used only in the back-end and for internal system needs when 
+     * the standard way to access components is not an option.
+     * @return \Cms\Classes\ViewBag Returns the view bag component instance.
+     */
+    public function getViewBag()
+    {
+        if ($this->viewBagCache !== false)
+            return $this->viewBagCache;
+
+        $componentName = 'viewBag';
+
+        if (!isset($this->settings['components'][$componentName])) {
+            $viewBag = new ViewBag(null, []);
+            $viewBag->name = $componentName;
+
+            return $this->viewBagCache = $viewBag;
+        }
+
+        return $this->viewBagCache = ComponentManager::instance()->makeComponent(
+            $componentName, 
+            null, 
+            $this->settings['components'][$componentName]);
+    }
+
 
     /**
      * Parses the settings array.
@@ -241,5 +278,11 @@ class CmsCompoundObject extends CmsObject
         $validation = Validator::make($this->settings, $this->settingsValidationRules, $this->settingsValidationMessages);
         if ($validation->fails())
             throw new ValidationException($validation);
+
+        if ($this->viewBagValidationRules && isset($this->settings['viewBag'])) {
+            $validation = Validator::make($this->settings['viewBag'], $this->viewBagValidationRules, $this->viewBagValidationMessages);
+            if ($validation->fails())
+                throw new ValidationException($validation);
+        }
     }
 }

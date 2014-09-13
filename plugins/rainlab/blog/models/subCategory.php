@@ -4,7 +4,7 @@ use Str;
 use Model;
 use RainLab\Blog\Models\Post;
 
-class subCategory extends Model
+class Subcategory extends Model
 {
     public $table = 'rainlab_blog_subcategories';
 
@@ -39,5 +39,15 @@ class subCategory extends Model
     public function postCount()
     {
         return $this->posts()->count();
+    }
+
+    public function setUrl($pageName, $controller)
+    {
+        $params = [
+            'id' => $this->id,
+            'slug' => $this->slug,
+        ];
+
+        return $this->url = $controller->pageUrl($pageName, $params);
     }
 }

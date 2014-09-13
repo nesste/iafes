@@ -3,8 +3,8 @@
 use Auth;
 use Request;
 use Redirect;
+use Cms\Classes\Page;
 use Cms\Classes\ComponentBase;
-use Cms\Classes\CmsPropertyHelper;
 use October\Rain\Support\ValidationException;
 
 class Session extends ComponentBase
@@ -43,7 +43,7 @@ class Session extends ComponentBase
 
     public function getRedirectOptions()
     {
-        return array_merge([''=>'- none -'], CmsPropertyHelper::listPages());
+        return [''=>'- none -'] + Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
 
     /**

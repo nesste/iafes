@@ -3,14 +3,14 @@
 # ===================================
 
 name: Blog subCategory
-form: @/plugins/rainlab/blog/models/subCategory/fields.yaml
-modelClass: RainLab\Blog\Models\subCategory
-defaultRedirect: rainlab/blog/subCategories
+form: @/plugins/rainlab/blog/models/subcategory/fields.yaml
+modelClass: RainLab\Blog\Models\Subcategory
+defaultRedirect: rainlab/blog/subcategories
 
 create:
-    redirect: rainlab/blog/subCategories/update/:id
-    redirectClose: rainlab/blog/subCategories
+    redirect: rainlab/blog/subcategories/update/:id
+    redirectClose: rainlab/blog/subcategories
 
 update:
-    redirect: rainlab/blog/subCategories
-    redirectClose: rainlab/blog/subCategories
+    redirect: rainlab/blog/subcategories
+    redirectClose: rainlab/blog/subcategories

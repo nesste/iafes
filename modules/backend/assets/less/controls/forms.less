@@ -13,6 +13,7 @@ label {
 .form-control {
     .transition(none);
     .box-shadow(none);
+    .border-radius(3px);
     &:focus {
         .box-shadow(none);
     }
@@ -31,10 +32,6 @@ label {
     margin-bottom: 20px;
     background: white;
     border: 1px solid #eee;
-
-    .form-group {
-        padding-bottom: 10px;
-    }
 
     >.form-group:last-child {
         padding-bottom: 0;
@@ -103,8 +100,9 @@ label {
         > label:after {
             color: @color-form-required-asterisk;
             vertical-align: super;
-            font-size: 50%;
+            font-size: 60%;
             content: " *";
+            text-shadow: 0 0 2px darken(@color-form-required-asterisk, 15%);
         }
     }
 
@@ -129,9 +127,17 @@ label {
         padding-bottom: 0;
     }
 
+    &.checkbox-field {
+        padding-bottom: 5px;
+    }
+
+    &.number-field {
+        > .form-control { text-align: right; }
+    }
+
     &.checkbox-align {
         padding-left: 23px;
-        margin-top: -21px;
+        margin-top: -5px;
     }
 
     &.no-padding {
@@ -151,7 +157,7 @@ label {
 
     .custom-checkbox,
     .custom-radio {
-        label {cursor: default;}
+        label { cursor: default; }
     }
 }
 
@@ -171,6 +177,73 @@ label {
     &.size-giant { min-height: @size-giant; }
 }
 
+.field-checkboxlist-scrollable {
+    background: white;
+    border: 1px solid @color-list-border;
+    padding-left: 15px;
+    height: @size-large + 100;
+
+    // First checkbox
+    .checkbox {
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+
+    // All others
+    .checkbox ~ .checkbox { margin-top: 0; }
+}
+
+.field-recordfinder {
+    background-color: @color-form-field-bg;
+    border: 1px solid @color-form-field-border;
+    overflow: hidden;
+    position: relative;
+    .form-control {
+        background: transparent;
+        border-color: transparent;
+        height: auto;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 8px 30px 10px 11px;
+    }
+    .btn {
+        background: transparent;
+        position: absolute;
+        right: -2px;
+        top: 50%;
+        margin-top: -44px;
+        height: 88px;
+        color: lighten(@btn-default-color, 15%);
+
+        i {
+            font-size: 14px;
+        }
+
+        &:hover {
+            color: @btn-default-color;
+        }
+    }
+    .text-muted i {
+        font-size: 14px;
+        position: relative;
+        top: 1px;
+        display: inline-block;
+        margin: 0 2px;
+    }
+    .primary {
+        font-weight: 600;
+    }
+}
+
+.recordfinder-search {
+    background-position: right -81px !important;
+    border-top: none  !important;
+    border-left: none  !important;
+    border-right: none  !important;
+    border-radius: 0;
+}
+
 .form-buttons {
     .clearfix();
     padding-bottom: 20px;
@@ -183,6 +256,10 @@ label {
     .pull-right {
         margin-right: 0;
         margin-left: 10px;
+    }
+
+    &.buttons-offset {
+        padding-left: 20px;
     }
 }
 
@@ -202,12 +279,13 @@ label {
 .custom-checkbox,
 .custom-radio {
     padding-left: 23px;
+    margin-top: 0;
 
     input[type=radio],
     input[type=checkbox] {
         display: none;
     }
-    
+
     label {
         display: inline-block;
         cursor: pointer;
@@ -264,6 +342,10 @@ label {
             border-color: @color-focus;
         }
     }
+
+    p.help-block {
+        margin-top: 0;
+    }
 }
 
 .custom-radio label:before {
@@ -280,18 +362,19 @@ label {
 
 .switch-field {
     .field-switch {
-        padding-left: 105px;
+        padding-left: 75px;
         float: left;
     }
 }
 
 .custom-switch {
     display: block;
-    width: 90px;
-    height: 25px;
+    width: 58px;
+    height: 26px;
     position: relative;
     text-transform: uppercase;
-    border: 1px solid @color-custom-input-border;
+    border: none;
+    cursor: pointer;
     .border-radius(3px);
 
     * { .box-sizing(border-box); }
@@ -300,12 +383,12 @@ label {
         z-index: 4;
         display: block;
         position: absolute;
-        right: 50%;
-        top: 0;
-        width: 50%;
-        height: 100%;
+        right: 34px;
+        top: 2px;
+        width: 22px;
+        height: 22px;
         background-color: @color-switch-input-bg;
-        .border-radius(3px);
+        .border-radius(20px);
         .transition(all 0.1s);
     }
 
@@ -327,11 +410,19 @@ label {
         position: absolute;
         .opacity(0);
         &:checked {
-            ~ .slide-button { right: 0%; }
+            ~ .slide-button { 
+                right: 2px; 
+            }
             ~ span { background-color: @color-switch-input-on; }
             ~ span span {
-                &:first-of-type { color: #FFFFFF; }
-                &:last-of-type { color: #666666; }
+                &:first-of-type { 
+                    color: #FFFFFF;
+                    display: block;
+                }
+                &:last-of-type {
+                    color: #666666;
+                    display: none;
+                }
             }
         }
     }
@@ -343,19 +434,28 @@ label {
         left: 0;
         width: 100%;
         background-color: @color-switch-input-off;
+        font-size: 11px;
         .user-select(none);
-        .border-radius(3px);
+        .border-radius(20px);
 
         span {
             z-index: 5;
             display: block;
             width: 50%;
             position: absolute;
-            top: 0;
+            top: 1px;
             left: 0;
-            text-align: center;
-            &:last-child { left: 50%; color: #FFFFFF; }
-            &:first-of-type { color: #666666; }
+            .box-sizing(border-box);
+            &:last-child {
+                left: 50%; 
+                color: #FFFFFF;
+                display: block;
+            }
+            &:first-of-type {
+                padding-left: 9px;
+                display: none;
+                color: #666666;
+            }
         }
     }
 }
@@ -416,7 +516,7 @@ label {
                 background: transparent;
                 border-left: none;
                 b {
-                    background: none;
+                    background: none !important;
                     text-align: center;
                     color: @color-custom-input-icon;
                     &:before { .icon(@angle-down); }
@@ -442,7 +542,7 @@ label {
 
     &.select2-container.select2-dropdown-open,
     &.select2-container.select2-dropdown-open.select2-drop-above {
-        .select2-choice { 
+        .select2-choice {
             background: @color-custom-select-bg;
             .select2-arrow {
                 border-left-color: transparent;
@@ -451,6 +551,50 @@ label {
                 }
             }
         }
+    }
+}
+
+//
+// Multi select
+//
+
+.select2-container-multi {
+    &.form-control {
+        height: auto;
+    }
+
+    .select2-choices {
+        min-height: 28px;
+        line-height: 28px;
+        padding-left: 10px;
+        background: none;
+
+        .select2-search-choice {
+            background: none;
+            padding: 8px 15px;
+            margin: 4px 0 4px 5px;
+            .box-shadow(none);
+            .transition(.25s linear);
+
+            &:hover {
+                padding: 8px 7px 8px 23px;
+                .select2-search-choice-close {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    .select2-search-choice-close {
+        .transition(.25s linear);
+        opacity: 0;
+        left: 7px;
+    }
+}
+
+.select2-drop-multi {
+    .select2-no-results {
+        padding: 7px;
     }
 }
 
@@ -486,7 +630,7 @@ label {
             min-height: 36px;
             border: none;
             border-bottom: 1px solid @color-custom-select-border;
-            background: transparent url('../images/bitmap-icons.png') no-repeat 100% -84px;
+            background: transparent url('../images/bitmap-icons.png') no-repeat 100% -84px !important;
         }
     }
 

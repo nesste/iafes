@@ -23,7 +23,7 @@ class Settings extends Controller
     /**
      * @var WidgetBase Reference to the widget object.
      */
-    private $formWidget;
+    protected $formWidget;
 
     public $requiredPermissions = ['system.manage_settings'];
 
@@ -38,8 +38,16 @@ class Settings extends Controller
 
     public function index()
     {
-        $this->pageTitle = 'Settings';
-        $this->vars['items'] = SettingsManager::instance()->listItems();
+        $this->pageTitle = Lang::get('system::lang.settings.menu_label');
+        $this->vars['items'] = SettingsManager::instance()->listItems('system');
+        $this->bodyClass = 'compact-container sidenav-tree-root';
+    }
+
+    public function mysettings()
+    {
+        BackendMenu::setContextSideMenu('mysettings');
+        $this->pageTitle = Lang::get('backend::lang.mysettings.menu_label');
+        $this->vars['items'] = SettingsManager::instance()->listItems('mysettings');
         $this->bodyClass = 'compact-container';
     }
 
@@ -49,9 +57,20 @@ class Settings extends Controller
 
     public function update($author, $plugin, $code = null)
     {
+        SettingsManager::setContext($author.'.'.$plugin, $code);
+
         try {
             $item = $this->findSettingItem($author, $plugin, $code);
             $this->pageTitle = $item->label;
+
+            if ($item->context == 'mysettings') {
+                $this->vars['parentLink'] = Backend::url('system/settings/mysettings');
+                $this->vars['parentLabel'] = Lang::get('backend::lang.mysettings.menu_label');
+            }
+            else {
+                $this->vars['parentLink'] = Backend::url('system/settings');
+                $this->vars['parentLabel'] = Lang::get('system::lang.settings.menu_label');
+            }
 
             $model = $this->createModel($item);
             $this->initWidgets($model);
@@ -75,8 +94,10 @@ class Settings extends Controller
 
         Flash::success(Lang::get('system::lang.settings.update_success', ['name' => Lang::get($item->label)]));
 
-        if ($redirect = Backend::Url('system/settings'))
-            return Redirect::to($redirect);
+        if ($item->context == 'mysettings')
+            return Redirect::to(Backend::url('system/settings/mysettings'));
+        else
+            return Redirect::to(Backend::url('system/settings'));
     }
 
     /**
@@ -123,7 +144,7 @@ class Settings extends Controller
     /**
      * Locates a setting item for a module or plugin
      */
-    private function findSettingItem($author, $plugin, $code)
+    protected function findSettingItem($author, $plugin, $code)
     {
         $manager = SettingsManager::instance();
 

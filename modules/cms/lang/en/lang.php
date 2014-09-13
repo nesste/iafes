@@ -5,22 +5,28 @@ return [
         'invalid_file' => 'Invalid file name: :name. File names can contain only alphanumeric symbols, underscores, dashes and dots. Some examples of correct file names: page.htm, page, subdirectory/page',
         'invalid_property' => 'The property ":name" cannot be set',
         'file_already_exists' => 'File ":name" already exists.',
-        'error_saving' => 'Error saving file ":name".',
-        'error_creating_directory' => 'Error creating directory :name',
+        'error_saving' => 'Error saving file ":name". Please check write permissions.',
+        'error_creating_directory' => 'Error creating directory :name. Please check write permissions.',
         'invalid_file_extension'=>'Invalid file extension: :invalid. Allowed extensions are: :allowed.',
-        'error_deleting' => 'Error deleting the template file ":name".',
+        'error_deleting' => 'Error deleting the template file ":name". Please check write permissions.',
         'delete_success' => 'Templates were successfully deleted: :count.',
         'file_name_required' => 'The File Name field is required.'
     ],
     'theme' => [
         'active' => [
             'not_set' => "The active theme is not set.",
+            'not_found' => "The active theme is not found.",
         ],
         'edit' => [
             'not_set' => "The edit theme is not set.",
             'not_found' => "The edit theme is not found.",
             'not_match' => "The object you're trying to access doesn't belong to the theme being edited. Please reload the page."
-        ]
+        ],
+        'settings_menu' => 'Front-end theme',
+        'settings_menu_description' => 'Preview the list of installed themes and select an active theme.',
+        'find_more_themes' => 'Find more themes on OctoberCMS Theme Marketplace.',
+        'activate_button' => 'Activate',
+        'active_button' => 'Activate',
     ],
     'page' => [
         'not_found' => [
@@ -34,7 +40,7 @@ return [
         'menu_label' => 'Pages',
         'no_list_records' => 'No pages found',
         'new' => 'New page',
-        'invalid_url' => 'Invalid URL format. The URL should start with the forward slash symbol and can contain digits, Latin letters and the following symbols: _-[]:?|/+*',
+        'invalid_url' => 'Invalid URL format. The URL should start with the forward slash symbol and can contain digits, Latin letters and the following symbols: ._-[]:?|/+*',
         'delete_confirm_multiple' => 'Do you really want to delete selected pages?',
         'delete_confirm_single' => 'Do you really want delete this page?',
         'no_layout' => '-- no layout --'
@@ -93,6 +99,10 @@ return [
         'markup' => 'Markup',
         'code' => 'Code',
         'content' => 'Content',
+        'hidden' => 'Hidden',
+        'hidden_comment' => 'Hidden pages are accessible only by logged-in back-end users.',
+        'enter_fullscreen' => 'Enter fullscreen mode',
+        'exit_fullscreen' => 'Exit fullscreen mode'
     ],
     'asset' => [
         'menu_label' => "Assets",
@@ -101,9 +111,12 @@ return [
         'upload_files' => 'Upload file(s)',
         'create_file' => 'Create file',
         'create_directory' => 'Create directory',
+        'directory_popup_title' => 'New directory',
+        'directory_name' => 'Directory name',
         'rename' => 'Rename',
         'delete' => 'Delete',
         'move' => 'Move',
+        'select' => 'Select',
         'new' => 'New file',
         'rename_popup_title' => 'Rename',
         'rename_new_name' => 'New name',
@@ -148,5 +161,13 @@ return [
         'invalid_type' => "Unknown template type.",
         'not_found' => "The requested template was not found.",
         'saved'=> "The template has been successfully saved."
+    ],
+    'permissions' => [
+        'manage_content' => 'Manage content',
+        'manage_assets' => 'Manage assets',
+        'manage_pages' => 'Manage pages',
+        'manage_layouts' => 'Manage layouts',
+        'manage_partials' => 'Manage partials',
+        'manage_themes' => 'Manage themes'
     ]
 ];

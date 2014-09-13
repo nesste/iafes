@@ -1,0 +1,45 @@
+9999999999s:1769:"a:2:{s:5:"mtime";i:1410601462;s:7:"content";s:1714:"<ul class="post-list">
+    {% for post in posts %}
+        <li>
+            {% for category in post.categories %}
+                <h3><a href="{{category.slug|app}}/{{post.slug}}">{{ post.name }}</a></h3>
+            {% endfor %}
+            <p class="info">
+                Posted
+                {% if post.count %} in
+                    {% for category in post.categories %}
+                        <a href="{{category.slug|app}}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
+                on {{ post.publshed_at|date('M d, Y') }}
+            </p>
+            <span class="content-blk"> 
+                {% if post.excerpt %}
+                    <p>{{ post.excerpt }}</p>
+                {% else %}
+                   {{ post.content|raw }} 
+                {% endif %}
+            </span>
+        </li>
+    {% else %}
+        <li class="no-data">{{ blogNoPostsMessage }}</li>
+    {% endfor %}
+</ul>
+
+{% if posts.getLastPage > 1 %}
+    <ul class="pagination">
+        {% if posts.getCurrentPage > 1 %}
+            <li><a href="{{ this.page.baseFileName|page({ (pageParam): (posts.getCurrentPage-1) }) }}">&larr; Prev</a></li>
+        {% endif %}
+
+        {% for page in 1..posts.getLastPage %}
+            <li class="{{ posts.getCurrentPage == page ? 'active' : null }}">
+                <a href="{{ this.page.baseFileName|page({ (pageParam): page }) }}">{{ page }}</a>
+            </li>
+        {% endfor %}
+
+        {% if posts.getLastPage > posts.getCurrentPage %}
+            <li><a href="{{ this.page.baseFileName|page({ (pageParam): (posts.getCurrentPage+1) }) }}">Next &rarr;</a></li>
+        {% endif %}
+    </ul>
+{% endif %}";}";

@@ -4,6 +4,7 @@ use Lang;
 use File;
 use Cache;
 use Config;
+use Event;
 use System\Classes\SystemException;
 use October\Rain\Router\Router as RainRouter;
 use October\Rain\Router\Helper as RouterHelper;
@@ -42,7 +43,7 @@ class Router
     /**
      * @var array A list of parameters names and values extracted from the URL pattern and URL string.
      */
-    private $parameters = [];
+    protected $parameters = [];
 
     /**
      * @var array Contains the URL map - the list of page file names and corresponding URL patterns.
@@ -72,6 +73,10 @@ class Router
     {
         $url = RouterHelper::normalizeUrl($url);
 
+        $apiResult = Event::fire('cms.router.beforeRoute', [$url], true);
+        if ($apiResult !== null)
+            return $apiResult;
+
         for ($pass = 1; $pass <= 2; $pass++) {
             $fileName = null;
             $urlList = [];
@@ -83,7 +88,6 @@ class Router
             /*
              * Find the page by URL and cache the route
              */
-
             if (!$fileName) {
                 $router = $this->getRouterObject();
 
@@ -105,9 +109,8 @@ class Router
             }
 
             /*
-             * Return the page 
+             * Return the page
              */
-
             if ($fileName) {
                 if (($page = Page::loadCached($this->theme, $fileName)) === null) {
                     /*
@@ -205,8 +208,12 @@ class Router
              */
             $pages = $this->theme->listPages();
             $map = [];
-            foreach ($pages as $page)
+            foreach ($pages as $page) {
+                if (!$page->url)
+                    continue;
+
                 $map[] = ['file' => $page->getFileName(), 'pattern' => $page->url];
+            }
 
             self::$urlMap = $map;
             if ($cacheable)
@@ -226,6 +233,16 @@ class Router
     {
         Cache::forget($this->getCacheKey('page-url-map'));
         Cache::forget($this->getCacheKey('cms-url-list'));
+    }
+
+    /**
+     * Sets the current routing parameters.
+     * @param  array $parameters
+     * @return array
+     */
+    public function setParameters(array $parameters)
+    {
+        $this->parameters = $parameters;
     }
 
     /**

@@ -10,5 +10,5 @@ columns:
     category:
         label: Category
         relation: category
-        select: @name
+        select: name
         searchable: true

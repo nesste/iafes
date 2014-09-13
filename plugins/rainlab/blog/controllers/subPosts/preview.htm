@@ -1,6 +1,6 @@
 <?php Block::put('breadcrumb') ?>
     <ul>
-        <li><a href="<?= Backend::url('rainlab/blog/subPost') ?>">Blog subPost</a></li>
+        <li><a href="<?= Backend::url('rainlab/blog/subposts') ?>">Blog Posts</a></li>
         <li><?= e($this->pageTitle) ?></li>
     </ul>
 <?php Block::endPut() ?>
@@ -13,5 +13,5 @@
 
 <?php else: ?>
     <p class="flash-message static error"><?= e($this->fatalError) ?></p>
-    <p><a href="<?= Backend::url('rainlab/blog/subPost') ?>" class="btn btn-default">Return to subPosts list</a></p>
+    <p><a href="<?= Backend::url('rainlab/blog/subposts') ?>" class="btn btn-default">Return to posts list</a></p>
 <?php endif ?>

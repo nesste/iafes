@@ -1,12 +1,9 @@
 <?php namespace October\Rain\Database;
 
-use Hash;
 use Input;
 use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\Facades\Validator;
 use October\Rain\Database\Relations\BelongsTo;
 use October\Rain\Database\Relations\BelongsToMany;
 use October\Rain\Database\Relations\HasMany;
@@ -18,10 +15,9 @@ use October\Rain\Database\Relations\AttachMany;
 use October\Rain\Database\Relations\AttachOne;
 use October\Rain\Database\Relations\hasManyThrough;
 use October\Rain\Database\ModelException;
-use October\Rain\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Exception;
 use InvalidArgumentException;
+use Exception;
 
 /**
  * Active Record base class.
@@ -35,6 +31,7 @@ class Model extends EloquentModel
 {
     use \October\Rain\Support\Traits\Emitter;
     use \October\Rain\Extension\ExtendableTrait;
+    use \October\Rain\Database\Traits\DeferredBinding;
 
     /**
      * @var array Behaviors implemented by this model.
@@ -47,60 +44,14 @@ class Model extends EloquentModel
     public $attributes = [];
 
     /**
-     * @var array The rules to be applied to the data.
-     */
-    public $rules = [];
-
-    /**
-     * @var array The array of custom error messages.
-     */
-    public $customMessages = [];
-
-    /**
-     * @var \Illuminate\Support\MessageBag The message bag instance containing validation error messages
-     */
-    public $validationErrors;
-
-    /**
-     * @var bool Makes the validation procedure throw an {@link October\Rain\Database\ModelException} instead of returning
-     * false when validation fails.
-     */
-    public $throwOnValidation = true;
-
-    /**
-     * @var array List of attribute names which should be hashed using the Bcrypt hashing algorithm.
-     */
-    protected $hashable = [];
-
-    /**
-     * @var array List of attribute names which should not be saved to the database.
-     */
-    protected $purgeable = [];
-
-    /**
      * @var array List of attribute names which are json encoded and decoded from the database.
      */
     protected $jsonable = [];
 
     /**
-     * @var array List of attributes to automatically generate unique URL names (slugs) for.
-     */
-    protected $slugs = [];
-
-    /**
      * @var array List of datetime attributes to convert to an instance of Carbon/DateTime objects.
      */
     protected $dates = [];
-
-    /**
-     * @var array List of original attribute values before they were hashed.
-     */
-    private $originalHashableValues = [];
-
-    /**
-     * @var array List of original attribute values before they were purged.
-     */
-    private $originalPurgeableValues = [];
 
     /**
      * Cleaner declaration of relationships.
@@ -198,19 +149,13 @@ class Model extends EloquentModel
     protected static $relationTypes = ['hasOne', 'hasMany', 'belongsTo', 'belongsToMany', 'morphTo', 'morphOne', 'morphMany', 'morphToMany', 'morphedByMany', 'attachOne', 'attachMany', 'hasManyThrough'];
 
     /**
-     * @var string A unique session key used for deferred binding.
-     */
-    public $sessionKey;
-
-    /**
      * Constructor
      */
-    public function __construct(array $attributes = array())
+    public function __construct(array $attributes = [])
     {
+        parent::__construct();
         $this->extendableConstruct();
-        parent::__construct($attributes);
-
-        $this->validationErrors = new MessageBag;
+        $this->fill($attributes);
     }
 
     /**
@@ -261,7 +206,7 @@ class Model extends EloquentModel
     public static function boot()
     {
         parent::boot();
-        self::bindNicerEvents();
+        self::bootNicerEvents();
     }
 
     /**
@@ -275,10 +220,10 @@ class Model extends EloquentModel
     /**
      * Bind some nicer events to this model, in the format of method overrides.
      */
-    private static function bindNicerEvents()
+    private static function bootNicerEvents()
     {
         $self = get_called_class();
-        $radicals = ['creat', 'sav', 'validat', 'updat', 'delet', 'restor', 'fetch'];
+        $radicals = ['creat', 'sav', 'updat', 'delet', 'fetch'];
         $hooks = ['before' => 'ing', 'after' => 'ed'];
 
         foreach ($radicals as $radical) {
@@ -296,6 +241,15 @@ class Model extends EloquentModel
                 });
             }
         }
+
+        /*
+         * Hook to boot events
+         */
+        static::registerModelEvent('booted', function($model){
+            $model->fireEvent('model.afterBoot');
+            if ($model->methodExists('afterBoot'))
+                return $model->afterBoot();
+        });
     }
 
     /**
@@ -303,9 +257,9 @@ class Model extends EloquentModel
      * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|static
      */
-    public function newFromBuilder($attributes = array())
+    public function newFromBuilder($attributes = [])
     {
-        $instance = $this->newInstance(array(), true);
+        $instance = $this->newInstance([], true);
         if ($instance->fireModelEvent('fetching') === false)
             return $instance;
 
@@ -336,26 +290,6 @@ class Model extends EloquentModel
         static::registerModelEvent('fetched', $callback);
     }
 
-    /**
-     * Create a new native event for handling beforeValidate().
-     * @param Closure|string $callback
-     * @return void
-     */
-    public static function validating($callback)
-    {
-        static::registerModelEvent('validating', $callback);
-    }
-
-    /**
-     * Create a new native event for handling afterValidate().
-     * @param Closure|string $callback
-     * @return void
-     */
-    public static function validated($callback)
-    {
-        static::registerModelEvent('validated', $callback);
-    }
-
     //
     // Overrides
     //
@@ -367,11 +301,11 @@ class Model extends EloquentModel
     public function getObservableEvents()
     {
         return array_merge(
-            array(
+            [
                 'creating', 'created', 'updating', 'updated',
                 'deleting', 'deleted', 'saving', 'saved',
                 'restoring', 'restored', 'fetching', 'fetched'
-            ),
+            ],
             $this->observables
         );
     }
@@ -486,6 +420,21 @@ class Model extends EloquentModel
     }
 
     /**
+     * Determines whether the specified relation should be saved
+     * when push() is called instead of save() on the model. Default: true.
+     * @param  string  $name Relation name
+     * @return boolean
+     */
+    public function isRelationPushable($name)
+    {
+        $definition = $this->getRelationDefinition($name);
+        if (!array_key_exists('push', $definition))
+            return true;
+
+        return (bool) $definition['push'];
+    }
+
+    /**
      * Looks for the relation and does the correct magic as Eloquent would require
      * inside relation methods. For more information, read the documentation of the mentioned property.
      * @param string $relationName the relation key, camel-case version
@@ -561,13 +510,13 @@ class Model extends EloquentModel
     /**
      * Validate relation supplied arguments.
      */
-    private function validateRelationArgs($relationName, $optional, $required = [])
+    protected function validateRelationArgs($relationName, $optional, $required = [])
     {
 
         $relation = $this->getRelationDefinition($relationName);
 
         // Query filter arguments
-        $filters = ['order', 'pivot', 'timestamps'];
+        $filters = ['scope', 'conditions', 'order', 'pivot', 'timestamps', 'push'];
 
         foreach (array_merge($optional, $filters) as $key) {
             if (!array_key_exists($key, $relation)) {
@@ -594,7 +543,7 @@ class Model extends EloquentModel
      * @param $relation Relationship object
      * @return Relationship object
      */
-    private function applyRelationFilters($args, $relation)
+    protected function applyRelationFilters($args, $relation)
     {
         /*
          * Pivot data (belongsToMany, morphToMany, morphByMany)
@@ -608,6 +557,13 @@ class Model extends EloquentModel
          */
         if ($args['timestamps']) {
             $relation->withTimestamps();
+        }
+
+        /*
+         * Conditions
+         */
+        if ($conditions = $args['conditions']) {
+            $relation->whereRaw($conditions);
         }
 
         /*
@@ -627,6 +583,13 @@ class Model extends EloquentModel
 
                 $relation->orderBy($column, $direction);
             }
+        }
+
+        /*
+         * Scope
+         */
+        if ($scope = $args['scope']) {
+            $relation->$scope();
         }
 
         return $relation;
@@ -736,7 +699,7 @@ class Model extends EloquentModel
         $primaryKey = $primaryKey ?: $this->getForeignKey();
         $throughKey = $throughKey ?: $throughInstance->getForeignKey();
 
-        return new HasManyThrough($instance->newQuery(), $instance, $throughInstance, $primaryKey, $throughKey);
+        return new HasManyThrough($instance->newQuery(), $this, $throughInstance, $primaryKey, $throughKey);
     }
 
     /**
@@ -862,6 +825,30 @@ class Model extends EloquentModel
     }
 
     /**
+     * Returns a relation key value(s), not as an object.
+     */
+    public function getRelationValue($relationName)
+    {
+        $relationType = $this->getRelationType($relationName);
+        $relationObj = $this->$relationName();
+        $value = null;
+
+        switch ($relationType) {
+            case 'belongsTo':
+                $value = $this->getAttribute($relationObj->getForeignKey());
+                break;
+
+            case 'belongsToMany':
+            case 'morphToMany':
+            case 'morphedByMany':
+                $value = $relationObj->getRelatedIds();
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
      * Sets a relation value directly from its attribute.
      */
     protected function setRelationValue($relationName, $value)
@@ -883,20 +870,26 @@ class Model extends EloquentModel
                 if (!is_array($value)) $value = [$value];
 
                 // Do not sync until the model is saved
-                $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                     $relationObj->sync($value);
-                }, true);
+                });
                 break;
 
             case 'belongsTo':
+                // Nulling the relationship
+                if (!$value) {
+                    $this->setAttribute($relationObj->getForeignKey(), null);
+                    break;
+                }
+
                 if ($value instanceof EloquentModel) {
                     /*
                      * Non existent model, use a single serve event to associate it again when ready
                      */
                     if (!$value->exists) {
-                        $value->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                        $value->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                             $relationObj->associate($value);
-                        }, true);
+                        });
                     }
 
                     $relationObj->associate($value);
@@ -907,9 +900,9 @@ class Model extends EloquentModel
 
             case 'attachMany':
                 if ($value instanceof UploadedFile) {
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    }, true);
+                    });
                 }
                 elseif (is_array($value)) {
                     $files = [];
@@ -917,11 +910,11 @@ class Model extends EloquentModel
                         if ($_value instanceof UploadedFile)
                             $files[] = $_value;
                     }
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $files){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $files){
                         foreach ($files as $file) {
                             $relationObj->create(['data' => $file]);
                         }
-                    }, true);
+                    });
                 }
                 break;
 
@@ -930,126 +923,12 @@ class Model extends EloquentModel
                     $value = reset($value);
 
                 if ($value instanceof UploadedFile) {
-                    $this->bindEvent('model.afterSave', function() use ($relationObj, $value){
+                    $this->bindEventOnce('model.afterSave', function() use ($relationObj, $value){
                         $relationObj->create(['data' => $value]);
-                    }, true);
+                    });
                 }
                 break;
         }
-    }
-
-    //
-    // Validation
-    //
-
-    /**
-     * Instantiates the validator used by the validation process, depending if the class is being used inside or
-     * outside of Laravel.
-     * @return \Illuminate\Validation\Validator
-     */
-    protected static function makeValidator($data, $rules, $customMessages) 
-    {
-        return Validator::make($data, $rules, $customMessages);
-    }
-
-    /**
-     * Validate the model instance
-     * @return bool
-     */
-    public function validate($rules = null, $customMessages = null)
-    {
-        if ($this->fireModelEvent('validating') === false) {
-            if ($this->throwOnValidation)
-                throw new ModelException($this);
-            else
-                return false;
-        }
-
-        /*
-         * Perform validation
-         */
-        $rules = (is_null($rules)) ? $this->rules : $rules;
-        $rules = $this->processValidationRules($rules);
-        $success = true;
-
-        if (!empty($rules)) {
-            $data = array_merge($this->getAttributes(), $this->getOriginalHashValues());
-            $customMessages = is_null($customMessages) ? $this->customMessages : $customMessages;
-            $validator = self::makeValidator($data, $rules, $customMessages);
-            $success = $validator->passes();
-
-            if ($success) {
-                if ($this->validationErrors->count() > 0)
-                    $this->validationErrors = new MessageBag;
-            } else {
-                $this->validationErrors = $validator->messages();
-                if (Input::hasSession())
-                    Input::flash();
-            }
-        }
-
-        $this->fireModelEvent('validated', false);
-
-        if (!$success && $this->throwOnValidation)
-            throw new ModelException($this);
-
-        return $success;
-    }
-
-    /**
-     * Process rules
-     */
-    private function processValidationRules($rules)
-    {
-        foreach ($rules as $field => $ruleParts) {
-            /*
-             * Trim empty rules
-             */
-            if (is_string($ruleParts) && trim($ruleParts) == '') {
-                unset($rules[$field]);
-                continue;
-            }
-
-            /*
-             * Normalize rulesets
-             */
-            if (!is_array($ruleParts))
-                $ruleParts = explode('|', $ruleParts);
-
-            /*
-             * Analyse each rule individually
-             */
-            foreach ($ruleParts as $key => $rulePart) {
-                /*
-                 * Remove primary key unique validation rule if the model already exists
-                 */
-                if (starts_with($rulePart, 'unique') && $this->exists) {
-                    $ruleParts[$key] = 'unique:'.$this->getTable().','.$field.','.$this->getKey();
-                }
-                /*
-                 * Look for required:create and required:update rules
-                 */
-                else if (starts_with($rulePart, 'required:create') && $this->exists) {
-                    unset($ruleParts[$key]);
-                }
-                else if (starts_with($rulePart, 'required:update') && !$this->exists) {
-                    unset($ruleParts[$key]);
-                }
-            }
-
-            $rules[$field] = $ruleParts;
-        }
-
-        return $rules;
-    }
-
-    /**
-     * Get validation error message collection for the Model
-     * @return \Illuminate\Support\MessageBag
-     */
-    public function errors()
-    {
-        return $this->validationErrors;
     }
 
     //
@@ -1065,26 +944,9 @@ class Model extends EloquentModel
         if ($data !== null)
             $this->fill($data);
 
-        /*
-         * If forcing the save event, the beforeValidate/afterValidate
-         * events should still fire for consistency. So validate an
-         * empty set of rules and messages.
-         */
-        $force = array_get($options, 'force', false);
-        if ($force)
-            $valid = $this->validate([], []);
-        else
-            $valid = $this->validate();
-
-        if (!$valid)
+        // Event
+        if ($this->fireEvent('model.saveInternal', [$data, $options], true) === false)
             return false;
-
-        // Remove any purge attributes from the data set
-        $this->purgeAttributes();
-
-        // Set slugged attributes on new records
-        if (!$this->exists)
-            $this->slugAttributes();
 
         /*
          * Validate attributes before trying to save
@@ -1096,6 +958,19 @@ class Model extends EloquentModel
 
         // Save the record
         $result = parent::save($options);
+
+        // Halted by event
+        if ($result === false)
+            return $result;
+
+        /*
+         * If there is nothing to update, Eloquent will not fire afterSave(),
+         * events should still fire for consistency.
+         */
+        if ($result === null) {
+            $this->fireModelEvent('updated', false);
+            $this->fireModelEvent('saved', false);
+        }
 
         // Apply any deferred bindings
         if ($this->sessionKey !== null)
@@ -1115,142 +990,37 @@ class Model extends EloquentModel
     }
 
     /**
-     * Force save the model even if validation fails.
-     * @return bool
-     */
-    public function forceSave(array $data = null, $sessionKey = null)
-    {
-        $this->sessionKey = $sessionKey;
-        return $this->saveInternal($data, ['force' => true]);
-    }
-
-    /**
      * Save the model and all of its relationships.
      * @return bool
      */
-    public function push($sessionKey = null)
+    public function push($sessionKey = null, $options = [])
     {
-        if (!$this->save(null, $sessionKey)) return false;
+        $always = array_get($options, 'always', false);
 
-        foreach ($this->relations as $models) {
+        if (!$this->save(null, $sessionKey) && !$always)
+            return false;
+
+        foreach ($this->relations as $name => $models) {
+            if (!$this->isRelationPushable($name))
+                continue;
+
             foreach (Collection::make($models) as $model) {
-                if (!$model->push()) return false;
+                if (!$model->push($sessionKey))
+                    return false;
             }
         }
 
         return true;
     }
 
-    //
-    // Deferred binding
-    //
-
     /**
-     * Bind a deferred relationship to the supplied record.
+     * Pushes the first level of relations even if the parent
+     * model has no changes.
+     * @return bool
      */
-    public function bindDeferred($relation, $record, $sessionKey)
+    public function alwaysPush($sessionKey)
     {
-        $binding = DeferredBinding::make();
-        $binding->master_type = get_class($this);
-        $binding->master_field = $relation;
-        $binding->slave_type = get_class($record);
-        $binding->slave_id = $record->getKey();
-        $binding->session_key = $sessionKey;
-        $binding->is_bind = true;
-        $binding->save();
-        return $binding;
-    }
-
-    /**
-     * Unbind a deferred relationship to the supplied record.
-     */
-    public function unbindDeferred($relation, $record, $sessionKey)
-    {
-        $binding = DeferredBinding::make();
-        $binding->master_type = get_class($this);
-        $binding->master_field = $relation;
-        $binding->slave_type = get_class($record);
-        $binding->slave_id = $record->getKey();
-        $binding->session_key = $sessionKey;
-        $binding->is_bind = false;
-        $binding->save();
-        return $binding;
-    }
-
-    /**
-     * Cancel all deferred bindings to this model.
-     */
-    public function cancelDeferred($sessionKey)
-    {
-        DeferredBinding::cancelDeferredActions(get_class($this), $sessionKey);
-    }
-
-    /**
-     * Commit all deferred bindings to this model.
-     */
-    public function commitDeferred($sessionKey)
-    {
-        if (!strlen($sessionKey))
-            return;
-
-        $bindings = DeferredBinding::where('master_type', get_class($this))
-            ->where('session_key', $sessionKey)
-            ->get();
-
-        foreach ($bindings as $binding) {
-
-            if (!($relationName = $binding->master_field))
-                continue;
-
-            if (!$this->isDeferrable($relationName))
-                continue;
-
-            /*
-             * Find the slave model
-             */
-            $slaveClass = $binding->slave_type;
-            $slaveModel = new $slaveClass();
-            $slaveModel = $slaveModel->find($binding->slave_id);
-            if (!$slaveModel)
-                continue;
-
-            /*
-             * Bind/Unbind the relationship, save the related model with any
-             * deferred bindings it might have and delete the binding action
-             */
-            $relationObj = $this->$relationName();
-
-            if ($binding->is_bind)
-                $relationObj->add($slaveModel);
-            else
-                $relationObj->remove($slaveModel);
-
-            $slaveModel->save(null, $sessionKey);
-
-            $binding->delete();
-        }
-    }
-
-    /**
-     * Returns true if a relation exists and can be deferred.
-     */
-    public function isDeferrable($relationName)
-    {
-        if (!$this->hasRelation($relationName))
-            return false;
-
-        $type = $this->getRelationType($relationName);
-        return (
-            $type == 'hasMany' ||
-            $type == 'hasOne' ||
-            $type == 'morphMany' ||
-            $type == 'morphToMany' ||
-            $type == 'morphedByMany' ||
-            $type == 'morphOne' ||
-            $type == 'attachMany' ||
-            $type == 'attachOne' ||
-            $type == 'belongsToMany'
-        );
+        return $this->push($sessionKey, ['always' => true]);
     }
 
     //
@@ -1264,11 +1034,8 @@ class Model extends EloquentModel
      */
     public function getAttribute($key)
     {
-        if (strpos($key, '.'))
-            return $this->getAttributeDotted($key);
-
         // Before Event
-        if ($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true))
+        if (($attr = $this->fireEvent('model.beforeGetAttribute', [$key], true)) !== null)
             return $attr;
 
         $attr = parent::getAttribute($key);
@@ -1281,7 +1048,7 @@ class Model extends EloquentModel
         }
 
         // After Event
-        if ($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true))
+        if (($_attr = $this->fireEvent('model.getAttribute', [$key, $attr], true)) !== null)
             return $_attr;
 
         return $attr;
@@ -1289,7 +1056,6 @@ class Model extends EloquentModel
 
     /**
      * Get a plain attribute (not a relationship).
-     *
      * @param  string  $key
      * @return mixed
      */
@@ -1304,24 +1070,6 @@ class Model extends EloquentModel
         }
 
         return $attr;
-    }
-
-    /**
-     * Get an attribute relation value using dotted notation.
-     * Eg: author.name
-     * @return mixed
-     */
-    public function getAttributeDotted($key)
-    {
-        $keyParts = explode('.', $key);
-        $value = $this;
-        foreach ($keyParts as $part) {
-            if (!isset($value[$part]))
-                return null;
-
-            $value = $value[$part];
-        }
-        return $value;
     }
 
     /**
@@ -1347,17 +1095,11 @@ class Model extends EloquentModel
     public function setAttribute($key, $value)
     {
         // Before Event
-        if ($this->fireEvent('model.beforeSetAttribute', [$key, $value], true) === false)
-            return;
-
-        // Hash required fields when necessary
-        if (in_array($key, $this->hashable) && !empty($value)) {
-            $this->originalHashableValues[$key] = $value;
-            $value = Hash::make($value);
-        }
+        if (($_value = $this->fireEvent('model.beforeSetAttribute', [$key, $value], true)) !== null)
+            $value = $_value;
 
         // Handle jsonable
-        if (in_array($key, $this->jsonable) && !empty($value)) {
+        if (in_array($key, $this->jsonable) && (!empty($value) || is_array($value))) {
             $value = json_encode($value);
         }
 
@@ -1388,162 +1130,4 @@ class Model extends EloquentModel
         return $this->methodExists('set'.studly_case($key).'Attribute');
     }
 
-    //
-    // Hashable
-    //
-
-    /**
-     * Returns a collection of fields that will be hashed.
-     */
-    public function getHashableAttributes()
-    {
-        return $this->hashable;
-    }
-
-    /**
-     * Returns the original values of any hashed attributes.
-     */
-    public function getOriginalHashValues()
-    {
-        return $this->originalHashableValues;
-    }
-
-    /**
-     * Returns the original values of any hashed attributes.
-     */
-    public function getOriginalHashValue($attribute)
-    {
-        return isset($this->originalHashableValues[$attribute])
-            ? $this->originalHashableValues[$attribute]
-            : null;
-    }
-
-    //
-    // Purgable
-    //
-
-    /**
-     * Removes purged attributes from the dataset, used before saving.
-     * @param $attributes mixed Attribute(s) to purge, if unspecified, $purgable property is used
-     * @return array Current attribute set
-     */
-    public function purgeAttributes($attributesToPurge = null)
-    {
-        if ($attributesToPurge !== null)
-            $purgeable = is_array($attributesToPurge) ? $attributesToPurge : [$attributesToPurge];
-        else
-            $purgeable = $this->getPurgeableAttributes();
-
-        $attributes = $this->getAttributes();
-        $cleanAttributes = array_diff_key($attributes, array_flip($purgeable));
-        $originalAttributes = array_diff_key($attributes, $cleanAttributes);
-
-        if (is_array($this->originalPurgeableValues))
-            $this->originalPurgeableValues = array_merge($this->originalPurgeableValues, $originalAttributes);
-        else
-            $this->originalPurgeableValues = $originalAttributes;
-
-        return $this->attributes = $cleanAttributes;
-    }
-
-    /**
-     * Returns a collection of fields that will be hashed.
-     */
-    public function getPurgeableAttributes()
-    {
-        return $this->purgeable;
-    }
-
-    /**
-     * Returns the original values of any purged attributes.
-     */
-    public function getOriginalPurgeValues()
-    {
-        return $this->originalPurgeableValues;
-    }
-
-    /**
-     * Returns the original values of any purged attributes.
-     */
-    public function getOriginalPurgeValue($attribute)
-    {
-        return isset($this->originalPurgeableValues[$attribute])
-            ? $this->originalPurgeableValues[$attribute]
-            : null;
-    }
-
-    /**
-     * Restores the original values of any purged attributes.
-     */
-    public function restorePurgedValues()
-    {
-        $this->attributes = array_merge($this->getAttributes(), $this->originalPurgeableValues);
-        return $this;
-    }
-
-    //
-    // Slugs
-    //
-
-    /**
-     * Adds slug attributes to the dataset, used before saving.
-     * @return void
-     */
-    public function slugAttributes()
-    {
-        foreach ($this->slugs as $slugAttribute => $sourceAttributes)
-            $this->setSluggedValue($slugAttribute, $sourceAttributes);
-    }
-
-    /**
-     * Sets a single slug attribute value.
-     * @param string $slugAttribute Attribute to populate with the slug.
-     * @param mixed $sourceAttributes Attribute(s) to generate the slug from.
-     * Supports dotted notation for relations.
-     * @param int $maxLength Maximum length for the slug not including the counter.
-     * @return string The generated value.
-     */
-    public function setSluggedValue($slugAttribute, $sourceAttributes, $maxLength = 240)
-    {
-        if (!isset($this->{$slugAttribute})) {
-            if (!is_array($sourceAttributes))
-                $sourceAttributes = [$sourceAttributes];
-
-            $slugArr = [];
-            foreach ($sourceAttributes as $attribute) {
-                $slugArr[] = $this->getAttribute($attribute);
-            }
-
-            $slug = implode(' ', $slugArr);
-            $slug = substr($slug, 0, $maxLength);
-            $slug = Str::slug($slug);
-        }
-        else {
-            $slug = $this->{$slugAttribute};
-        }
-
-        return $this->{$slugAttribute} = $this->getUniqueAttributeValue($slugAttribute, $slug);
-    }
-
-    /**
-     * Ensures a unique attribute value, if the value is already used a counter suffix is added.
-     * @param string $name The database column name.
-     * @param value $value The desired column value.
-     * @return string A safe value that is unique.
-     */
-    public function getUniqueAttributeValue($name, $value)
-    {
-        $counter = 1;
-        $separator = '-';
-
-        // Remove any existing suffixes
-        $_value = preg_replace('/'.preg_quote($separator).'[0-9]+$/', '', trim($value));
-
-        while ($this->newQuery()->where($name, $_value)->count() > 0) {
-            $counter++;
-            $_value = $value . $separator . $counter;
-        }
-
-        return $_value;
-    }
 }

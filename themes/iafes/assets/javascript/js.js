@@ -49,7 +49,7 @@ $(document).on('ready',function(){
 	detectViewport();// Detect on what media query we are
 
     navColor();//Change active page link nav color
-
+    
     //ie9 placeholder fix
     if (!Modernizr.input.placeholder) {
         $("input").each(function () {
@@ -70,7 +70,6 @@ $(document).on('ready',function(){
     }
 
     $(document).resize(function () {
-        
         detectViewport();// detect if we are on a new media query
     });
 	
@@ -102,7 +101,9 @@ $(document).on('ready',function(){
     
     
     $('.main-content').find('img').each(function(){
-        $(this).wrap('<div class="image-wrapper"></div>');
+    	if($('#OctoDevelOctoSliderSimple').length == 0){
+    		$(this).wrap('<div class="image-wrapper"></div>');	
+    	}
     }) 
     $('.main-content').find('iframe').each(function(){
         $(this).wrap('<div class="video-wrapper ratio-16-9"></div>');
@@ -130,28 +131,27 @@ function navColor(){
         newURL = newURL.substr(0, newURL.length-1);
     }
     var split = newURL.split('/');
-    
-    var body = $('body').data('page');
-    var body_token = body.split('/');
+    if($('body').attr('data-page')){
+        var body = $('body').data('page');
+        var body_token = body.split('/');
 
-    if(split.length == 6 && (body_token[0] != 'iafes-association' && body_token[0] != 'home' && body_token[0] != 'projects' && body_token[0] != 'training' )){
-        var token = split[split.length - 1];
-        newURL = newURL.replace('/' + token,'');
-        if(body_token.length[0] != 'home'){
-            newURL = newURL.replace('/home','');
-        }
-    }else if(split.length == 7){
-        var token1 = split[split.length - 2];
-        var token2 = split[split.length - 1];
-            token = token1 + '/' + token2;
-        newURL2 = newURL.replace('/' + token,'');
-        var Nav2 = $('.nav a[href="'+ newURL2 + '"]');
-        Nav2.addClass('active');
-    }
-    
-    
-    var Nav = $('.nav a[href="'+ newURL + '"]');
-    Nav.addClass('active');    
-    
+        if(split.length == 6 && (body_token[0] != 'iafes-association' && body_token[0] != 'home' && body_token[0] != 'projects' && body_token[0] != 'training' )){
+            var token = split[split.length - 1];
+            newURL = newURL.replace('/' + token,'');
+            if(body_token.length[0] != 'home'){
+                newURL = newURL.replace('/home','');
+            }
+        }else if(split.length == 7){
+            var token1 = split[split.length - 2];
+            var token2 = split[split.length - 1];
+                token = token1 + '/' + token2;
+            newURL2 = newURL.replace('/' + token,'');
+            var Nav2 = $('.nav a[href="'+ newURL2 + '"]');
+            Nav2.addClass('active');
+        }     
+        
+        var Nav = $('.nav a[href="'+ newURL + '"]');
+        Nav.addClass('active');    
+    }  
 }
 

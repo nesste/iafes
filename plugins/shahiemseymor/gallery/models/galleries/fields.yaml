@@ -1,0 +1,19 @@
+# ===================================
+#  Field Definitions
+# ===================================
+tabs:
+  fields:
+    title:
+      tab: General
+      span: left
+      label: Title
+
+    images:
+      tab: Images
+      span: pull-left
+      type: fileupload
+      label: Upload photos
+      options:
+        mode: image
+        image-width: 300
+        image-height: 200

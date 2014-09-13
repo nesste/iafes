@@ -11,12 +11,17 @@ use Config;
 use Request;
 use Response;
 use Exception;
+use BackendAuth;
 use Twig_Environment;
 use Controller as BaseController;
 use Cms\Twig\Loader as TwigLoader;
-use Cms\Twig\Extension as TwigExtension;
+use Cms\Twig\DebugExtension;
+use Cms\Twig\Extension as CmsTwigExtension;
 use Cms\Classes\FileHelper as CmsFileHelper;
+use System\Models\RequestLog;
 use System\Classes\ErrorHandler;
+use System\Classes\ApplicationException;
+use System\Twig\Extension as SystemTwigExtension;
 use October\Rain\Support\Markdown;
 use October\Rain\Support\ValidationException;
 use Illuminate\Http\RedirectResponse;
@@ -49,14 +54,24 @@ class Controller extends BaseController
     protected $loader;
 
     /**
-     * @var \Cms\Classes\Page A reference to the CMS page being processed.
+     * @var \Cms\Classes\Page A reference to the CMS page template being processed.
      */
     protected $page;
 
     /**
-     * @var \Cms\Classes\Layout A reference to the CMS layout used by the page.
+     * @var \Cms\Classes\CodeBase A reference to the CMS page code section object.
+     */
+    protected $pageObj;
+
+    /**
+     * @var \Cms\Classes\Layout A reference to the CMS layout template used by the page.
      */
     protected $layout;
+
+    /**
+     * @var \Cms\Classes\CodeBase A reference to the CMS layout code section object.
+     */
+    protected $layoutObj;
 
     /**
      * @var \Twig_Environment Keeps the Twig environment object.
@@ -79,6 +94,11 @@ class Controller extends BaseController
     public $vars = [];
 
     /**
+     * @var int Response status code
+     */
+    protected $statusCode = 200;
+
+    /**
      * Creates the controller.
      * @param \Cms\Classes\Theme $theme Specifies the CMS theme.
      * If the theme is not specified, the current active theme used.
@@ -86,7 +106,12 @@ class Controller extends BaseController
     public function __construct($theme = null)
     {
         $this->theme = $theme ? $theme : Theme::getActiveTheme();
+        if (!$this->theme)
+            throw new CmsException(Lang::get('cms::lang.theme.active.not_found'));
+
         $this->assetPath = Config::get('cms.themesDir').'/'.$this->theme->getDirName();
+        $this->router = new Router($this->theme);
+        $this->initTwigEnvironment();
     }
 
     /**
@@ -97,32 +122,44 @@ class Controller extends BaseController
      * If the parameter is omitted, the current URL used.
      * @return string Returns the processed page content.
      */
-    public function run($url = null)
+    public function run($url = '/')
     {
-        if (!$url)
+        if ($url === null)
             $url = Request::path();
 
         if (!strlen($url))
             $url = '/';
 
-        $this->router = new Router($this->theme);
-
+        /*
+         * Handle hidden pages
+         */
         $page = $this->router->findByUrl($url);
+        if ($page && $page->hidden) {
+            if (!BackendAuth::getUser())
+                $page = null;
+        }
 
         /*
          * Extensibility
          */
-        if ($event = Event::fire('cms.page.beforeDisplay', [$this, $url, $page], true))
+        if ($event = $this->fireEvent('page.beforeDisplay', [$url, $page], true))
             return $event;
 
-        if ($event = $this->fireEvent('page.beforeDisplay', [$this, $url, $page], true))
+        if ($event = Event::fire('cms.page.beforeDisplay', [$this, $url, $page], true))
             return $event;
 
         /*
          * If the page was not found, render the 404 page - either provided by the theme or the built-in one.
          */
-        if (!$page && !($page = $this->router->findByUrl('/404')))
-            return Response::make(View::make('cms::404'), 404);
+        if (!$page) {
+            $this->setStatusCode(404);
+
+            // Log the 404 request
+            RequestLog::add();
+
+            if (!$page = $this->router->findByUrl('/404'))
+                return Response::make(View::make('cms::404'), $this->statusCode);
+        }
 
         $this->page = $page;
 
@@ -137,12 +174,11 @@ class Controller extends BaseController
 
         $this->layout = $layout;
 
-        $this->initTwigEnvironment();
-
         /*
          * The 'this' variable is reserved for default variables.
          */
         $this->vars['this'] = [
+            'controller'  => $this,
             'layout'      => $this->layout,
             'page'        => $this->page,
             'param'       => $this->router->getParameters(),
@@ -155,6 +191,29 @@ class Controller extends BaseController
         $this->initCustomObjects();
 
         $this->initComponents();
+
+        /*
+         * Give the layout and page an opportunity to participate
+         * after components are initialized and before AJAX is handled.
+         */
+        if ($this->layoutObj) {
+            CmsException::mask($this->layout, 300);
+            $this->layoutObj->onInit();
+            CmsException::unmask();
+        }
+
+        CmsException::mask($this->page, 300);
+        $this->pageObj->onInit();
+        CmsException::unmask();
+
+        /*
+         * Extensibility
+         */
+        if ($event = $this->fireEvent('page.init', [$url, $page], true))
+            return $event;
+
+        if ($event = Event::fire('cms.page.init', [$this, $url, $page], true))
+            return $event;
 
         /*
          * Execute AJAX event
@@ -177,72 +236,86 @@ class Controller extends BaseController
         /*
          * Render the page
          */
-        CmsException::capture($this->page, 400, function() {
-            $this->loader->setObject($this->page);
-            $template = $this->twig->loadTemplate($this->page->getFullPath());
-            $this->pageContents = $template->render($this->vars);
-        });
+        CmsException::mask($this->page, 400);
+        $this->loader->setObject($this->page);
+        $template = $this->twig->loadTemplate($this->page->getFullPath());
+        $this->pageContents = $template->render($this->vars);
+        CmsException::unmask();
 
         /*
          * Render the layout
          */
-        $result = CmsException::capture($this->layout, 400, function() {
-            $this->loader->setObject($this->layout);
-            $template = $this->twig->loadTemplate($this->layout->getFullPath());
-            return $template->render($this->vars);
-        });
+        CmsException::mask($this->layout, 400);
+        $this->loader->setObject($this->layout);
+        $template = $this->twig->loadTemplate($this->layout->getFullPath());
+        $result = $template->render($this->vars);
+        CmsException::unmask();
 
         /*
          * Extensibility
          */
+        if ($event = $this->fireEvent('page.display', [$url, $page], true))
+            return $event;
+
         if ($event = Event::fire('cms.page.display', [$this, $url, $page], true))
             return $event;
 
-        if ($event = $this->fireEvent('page.display', [$this, $url, $page], true))
-            return $event;
+        if (!is_string($result))
+            return $result;
 
-        return $result;
+        return Response::make($result, $this->statusCode);
     }
 
     /**
      * Initializes the Twig environment and loader.
      * Registers the \Cms\Twig\Extension object with Twig.
-     * @return \Twig_Environment Returns the Twig environment object.
+     * @return void
      */
     protected function initTwigEnvironment()
     {
-        $this->loader = new TwigLoader();
+        $this->loader = new TwigLoader;
 
-        $options = ['auto_reload' => true];
+        $isDebugMode = Config::get('app.debug', false);
+
+        $options = [
+            'auto_reload' => true,
+            'debug' => $isDebugMode,
+        ];
         if (!Config::get('cms.twigNoCache'))
             $options['cache'] =  storage_path().'/twig';
 
         $this->twig = new Twig_Environment($this->loader, $options);
-        $this->twig->addExtension(new TwigExtension($this));
+        $this->twig->addExtension(new CmsTwigExtension($this));
+        $this->twig->addExtension(new SystemTwigExtension);
+
+        if ($isDebugMode)
+            $this->twig->addExtension(new DebugExtension($this));
     }
 
     /**
      * Initializes the custom layout and page objects.
+     * @return void
      */
     protected function initCustomObjects()
     {
         $this->layoutObj = null;
-        
+
         if (!$this->layout->isFallBack()) {
-            CmsException::capture($this->layout, 300, function(){
-                $parser = new CodeParser($this->layout);
-                $this->layoutObj = $parser->source($this->page, $this->layout, $this);
-            });
+            CmsException::mask($this->layout, 300);
+            $parser = new CodeParser($this->layout);
+            $this->layoutObj = $parser->source($this->page, $this->layout, $this);
+            CmsException::unmask();
         }
 
-        CmsException::capture($this->page, 300, function(){
-            $parser = new CodeParser($this->page);
-            $this->pageObj = $parser->source($this->page, $this->layout, $this);
-        });
+        CmsException::mask($this->page, 300);
+        $parser = new CodeParser($this->page);
+        $this->pageObj = $parser->source($this->page, $this->layout, $this);
+        CmsException::unmask();
     }
 
     /**
      * Initializes the components for the layout and page.
+     * @return void
      */
     protected function initComponents()
     {
@@ -286,7 +359,8 @@ class Controller extends BaseController
             $this->vars[$alias] = $this->page->components[$alias] = $componentObj;
         }
 
-        $componentObj->onInit();
+        $componentObj->init();
+        $componentObj->onInit(); // Deprecated: Remove ithis line if year >= 2015
         return $componentObj;
     }
 
@@ -311,7 +385,7 @@ class Controller extends BaseController
                     $partialList = explode('&', $partialList);
 
                     foreach ($partialList as $partial) {
-                        if (!CmsFileHelper::validateName($partial))
+                        if (!preg_match('/^(?:\w+\:{2}|@)?[a-z0-9\_\-\.\/]+$/i', $partial))
                             throw new CmsException(Lang::get('cms::lang.partial.invalid_name', ['name'=>$partial]));
                     }
                 }
@@ -360,8 +434,18 @@ class Controller extends BaseController
                 $responseContents['X_OCTOBER_ERROR_MESSAGE'] = $ex->getMessage();
                 return Response::make($responseContents, 406);
              }
-            catch (Exception $ex) {
+            catch (ApplicationException $ex) {
                 return Response::make($ex->getMessage(), 500);
+            }
+            catch (Exception $ex) {
+                /*
+                 * Display a "dumbed down" error if custom page is activated
+                 * otherwise display a more detailed error.
+                 */
+                if (Config::get('cms.customErrorPage', false))
+                    return Response::make($ex->getMessage(), 500);
+
+                return Response::make(sprintf('"%s" on line %s of %s', $ex->getMessage(), $ex->getLine(), $ex->getFile()), 500);
             }
         }
 
@@ -417,6 +501,15 @@ class Controller extends BaseController
     }
 
     /**
+     * Invokes the current page cycle without rendering the page,
+     * used by AJAX handler that may rely on the logic inside the action.
+     */
+    public function pageCycle()
+    {
+        return $this->execPageCycle();
+    }
+
+    /**
      * Executes the page life cycle.
      * Creates an object from the PHP sections of the page and
      * it's layout, then executes their life cycle functions.
@@ -426,21 +519,21 @@ class Controller extends BaseController
         /*
          * Extensibility
          */
-        if ($event = Event::fire('cms.page.start', [$this], true))
+        if ($event = $this->fireEvent('page.start', [], true))
             return $event;
 
-        if ($event = $this->fireEvent('page.start', [$this], true))
+        if ($event = Event::fire('cms.page.start', [$this], true))
             return $event;
 
         /*
          * Run layout functions
          */
         if ($this->layoutObj) {
-            $response = CmsException::capture($this->layout, 300, function(){
-                return (($result = $this->layoutObj->onStart())
-                    || ($result = $this->layout->runComponents())
-                    || ($result = $this->layoutObj->onBeforePageStart())) ? $result: null;
-            });
+            CmsException::mask($this->layout, 300);
+            $response = (($result = $this->layoutObj->onStart())
+                || ($result = $this->layout->runComponents())
+                || ($result = $this->layoutObj->onBeforePageStart())) ? $result: null;
+            CmsException::unmask();
 
             if ($response) return $response;
         }
@@ -448,11 +541,11 @@ class Controller extends BaseController
         /*
          * Run page functions
          */
-        $response = CmsException::capture($this->page, 300, function(){
-            return (($result = $this->pageObj->onStart())
-                || ($result = $this->page->runComponents())
-                || ($result = $this->pageObj->onEnd())) ? $result : null;
-        });
+        CmsException::mask($this->page, 300);
+        $response = (($result = $this->pageObj->onStart())
+            || ($result = $this->page->runComponents())
+            || ($result = $this->pageObj->onEnd())) ? $result : null;
+        CmsException::unmask();
 
         if ($response) return $response;
 
@@ -460,18 +553,18 @@ class Controller extends BaseController
          * Run remaining layout functions
          */
         if ($this->layoutObj) {
-            $response = CmsException::capture($this->layout, 300, function(){
-                return ($result = $this->layoutObj->onEnd()) ? $result : null;
-            });
+            CmsException::mask($this->layout, 300);
+            $response = ($result = $this->layoutObj->onEnd()) ? $result : null;
+            CmsException::unmask();
         }
 
         /*
          * Extensibility
          */
-        if ($event = Event::fire('cms.page.end', [$this], true))
+        if ($event = $this->fireEvent('page.end', [], true))
             return $event;
 
-        if ($event = $this->fireEvent('page.end', [$this], true))
+        if ($event = Event::fire('cms.page.end', [$this], true))
             return $event;
 
         return $response;
@@ -483,14 +576,29 @@ class Controller extends BaseController
      */
     public function renderPage()
     {
-        return $this->pageContents;
+        $contents = $this->pageContents;
+
+        /*
+         * Extensibility
+         */
+        if ($event = $this->fireEvent('page.render', [$contents], true))
+            return $event;
+
+        if ($event = Event::fire('cms.page.render', [$this, $contents], true))
+            return $event;
+
+        return $contents;
     }
 
     /**
      * Renders a requested partial.
      * The framework uses this method internally.
+     * @param string $partial The view to load.
+     * @param array $params Parameter variables to pass to the view.
+     * @param bool $throwException Throw an exception if the partial is not found.
+     * @return mixed Partial contents or false if not throwing an exception.
      */
-    public function renderPartial($name, $parameters = [])
+    public function renderPartial($name, $parameters = [], $throwException = true)
     {
         /*
          * Alias @ symbol for ::
@@ -509,18 +617,26 @@ class Controller extends BaseController
              * Component alias not supplied
              */
             if (!strlen($componentAlias)) {
-                if ($this->componentContext !== null)
+                if ($this->componentContext !== null) {
                     $componentObj = $this->componentContext;
-
-                elseif (($componentObj = $this->findComponentByPartial($partialName)) === null)
-                    throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
+                }
+                elseif (($componentObj = $this->findComponentByPartial($partialName)) === null) {
+                    if ($throwException)
+                        throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
+                    else
+                        return false;
+                }
             }
             /*
              * Component alias is supplied
              */
             else {
-                if (($componentObj = $this->findComponentByName($componentAlias)) === null)
-                    throw new CmsException(Lang::get('cms::lang.component.not_found', ['name'=>$componentAlias]));
+                if (($componentObj = $this->findComponentByName($componentAlias)) === null) {
+                    if ($throwException)
+                        throw new CmsException(Lang::get('cms::lang.component.not_found', ['name'=>$componentAlias]));
+                    else
+                        return false;
+                }
             }
 
             $partial = null;
@@ -541,8 +657,12 @@ class Controller extends BaseController
                 $partial = ComponentPartial::loadCached($componentObj, $partialName);
 
 
-            if ($partial === null)
-                throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
+            if ($partial === null) {
+                if ($throwException)
+                    throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
+                else
+                    return false;
+            }
 
             /*
              * Set context for self access
@@ -553,13 +673,20 @@ class Controller extends BaseController
             /*
              * Process theme partial
              */
-            if (($partial = Partial::loadCached($this->theme, $name)) === null)
-                throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
+            if (($partial = Partial::loadCached($this->theme, $name)) === null) {
+                if ($throwException)
+                    throw new CmsException(Lang::get('cms::lang.partial.not_found', ['name'=>$name]));
+                else
+                    return false;
+            }
         }
 
+        CmsException::mask($partial, 400);
         $this->loader->setObject($partial);
         $template = $this->twig->loadTemplate($partial->getFullPath());
         $result = $template->render(array_merge($this->vars, $parameters));
+        CmsException::unmask();
+
         $this->componentContext = null;
         return $result;
     }
@@ -570,7 +697,19 @@ class Controller extends BaseController
      */
     public function renderContent($name)
     {
-        if (($content = Content::loadCached($this->theme, $name)) === null)
+        /*
+         * Extensibility
+         */
+        if ($event = $this->fireEvent('page.beforeRenderContent', [$name], true))
+            $content = $event;
+
+        elseif ($event = Event::fire('cms.page.beforeRenderContent', [$this, $name], true))
+            $content = $event;
+
+        /*
+         * Load content from theme
+         */
+        elseif (($content = Content::loadCached($this->theme, $name)) === null)
             throw new CmsException(Lang::get('cms::lang.content.not_found', ['name'=>$name]));
 
         $filePath = $content->getFullPath();
@@ -578,6 +717,15 @@ class Controller extends BaseController
 
         if (strtolower(File::extension($filePath)) == 'md')
             $fileContent = Markdown::parse($fileContent);
+
+        /*
+         * Extensibility
+         */
+        if ($event = $this->fireEvent('page.renderContent', [$name, $fileContent], true))
+            return $event;
+
+        if ($event = Event::fire('cms.page.renderContent', [$this, $name, $fileContent], true))
+            return $event;
 
         return $fileContent;
     }
@@ -595,7 +743,17 @@ class Controller extends BaseController
                 return $result;
         }
 
-        return $this->renderPartial($name.'::default');
+        return $this->renderPartial($name.'::default', [], false);
+    }
+
+    /**
+     * Sets the status code for the current web response.
+     * @param int $code Status code
+     */
+    public function setStatusCode($code)
+    {
+        $this->statusCode = (int) $code;
+        return $this;
     }
 
     /**
@@ -608,12 +766,39 @@ class Controller extends BaseController
     }
 
     /**
+     * Returns the Twig environment.
+     * @return Twig_Environment
+     */
+    public function getTwig()
+    {
+        return $this->twig;
+    }
+
+    /**
      * Returns the routing object.
      * @return \Cms\Classes\Router
      */
     public function getRouter()
     {
         return $this->router;
+    }
+
+    /**
+     * Intended to be called from the layout, returns the page code base object.
+     * @return \Cms\Classes\CodeBase
+     */
+    public function getPageObject()
+    {
+        return $this->pageObj;
+    }
+
+    /**
+     * Intended to be called from the page, returns the layout code base object.
+     * @return \Cms\Classes\CodeBase
+     */
+    public function getLayoutObject()
+    {
+        return $this->layoutObj;
     }
 
     /**
@@ -641,8 +826,13 @@ class Controller extends BaseController
         if ($routePersistence)
             $parameters = array_merge($this->router->getParameters(), $parameters);
 
-        $url = $this->router->findByFile($name, $parameters);
-        return ($url) ? URL::to($url) : null;
+        if (!$url = $this->router->findByFile($name, $parameters))
+            return null;
+
+        if (substr($url, 0, 1) == '/')
+            $url = substr($url, 1);
+
+        return URL::action('Cms\Classes\Controller@run', ['slug' => $url]);
     }
 
     /**
@@ -662,14 +852,15 @@ class Controller extends BaseController
     public function themeUrl($url = null)
     {
         $themePath = Config::get('cms.themesDir').'/'.$this->getTheme()->getDirName();
-        $_url = Request::getBaseUrl();
 
-        if ($url === null)
-            $_url .= $themePath;
-        elseif (is_array($url))
+        if (is_array($url)) {
+            $_url = Request::getBaseUrl();
             $_url .= CombineAssets::combine($url, $themePath);
-        else
-            $_url .= $themePath.'/'.$url;
+        }
+        else {
+            $_url = Request::getBasePath().$themePath;
+            if ($url !== null) $_url .= '/'.$url;
+        }
 
         return $_url;
     }
@@ -711,7 +902,7 @@ class Controller extends BaseController
      * Searches the layout and page components by an alias
      * @return ComponentBase The component object, if found
      */
-    private function findComponentByName($name)
+    protected function findComponentByName($name)
     {
         if (isset($this->page->components[$name]))
             return $this->page->components[$name];
@@ -726,7 +917,7 @@ class Controller extends BaseController
      * Searches the layout and page components by an AJAX handler
      * @return ComponentBase The component object, if found
      */
-    private function findComponentByHandler($handler)
+    protected function findComponentByHandler($handler)
     {
         foreach ($this->page->components as $component) {
             if (method_exists($component, $handler))
@@ -745,7 +936,7 @@ class Controller extends BaseController
      * Searches the layout and page components by a partial file
      * @return ComponentBase The component object, if found
      */
-    private function findComponentByPartial($partial)
+    protected function findComponentByPartial($partial)
     {
         foreach ($this->page->components as $component) {
             $fileName = ComponentPartial::getFilePath($component, $partial);

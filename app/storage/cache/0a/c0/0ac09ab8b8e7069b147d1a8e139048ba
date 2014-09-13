@@ -1,0 +1,28 @@
+9999999999s:958:"a:2:{s:5:"mtime";i:1410626606;s:7:"content";s:904:"<ul class="post-list">
+    {% for post in blogPosts %}
+        <li>
+            <h3><a href="{{ blogPostPage|page({'slug': post.slug}) }}">{{ post.name }}</a></h3>
+
+<!--
+            <p class="info">
+                Posted
+                {% if post.categories.count %} in {% endif %}
+                {% for category in post.categories %}
+                    <a href="{{category.slug|app}}">{{ category.name }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                on {{ post.publshed_at|date('M d, Y') }}
+            </p>
+-->         <span class="content-blk">
+                {% if post.excerpt %}
+                    <p>{{ post.excerpt }}</p>
+                {% else %}
+                    {{ post.content|raw }}
+                {% endif %}
+            </span>
+        </li>
+    {% else %}
+        <li class="no-data">{{ blogNoPostsMessage }}</li>
+    {% endfor %}
+</ul>
+
+";}";

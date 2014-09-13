@@ -19,7 +19,7 @@
  * Service definition for AdExchangeBuyer (v1.3).
  *
  * <p>
- * Lets you manage your Ad Exchange Buyer account.
+ * Accesses your bidding-account information, submits creatives for validation, finds available direct deals, and retrieves performance reports.
  * </p>
  *
  * <p>
@@ -35,9 +35,11 @@ class Google_Service_AdExchangeBuyer extends Google_Service
   const ADEXCHANGE_BUYER = "https://www.googleapis.com/auth/adexchange.buyer";
 
   public $accounts;
+  public $billingInfo;
   public $creatives;
   public $directDeals;
   public $performanceReport;
+  public $pretargetingConfig;
   
 
   /**
@@ -92,6 +94,30 @@ class Google_Service_AdExchangeBuyer extends Google_Service
                   'required' => true,
                 ),
               ),
+            ),
+          )
+        )
+    );
+    $this->billingInfo = new Google_Service_AdExchangeBuyer_BillingInfo_Resource(
+        $this,
+        $this->serviceName,
+        'billingInfo',
+        array(
+          'methods' => array(
+            'get' => array(
+              'path' => 'billinginfo/{accountId}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'integer',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => 'billinginfo',
+              'httpMethod' => 'GET',
+              'parameters' => array(),
             ),
           )
         )
@@ -214,6 +240,96 @@ class Google_Service_AdExchangeBuyer extends Google_Service
           )
         )
     );
+    $this->pretargetingConfig = new Google_Service_AdExchangeBuyer_PretargetingConfig_Resource(
+        $this,
+        $this->serviceName,
+        'pretargetingConfig',
+        array(
+          'methods' => array(
+            'delete' => array(
+              'path' => 'pretargetingconfigs/{accountId}/{configId}',
+              'httpMethod' => 'DELETE',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'configId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'get' => array(
+              'path' => 'pretargetingconfigs/{accountId}/{configId}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'configId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'insert' => array(
+              'path' => 'pretargetingconfigs/{accountId}',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => 'pretargetingconfigs/{accountId}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'patch' => array(
+              'path' => 'pretargetingconfigs/{accountId}/{configId}',
+              'httpMethod' => 'PATCH',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'configId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'update' => array(
+              'path' => 'pretargetingconfigs/{accountId}/{configId}',
+              'httpMethod' => 'PUT',
+              'parameters' => array(
+                'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'configId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),
+          )
+        )
+    );
   }
 }
 
@@ -285,6 +401,47 @@ class Google_Service_AdExchangeBuyer_Accounts_Resource extends Google_Service_Re
     $params = array('id' => $id, 'postBody' => $postBody);
     $params = array_merge($params, $optParams);
     return $this->call('update', array($params), "Google_Service_AdExchangeBuyer_Account");
+  }
+}
+
+/**
+ * The "billingInfo" collection of methods.
+ * Typical usage is:
+ *  <code>
+ *   $adexchangebuyerService = new Google_Service_AdExchangeBuyer(...);
+ *   $billingInfo = $adexchangebuyerService->billingInfo;
+ *  </code>
+ */
+class Google_Service_AdExchangeBuyer_BillingInfo_Resource extends Google_Service_Resource
+{
+
+  /**
+   * Returns the billing information for one account specified by account ID.
+   * (billingInfo.get)
+   *
+   * @param int $accountId
+   * The account id.
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_BillingInfo
+   */
+  public function get($accountId, $optParams = array())
+  {
+    $params = array('accountId' => $accountId);
+    $params = array_merge($params, $optParams);
+    return $this->call('get', array($params), "Google_Service_AdExchangeBuyer_BillingInfo");
+  }
+  /**
+   * Retrieves a list of billing information for all accounts of the authenticated
+   * user. (billingInfo.listBillingInfo)
+   *
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_BillingInfoList
+   */
+  public function listBillingInfo($optParams = array())
+  {
+    $params = array();
+    $params = array_merge($params, $optParams);
+    return $this->call('list', array($params), "Google_Service_AdExchangeBuyer_BillingInfoList");
   }
 }
 
@@ -434,11 +591,121 @@ class Google_Service_AdExchangeBuyer_PerformanceReport_Resource extends Google_S
   }
 }
 
+/**
+ * The "pretargetingConfig" collection of methods.
+ * Typical usage is:
+ *  <code>
+ *   $adexchangebuyerService = new Google_Service_AdExchangeBuyer(...);
+ *   $pretargetingConfig = $adexchangebuyerService->pretargetingConfig;
+ *  </code>
+ */
+class Google_Service_AdExchangeBuyer_PretargetingConfig_Resource extends Google_Service_Resource
+{
+
+  /**
+   * Deletes an existing pretargeting config. (pretargetingConfig.delete)
+   *
+   * @param string $accountId
+   * The account id to delete the pretargeting config for.
+   * @param string $configId
+   * The specific id of the configuration to delete.
+   * @param array $optParams Optional parameters.
+   */
+  public function delete($accountId, $configId, $optParams = array())
+  {
+    $params = array('accountId' => $accountId, 'configId' => $configId);
+    $params = array_merge($params, $optParams);
+    return $this->call('delete', array($params));
+  }
+  /**
+   * Gets a specific pretargeting configuration (pretargetingConfig.get)
+   *
+   * @param string $accountId
+   * The account id to get the pretargeting config for.
+   * @param string $configId
+   * The specific id of the configuration to retrieve.
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_PretargetingConfig
+   */
+  public function get($accountId, $configId, $optParams = array())
+  {
+    $params = array('accountId' => $accountId, 'configId' => $configId);
+    $params = array_merge($params, $optParams);
+    return $this->call('get', array($params), "Google_Service_AdExchangeBuyer_PretargetingConfig");
+  }
+  /**
+   * Inserts a new pretargeting configuration. (pretargetingConfig.insert)
+   *
+   * @param string $accountId
+   * The account id to insert the pretargeting config for.
+   * @param Google_PretargetingConfig $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_PretargetingConfig
+   */
+  public function insert($accountId, Google_Service_AdExchangeBuyer_PretargetingConfig $postBody, $optParams = array())
+  {
+    $params = array('accountId' => $accountId, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('insert', array($params), "Google_Service_AdExchangeBuyer_PretargetingConfig");
+  }
+  /**
+   * Retrieves a list of the authenticated user's pretargeting configurations.
+   * (pretargetingConfig.listPretargetingConfig)
+   *
+   * @param string $accountId
+   * The account id to get the pretargeting configs for.
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_PretargetingConfigList
+   */
+  public function listPretargetingConfig($accountId, $optParams = array())
+  {
+    $params = array('accountId' => $accountId);
+    $params = array_merge($params, $optParams);
+    return $this->call('list', array($params), "Google_Service_AdExchangeBuyer_PretargetingConfigList");
+  }
+  /**
+   * Updates an existing pretargeting config. This method supports patch
+   * semantics. (pretargetingConfig.patch)
+   *
+   * @param string $accountId
+   * The account id to update the pretargeting config for.
+   * @param string $configId
+   * The specific id of the configuration to update.
+   * @param Google_PretargetingConfig $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_PretargetingConfig
+   */
+  public function patch($accountId, $configId, Google_Service_AdExchangeBuyer_PretargetingConfig $postBody, $optParams = array())
+  {
+    $params = array('accountId' => $accountId, 'configId' => $configId, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('patch', array($params), "Google_Service_AdExchangeBuyer_PretargetingConfig");
+  }
+  /**
+   * Updates an existing pretargeting config. (pretargetingConfig.update)
+   *
+   * @param string $accountId
+   * The account id to update the pretargeting config for.
+   * @param string $configId
+   * The specific id of the configuration to update.
+   * @param Google_PretargetingConfig $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AdExchangeBuyer_PretargetingConfig
+   */
+  public function update($accountId, $configId, Google_Service_AdExchangeBuyer_PretargetingConfig $postBody, $optParams = array())
+  {
+    $params = array('accountId' => $accountId, 'configId' => $configId, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('update', array($params), "Google_Service_AdExchangeBuyer_PretargetingConfig");
+  }
+}
+
 
 
 
 class Google_Service_AdExchangeBuyer_Account extends Google_Collection
 {
+  protected $collection_key = 'bidderLocation';
   protected $bidderLocationType = 'Google_Service_AdExchangeBuyer_AccountBidderLocation';
   protected $bidderLocationDataType = 'array';
   public $cookieMatchingNid;
@@ -547,7 +814,85 @@ class Google_Service_AdExchangeBuyer_AccountBidderLocation extends Google_Model
 
 class Google_Service_AdExchangeBuyer_AccountsList extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_AdExchangeBuyer_Account';
+  protected $itemsDataType = 'array';
+  public $kind;
+
+  public function setItems($items)
+  {
+    $this->items = $items;
+  }
+
+  public function getItems()
+  {
+    return $this->items;
+  }
+
+  public function setKind($kind)
+  {
+    $this->kind = $kind;
+  }
+
+  public function getKind()
+  {
+    return $this->kind;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_BillingInfo extends Google_Collection
+{
+  protected $collection_key = 'billingId';
+  public $accountId;
+  public $accountName;
+  public $billingId;
+  public $kind;
+
+  public function setAccountId($accountId)
+  {
+    $this->accountId = $accountId;
+  }
+
+  public function getAccountId()
+  {
+    return $this->accountId;
+  }
+
+  public function setAccountName($accountName)
+  {
+    $this->accountName = $accountName;
+  }
+
+  public function getAccountName()
+  {
+    return $this->accountName;
+  }
+
+  public function setBillingId($billingId)
+  {
+    $this->billingId = $billingId;
+  }
+
+  public function getBillingId()
+  {
+    return $this->billingId;
+  }
+
+  public function setKind($kind)
+  {
+    $this->kind = $kind;
+  }
+
+  public function getKind()
+  {
+    return $this->kind;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_BillingInfoList extends Google_Collection
+{
+  protected $collection_key = 'items';
+  protected $itemsType = 'Google_Service_AdExchangeBuyer_BillingInfo';
   protected $itemsDataType = 'array';
   public $kind;
 
@@ -574,6 +919,7 @@ class Google_Service_AdExchangeBuyer_AccountsList extends Google_Collection
 
 class Google_Service_AdExchangeBuyer_Creative extends Google_Collection
 {
+  protected $collection_key = 'vendorType';
   public $hTMLSnippet;
   public $accountId;
   public $advertiserId;
@@ -801,6 +1147,7 @@ class Google_Service_AdExchangeBuyer_Creative extends Google_Collection
 
 class Google_Service_AdExchangeBuyer_CreativeCorrections extends Google_Collection
 {
+  protected $collection_key = 'details';
   public $details;
   public $reason;
 
@@ -827,6 +1174,7 @@ class Google_Service_AdExchangeBuyer_CreativeCorrections extends Google_Collecti
 
 class Google_Service_AdExchangeBuyer_CreativeDisapprovalReasons extends Google_Collection
 {
+  protected $collection_key = 'details';
   public $details;
   public $reason;
 
@@ -853,6 +1201,7 @@ class Google_Service_AdExchangeBuyer_CreativeDisapprovalReasons extends Google_C
 
 class Google_Service_AdExchangeBuyer_CreativeFilteringReasons extends Google_Collection
 {
+  protected $collection_key = 'reasons';
   public $date;
   protected $reasonsType = 'Google_Service_AdExchangeBuyer_CreativeFilteringReasonsReasons';
   protected $reasonsDataType = 'array';
@@ -906,6 +1255,7 @@ class Google_Service_AdExchangeBuyer_CreativeFilteringReasonsReasons extends Goo
 
 class Google_Service_AdExchangeBuyer_CreativesList extends Google_Collection
 {
+  protected $collection_key = 'items';
   protected $itemsType = 'Google_Service_AdExchangeBuyer_Creative';
   protected $itemsDataType = 'array';
   public $kind;
@@ -1069,6 +1419,7 @@ class Google_Service_AdExchangeBuyer_DirectDeal extends Google_Model
 
 class Google_Service_AdExchangeBuyer_DirectDealsList extends Google_Collection
 {
+  protected $collection_key = 'directDeals';
   protected $directDealsType = 'Google_Service_AdExchangeBuyer_DirectDeal';
   protected $directDealsDataType = 'array';
   public $kind;
@@ -1096,6 +1447,7 @@ class Google_Service_AdExchangeBuyer_DirectDealsList extends Google_Collection
 
 class Google_Service_AdExchangeBuyer_PerformanceReport extends Google_Collection
 {
+  protected $collection_key = 'hostedMatchStatusRate';
   public $calloutStatusRate;
   public $cookieMatcherStatusRate;
   public $creativeStatusRate;
@@ -1276,6 +1628,7 @@ class Google_Service_AdExchangeBuyer_PerformanceReport extends Google_Collection
 
 class Google_Service_AdExchangeBuyer_PerformanceReportList extends Google_Collection
 {
+  protected $collection_key = 'performanceReport';
   public $kind;
   protected $performanceReportType = 'Google_Service_AdExchangeBuyer_PerformanceReport';
   protected $performanceReportDataType = 'array';
@@ -1298,5 +1651,372 @@ class Google_Service_AdExchangeBuyer_PerformanceReportList extends Google_Collec
   public function getPerformanceReport()
   {
     return $this->performanceReport;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_PretargetingConfig extends Google_Collection
+{
+  protected $collection_key = 'verticals';
+  public $billingId;
+  public $configId;
+  public $configName;
+  public $creativeType;
+  protected $dimensionsType = 'Google_Service_AdExchangeBuyer_PretargetingConfigDimensions';
+  protected $dimensionsDataType = 'array';
+  public $excludedContentLabels;
+  public $excludedGeoCriteriaIds;
+  protected $excludedPlacementsType = 'Google_Service_AdExchangeBuyer_PretargetingConfigExcludedPlacements';
+  protected $excludedPlacementsDataType = 'array';
+  public $excludedUserLists;
+  public $excludedVerticals;
+  public $geoCriteriaIds;
+  public $isActive;
+  public $kind;
+  public $languages;
+  public $mobileCarriers;
+  public $mobileDevices;
+  public $mobileOperatingSystemVersions;
+  protected $placementsType = 'Google_Service_AdExchangeBuyer_PretargetingConfigPlacements';
+  protected $placementsDataType = 'array';
+  public $platforms;
+  public $supportedCreativeAttributes;
+  public $userLists;
+  public $vendorTypes;
+  public $verticals;
+
+  public function setBillingId($billingId)
+  {
+    $this->billingId = $billingId;
+  }
+
+  public function getBillingId()
+  {
+    return $this->billingId;
+  }
+
+  public function setConfigId($configId)
+  {
+    $this->configId = $configId;
+  }
+
+  public function getConfigId()
+  {
+    return $this->configId;
+  }
+
+  public function setConfigName($configName)
+  {
+    $this->configName = $configName;
+  }
+
+  public function getConfigName()
+  {
+    return $this->configName;
+  }
+
+  public function setCreativeType($creativeType)
+  {
+    $this->creativeType = $creativeType;
+  }
+
+  public function getCreativeType()
+  {
+    return $this->creativeType;
+  }
+
+  public function setDimensions($dimensions)
+  {
+    $this->dimensions = $dimensions;
+  }
+
+  public function getDimensions()
+  {
+    return $this->dimensions;
+  }
+
+  public function setExcludedContentLabels($excludedContentLabels)
+  {
+    $this->excludedContentLabels = $excludedContentLabels;
+  }
+
+  public function getExcludedContentLabels()
+  {
+    return $this->excludedContentLabels;
+  }
+
+  public function setExcludedGeoCriteriaIds($excludedGeoCriteriaIds)
+  {
+    $this->excludedGeoCriteriaIds = $excludedGeoCriteriaIds;
+  }
+
+  public function getExcludedGeoCriteriaIds()
+  {
+    return $this->excludedGeoCriteriaIds;
+  }
+
+  public function setExcludedPlacements($excludedPlacements)
+  {
+    $this->excludedPlacements = $excludedPlacements;
+  }
+
+  public function getExcludedPlacements()
+  {
+    return $this->excludedPlacements;
+  }
+
+  public function setExcludedUserLists($excludedUserLists)
+  {
+    $this->excludedUserLists = $excludedUserLists;
+  }
+
+  public function getExcludedUserLists()
+  {
+    return $this->excludedUserLists;
+  }
+
+  public function setExcludedVerticals($excludedVerticals)
+  {
+    $this->excludedVerticals = $excludedVerticals;
+  }
+
+  public function getExcludedVerticals()
+  {
+    return $this->excludedVerticals;
+  }
+
+  public function setGeoCriteriaIds($geoCriteriaIds)
+  {
+    $this->geoCriteriaIds = $geoCriteriaIds;
+  }
+
+  public function getGeoCriteriaIds()
+  {
+    return $this->geoCriteriaIds;
+  }
+
+  public function setIsActive($isActive)
+  {
+    $this->isActive = $isActive;
+  }
+
+  public function getIsActive()
+  {
+    return $this->isActive;
+  }
+
+  public function setKind($kind)
+  {
+    $this->kind = $kind;
+  }
+
+  public function getKind()
+  {
+    return $this->kind;
+  }
+
+  public function setLanguages($languages)
+  {
+    $this->languages = $languages;
+  }
+
+  public function getLanguages()
+  {
+    return $this->languages;
+  }
+
+  public function setMobileCarriers($mobileCarriers)
+  {
+    $this->mobileCarriers = $mobileCarriers;
+  }
+
+  public function getMobileCarriers()
+  {
+    return $this->mobileCarriers;
+  }
+
+  public function setMobileDevices($mobileDevices)
+  {
+    $this->mobileDevices = $mobileDevices;
+  }
+
+  public function getMobileDevices()
+  {
+    return $this->mobileDevices;
+  }
+
+  public function setMobileOperatingSystemVersions($mobileOperatingSystemVersions)
+  {
+    $this->mobileOperatingSystemVersions = $mobileOperatingSystemVersions;
+  }
+
+  public function getMobileOperatingSystemVersions()
+  {
+    return $this->mobileOperatingSystemVersions;
+  }
+
+  public function setPlacements($placements)
+  {
+    $this->placements = $placements;
+  }
+
+  public function getPlacements()
+  {
+    return $this->placements;
+  }
+
+  public function setPlatforms($platforms)
+  {
+    $this->platforms = $platforms;
+  }
+
+  public function getPlatforms()
+  {
+    return $this->platforms;
+  }
+
+  public function setSupportedCreativeAttributes($supportedCreativeAttributes)
+  {
+    $this->supportedCreativeAttributes = $supportedCreativeAttributes;
+  }
+
+  public function getSupportedCreativeAttributes()
+  {
+    return $this->supportedCreativeAttributes;
+  }
+
+  public function setUserLists($userLists)
+  {
+    $this->userLists = $userLists;
+  }
+
+  public function getUserLists()
+  {
+    return $this->userLists;
+  }
+
+  public function setVendorTypes($vendorTypes)
+  {
+    $this->vendorTypes = $vendorTypes;
+  }
+
+  public function getVendorTypes()
+  {
+    return $this->vendorTypes;
+  }
+
+  public function setVerticals($verticals)
+  {
+    $this->verticals = $verticals;
+  }
+
+  public function getVerticals()
+  {
+    return $this->verticals;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_PretargetingConfigDimensions extends Google_Model
+{
+  public $height;
+  public $width;
+
+  public function setHeight($height)
+  {
+    $this->height = $height;
+  }
+
+  public function getHeight()
+  {
+    return $this->height;
+  }
+
+  public function setWidth($width)
+  {
+    $this->width = $width;
+  }
+
+  public function getWidth()
+  {
+    return $this->width;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_PretargetingConfigExcludedPlacements extends Google_Model
+{
+  public $token;
+  public $type;
+
+  public function setToken($token)
+  {
+    $this->token = $token;
+  }
+
+  public function getToken()
+  {
+    return $this->token;
+  }
+
+  public function setType($type)
+  {
+    $this->type = $type;
+  }
+
+  public function getType()
+  {
+    return $this->type;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_PretargetingConfigList extends Google_Collection
+{
+  protected $collection_key = 'items';
+  protected $itemsType = 'Google_Service_AdExchangeBuyer_PretargetingConfig';
+  protected $itemsDataType = 'array';
+  public $kind;
+
+  public function setItems($items)
+  {
+    $this->items = $items;
+  }
+
+  public function getItems()
+  {
+    return $this->items;
+  }
+
+  public function setKind($kind)
+  {
+    $this->kind = $kind;
+  }
+
+  public function getKind()
+  {
+    return $this->kind;
+  }
+}
+
+class Google_Service_AdExchangeBuyer_PretargetingConfigPlacements extends Google_Model
+{
+  public $token;
+  public $type;
+
+  public function setToken($token)
+  {
+    $this->token = $token;
+  }
+
+  public function getToken()
+  {
+    return $this->token;
+  }
+
+  public function setType($type)
+  {
+    $this->type = $type;
+  }
+
+  public function getType()
+  {
+    return $this->type;
   }
 }

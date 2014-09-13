@@ -1,17 +1,18 @@
 /*
- * An input preset converter. 
+ * An input preset converter.
  *
  * The API allows to convert text entered into an element to an URL or file name value in another input element.
- * 
+ *
  * Supported data attributes:
  * - data-input-preset: specifies a CSS selector for a source input element
- * - data-input-preset-closest-parent: optional, specifies a CSS selector for a closest common parent 
+ * - data-input-preset-closest-parent: optional, specifies a CSS selector for a closest common parent
  *   for the source and destination input elements.
- * - data-input-preset-type: specifies the conversion type. Supported values are: URL, file.
+ * - data-input-preset-type: specifies the conversion type. Supported values are:
+ *   url, file, slug, camel.
  *
  * Example: <input type="text" id="name" value=""/>
  *          <input type="text"
- *             data-input-preset="#name" 
+ *             data-input-preset="#name"
  *             data-input-preset-type="file">
  *
  * JavaScript API:
@@ -115,32 +116,11 @@
         AZERBAIJANI_MAP
     ]
 
-    var InputPreset = function (element, options) {
-        var $el = this.$el = $(element);
-        this.options = options || {};
-        this.cancelled = false;
-
-        // Do not update the element if it already has a value
-        if ($el.val().length)
-            return
-
-        var parent = options.inputPresetClosestParent !== undefined ? 
-                $el.closest(options.inputPresetClosestParent) :
-                undefined,
-            self = this;
-
-        this.$src = $(options.inputPreset, parent),
-        this.$src.on('keyup', function() {
-            if (self.cancelled)
-                return;
-
-            $el.val(self.formatValue())
-        })
-
-        this.$el.on('change', function() {
-            self.cancelled = true
-        })
-    }
+    var removeList = [
+        "a", "an", "as", "at", "before", "but", "by", "for", "from", "is",
+        "in", "into", "like", "of", "off", "on", "onto", "per", "since",
+        "than", "the", "this", "that", "to", "up", "via", "with"
+    ]
 
     var Downcoder = {
         Initialize: function() {
@@ -166,6 +146,26 @@
         }
     }
 
+    function toCamel(slug, numChars) {
+
+        Downcoder.Initialize()
+        slug = slug.replace(Downcoder.regex, function(m) {
+            return Downcoder.map[m]
+        })
+
+        var regex = new RegExp('\\b(' + removeList.join('|') + ')\\b', 'gi')
+        slug = slug.replace(regex, '')
+        slug = slug.toLowerCase()
+        slug = slug.replace(/(\b|-)\w/g, function(m) {
+            return m.toUpperCase();
+        });
+        slug = slug.replace(/[^-\w\s]/g, '')
+        slug = slug.replace(/^\s+|\s+$/g, '')
+        slug = slug.replace(/[-\s]+/g, '')
+        slug = slug.substr(0, 1).toLowerCase() + slug.substr(1);
+        return slug.substring(0, numChars)
+    }
+
     function slugify(slug, numChars) {
 
         Downcoder.Initialize()
@@ -173,11 +173,6 @@
             return Downcoder.map[m]
         })
 
-        var removeList = [
-            "a", "an", "as", "at", "before", "but", "by", "for", "from", "is",
-            "in", "into", "like", "of", "off", "on", "onto", "per", "since",
-            "than", "the", "this", "that", "to", "up", "via", "with"
-        ]
         var regex = new RegExp('\\b(' + removeList.join('|') + ')\\b', 'gi')
         slug = slug.replace(regex, '')
         slug = slug.replace(/[^-\w\s]/g, '')
@@ -192,21 +187,30 @@
         this.options = options || {}
         this.cancelled = false
 
-        // Do not update the element if it already has a value
-        if ($el.val().length)
-            return
-
         var parent = options.inputPresetClosestParent !== undefined ?
                 $el.closest(options.inputPresetClosestParent) :
                 undefined,
-            self = this
+            self = this,
+            prefix = ''
+
+        if (options.inputPresetPrefixInput !== undefined)
+            prefix = $(options.inputPresetPrefixInput, parent).val()
+
+        if (prefix === undefined)
+            prefix = ''
+
+        // Do not update the element if it already has a value and the value doesn't match the prefix
+        if ($el.val().length && $el.val() != prefix)
+            return
+
+        $el.val(prefix)
 
         this.$src = $(options.inputPreset, parent),
         this.$src.on('keyup', function() {
             if (self.cancelled)
                 return
 
-            $el.val(self.formatValue())
+            $el.val(prefix + self.formatValue())
         })
 
         this.$el.on('change', function() {
@@ -215,18 +219,23 @@
     }
 
     InputPreset.prototype.formatValue = function() {
-        var value = slugify(this.$src.val())
+        if (this.options.inputPresetType == 'camel')
+            var value = toCamel(this.$src.val())
+        else {
+            var value = slugify(this.$src.val())
+        }
 
         if (this.options.inputPresetType == 'url')
             value = '/' + value
 
-        return value.toLowerCase().replace(/\s/gi, "-")
+        return value.replace(/\s/gi, "-")
     }
 
     InputPreset.DEFAULTS = {
         inputPreset: '',
         inputPresetType: 'file',
-        inputPresetClosestParent: undefined
+        inputPresetClosestParent: undefined,
+        inputPresetPrefixInput: undefined
     }
 
     // INPUT CONVERTER PLUGIN DEFINITION

@@ -1,11 +1,11 @@
 <?php namespace RainLab\User;
 
 use App;
+use Event;
 use Backend;
-use Controller;
 use System\Classes\PluginBase;
-use RainLab\User\Classes\TagProcessor;
 use Illuminate\Foundation\AliasLoader;
+use RainLab\User\Models\MailBlocker;
 
 class Plugin extends PluginBase
 {
@@ -27,6 +27,13 @@ class Plugin extends PluginBase
 
         App::singleton('user.auth', function() {
             return \RainLab\User\Classes\AuthManager::instance();
+        });
+
+          /*
+         * Apply user-based mail blocking 
+         */
+        Event::listen('mailer.beforeSend', function($mailer, $view, $message){
+            return MailBlocker::filterMessage($view, $message);
         });
     }
 

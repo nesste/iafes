@@ -1,5 +1,7 @@
 <?php namespace October\Rain\Database;
 
+use Exception;
+
 /**
  * Database driver dongle
  *
@@ -8,30 +10,72 @@
 class Dongle
 {
 
+    /**
+     * @var DB Database helper object
+     */
     protected $db;
+
+    /**
+     * @var string Driver to convert to: mysql, sqlite, pgsql, sqlsrv.
+     */
     protected $driver;
 
+    /**
+     * Constructor.
+     */
     public function __construct($driver = 'mysql', $db = null)
     {
         $this->db = $db;
         $this->driver = $driver;
     }
 
+    /**
+     * Helper method, softly checks if a database is present.
+     * @return boolean
+     */
+    public function hasDatabase()
+    {
+        try {
+            $this->db->connection()->getDatabaseName();
+        }
+        catch (Exception $ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Transforms and executes a raw SQL statement
+     * @param  string $sql
+     * @return mixed
+     */
     public function raw($sql)
     {
         return $this->db->raw($this->parse($sql));
     }
 
+    /**
+     * Transforms an SQL statement to match the active driver.
+     * @param  string $sql
+     * @return string
+     */
     public function parse($sql)
     {
         $sql = $this->parseGroupConcat($sql);
         $sql = $this->parseConcat($sql);
+        $sql = $this->parseIfNull($sql);
         return $sql;
     }
 
+    /**
+     * Transforms GROUP_CONCAT statement.
+     * @param  string $sql
+     * @return string
+     */
     public function parseGroupConcat($sql)
     {
-        return preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
+        $result = preg_replace_callback('/group_concat\(([^)]+)\)/i', function($matches){
             if (!isset($matches[1]))
                 return $matches[0];
 
@@ -40,12 +84,23 @@ class Dongle
                 case 'mysql':
                     return $matches[0];
 
+                case 'pgsql':
                 case 'sqlite':
                     return str_ireplace(' separator ', ', ', $matches[0]);
             }
         }, $sql);
+
+        if ($this->driver == 'pgsql')
+            $result = str_ireplace('group_concat(', 'string_agg(', $result);
+
+        return $result;
     }
 
+    /**
+     * Transforms CONCAT statement.
+     * @param  string $sql
+     * @return string
+     */
     public function parseConcat($sql)
     {
         return preg_replace_callback('/(?:group_)?concat\(([^)]+)\)/i', function($matches){
@@ -63,10 +118,37 @@ class Dongle
                 case 'mysql':
                     return $matches[0];
 
+                case 'pgsql':
                 case 'sqlite':
                     return implode(' || ', $concatFields);
             }
         }, $sql);
+    }
+
+    /**
+     * Transforms IFNULL statement.
+     * @param  string $sql
+     * @return string
+     */
+    public function parseIfNull($sql)
+    {
+        if ($this->driver != 'pgsql')
+            return $sql;
+
+        return str_ireplace('ifnull(', 'coalesce(', $sql);
+    }
+
+    /**
+     * Some drivers require same-type comparisons.
+     * @param  string $sql
+     * @return string
+     */
+    public function cast($sql, $asType = 'INTEGER')
+    {
+        if ($this->driver != 'pgsql')
+            return $sql;
+
+        return 'CAST('.$sql.' AS '.$asType.')';
     }
 
 }

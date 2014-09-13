@@ -12,7 +12,7 @@ fields:
     label: Slug
     span: right
     attributes:
-        data-input-preset: 'input[name="subCategory[name]"]'
+        data-input-preset: 'input[name="Subcategory[name]"]'
 
   category:
       tab: Category

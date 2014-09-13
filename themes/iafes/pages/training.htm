@@ -1,0 +1,82 @@
+title = "training"
+url = "/training/:slug?/:sub?"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "10"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[blogCategory]
+paramId = "slug"
+postPage = "training"
+postsPerPage = "10"
+noPostsMessage = "No posts found"
+
+[subPost]
+SparamId = "sub"
+subPostName = "slug"
+
+[blogPost]
+paramId = "sub"
+SparamId = "slug"
+==
+<?php
+function onStart(){
+	
+	$this['page'] ='training';
+	
+	$this['sub'] = $this->param('sub');
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    
+    if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+}
+?>
+==
+{% put nav %}
+	<ul class="unstyled second-nav nav">
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/courses">Courses</a></li>
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/enroll">Enroll</a></li>
+		<li><a href="http://vicadis.net/courses" target="_blank">VICADIS courses</a></li>
+	</ul><!-- end .second-nav -->
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% elseif sub != '' %}
+            {{ title }} > {{ sub }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+{% put mainContent %}
+    {% if (title == '') %}
+        {% component 'blogCategory' %}
+    {% else %}
+        {% if sub != '' %}
+            {% component 'subPost' %}
+        {% else %}
+            {% component 'blogPost' %}
+        {% endif %}
+    {% endif %}
+{% endput %}

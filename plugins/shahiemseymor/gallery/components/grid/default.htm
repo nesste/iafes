@@ -1,0 +1,19 @@
+{% for album in albums %}
+<div id="content" class="col-lg-4">
+	<h3>{{ album.title }}</h3>
+   	<ul class="stack" data-count="{{ photos.find(album.id).images|length }}">
+    {% for photo in photos.find(album.id).images %}
+		<li><img src="{{ photo.getThumb(200, 200) }}" rel="group1" data-glisse-big="{{ photo.getPath() }}" class="tl" /></li>
+	{% endfor %}
+   </ul>
+</div>
+{% endfor %}
+
+<div class="clear"></div> 
+<script>
+ $(function () {
+	$(function () {
+    	$('.tl').glisse({speed: {{ speedGallery }}, changeSpeed: {{ imagespeedGallery }}, effect: '{{ effect }}', fullscreen: {{ fullscreen }} }); 
+    });
+});
+</script>

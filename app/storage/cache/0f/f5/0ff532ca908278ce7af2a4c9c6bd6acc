@@ -1,0 +1,57 @@
+9999999999s:1402:"a:5:{s:5:"mtime";i:1400968705;s:7:"content";s:598:"title = "login"
+url = "/iafes-association/login/:code?"
+layout = "master"
+
+[account]
+redirect = "usersection"
+paramCode = "code"
+
+[blogPosts]
+postsPerPage = "3"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+==
+<?php
+function onStart(){
+	$this['page'] = "Sign in";
+	
+	$this['news'] = false;
+}
+?>
+==
+{% put nav %}
+	{% partial 'iafes-nav.htm'%}
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+{% put pageName %}
+    <h1>{{ page }}</h1>
+{% endput %}
+
+{% put mainContent %}
+	{% component 'account' %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:5:"login";s:3:"url";s:31:"/iafes-association/login/:code?";s:6:"layout";s:6:"master";s:10:"components";a:2:{s:7:"account";a:2:{s:8:"redirect";s:11:"usersection";s:9:"paramCode";s:4:"code";}s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:1:"3";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}}}s:4:"code";s:83:"
+function onStart(){
+	$this['page'] = "Sign in";
+	
+	$this['news'] = false;
+}
+";s:6:"markup";s:248:"{% put nav %}
+	{% partial 'iafes-nav.htm'%}
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}
+
+{% put pageName %}
+    <h1>{{ page }}</h1>
+{% endput %}
+
+{% put mainContent %}
+	{% component 'account' %}
+{% endput %}";}";

@@ -1,2 +1,18 @@
 
-{{ subPostBlog.content_html | raw }}
+<div class="content">{{ subPostBlog.content_html | raw }}</div>
+
+
+
+{% if subPostBlog.featured_images.count %}
+    <div class="featured-images text-center">
+        {% for image in subPostBlog.featured_images %}
+            <p>
+                <img
+                    data-src="{{ image.filename }}"
+                    src="{{ image.path }}"
+                    alt="{{ image.description }}"
+                    style="max-width: 100%" />
+            </p>
+        {% endfor %}
+    </div>
+{% endif %}

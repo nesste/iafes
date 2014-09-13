@@ -11,7 +11,8 @@
  *
  * JavaScript API:
  *
- * $('#buttons').loadIndicator({text: 'Saving...', 'opaque': true}) - display the indicator
+ * $('#buttons').loadIndicator({text: 'Saving...', opaque: true}) - display the indicator in a solid (opaque) state
+ * $('#buttons').loadIndicator({text: 'Saving...'}) - display the indicator in a transparent state
  * $('#buttons').loadIndicator('hide') - display the indicator
  */
 +function ($) { "use strict";
@@ -100,7 +101,7 @@
 
     // LOADINDICATOR DATA-API
     // ==============
-    
+
     $(document)
         .on('ajaxPromise', '[data-load-indicator]', function() {
             var

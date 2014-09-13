@@ -5,31 +5,16 @@ use October\Rain\Database\ModelBehavior;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * Act as Tree model extension
+ *
+ * DEPRECATED WARNING: This class is deprecated and should be deleted
+ * if the current year is equal to or greater than 2015.
  * 
- * Simple category implementation, for advanced implementation see:
- * \October\Rain\Database\Behaviors\NestedSetModel
+ * @todo Delete this file if year >= 2015.
  *
- * Usage:
- *
- * Model table must have parent_id table column.
- * In the model class definition:
- *
- *   public $implement = ['October.Rain.Database.Behaviors.TreeModel'];
- *
- * To get children:
- *
- *   $model->getChildren();
- *
- * To get root elements:
- *
- *   $model->getRootChildren();
- *
- * You can change the sort field used by declaring:
- *
- *   public $treeModelParentColumn = 'my_parent_column';
+ * See trait: October\Rain\Database\Traits\SimpleTree
  *
  */
+
 class TreeModel extends ModelBehavior
 {
 
@@ -52,7 +37,7 @@ class TreeModel extends ModelBehavior
     private static $parentCache = [];
     private static $cacheSortColumn = [];
 
-    private $modelClass;
+    protected $modelClass;
 
     /*
      * Constructor
@@ -255,7 +240,7 @@ class TreeModel extends ModelBehavior
      * @param  string $orderBy Specifies a database column name to sort the items by.
      * @return void
      */
-    private function initCache($orderBy)
+    protected function initCache($orderBy)
     {
         $className = $this->modelClass;
         $cacheKey = $this->getCacheKey($orderBy);
@@ -292,7 +277,7 @@ class TreeModel extends ModelBehavior
      * @param  string $orderBy
      * @return string
      */
-    private function getCacheKey($orderBy)
+    protected function getCacheKey($orderBy)
     {
         return $orderBy . $this->model->treeModelSqlFilter;
     }
@@ -302,7 +287,7 @@ class TreeModel extends ModelBehavior
      * @param  string $orderBy
      * @return boolean
      */
-    private function cacheExists($orderBy)
+    protected function cacheExists($orderBy)
     {
         $cacheKey = $this->getCacheKey($orderBy);
         return array_key_exists($this->modelClass, self::$objectCache) &&

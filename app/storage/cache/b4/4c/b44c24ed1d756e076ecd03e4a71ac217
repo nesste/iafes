@@ -1,0 +1,17 @@
+9999999999s:344:"a:2:{s:5:"mtime";i:1410619068;s:7:"content";s:290:"{% if not user %}
+
+    <div class="row">
+
+        <div class="col-md-12" style="margin-top:20px;">
+            {% partial __SELF__ ~ '::signin' %}
+        </div>
+
+    </div>
+
+{% else %}
+
+    {% partial __SELF__ ~ '::activation_check' %}
+
+    {% partial __SELF__ ~ '::update' %}
+
+{% endif %}";}";

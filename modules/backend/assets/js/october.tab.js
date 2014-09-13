@@ -128,18 +128,24 @@
     }
 
     Tab.prototype.initTab = function(li) {
-        var 
+        var
             $tabs = $('>li', this.$tabsContainer),
             tabIndex = $tabs.index(li),
-            targetId = this.tabId + '-tab-' + tabIndex,
+            time = new Date().getTime(),
+            targetId = this.tabId + '-tab-' + tabIndex + time,
             $a = $('a', li)
 
         $a.attr('data-target', '#'+targetId).attr('data-toggle', 'tab')
         if (!$a.attr('title'))
             $a.attr('title', $a.text())
 
+        var html = $a.html()
+
+        $a.html('')
+        $a.append($('<span class="title"></span>').html(html))
+
         var pane = $('> .tab-pane', this.$pagesContainer).eq(tabIndex).attr('id', targetId)
-        $(li).append($('<span class="tab-close"><i class="icon-times"></i></span>').click(function(){
+        $(li).append($('<span class="tab-close"><i>&times;</i></span>').click(function(){
             $(this).trigger('close.oc.tab')
             return false
         }))
@@ -355,7 +361,7 @@
             return
 
         var processedTitle = this.generateTitleText(title, index),
-            $link = $('> li > a', this.$tabsContainer).eq(index)
+            $link = $('> li > a span.title', this.$tabsContainer).eq(index)
 
         $link.attr('title', title)
         $link.text(processedTitle)

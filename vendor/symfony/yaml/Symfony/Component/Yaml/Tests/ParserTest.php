@@ -508,6 +508,53 @@ EOF
         );
     }
 
+    /**
+     * > It is an error for two equal keys to appear in the same mapping node.
+     * > In such a case the YAML processor may continue, ignoring the second
+     * > `key: value` pair and issuing an appropriate warning. This strategy
+     * > preserves a consistent information model for one-pass and random access
+     * > applications.
+     *
+     * @see http://yaml.org/spec/1.2/spec.html#id2759572
+     * @see http://yaml.org/spec/1.1/#id932806
+     *
+     * @covers \Symfony\Component\Yaml\Parser::parse
+     */
+    public function testMappingDuplicateKeyBlock()
+    {
+        $input = <<<EOD
+parent:
+    child: first
+    child: duplicate
+parent:
+    child: duplicate
+    child: duplicate
+EOD;
+        $expected = array(
+            'parent' => array(
+                'child' => 'first',
+            ),
+        );
+        $this->assertSame($expected, Yaml::parse($input));
+    }
+
+    /**
+     * @covers \Symfony\Component\Yaml\Inline::parseMapping
+     */
+    public function testMappingDuplicateKeyFlow()
+    {
+        $input = <<<EOD
+parent: { child: first, child: duplicate }
+parent: { child: duplicate, child: duplicate }
+EOD;
+        $expected = array(
+            'parent' => array(
+                'child' => 'first',
+            ),
+        );
+        $this->assertSame($expected, Yaml::parse($input));
+    }
+
     public function testEmptyValue()
     {
         $input = <<<EOF
@@ -602,6 +649,32 @@ EOT
             </body>
 
         footer # comment3
+EOF
+        ));
+    }
+
+    public function testReferenceResolvingInInlineStrings()
+    {
+        $this->assertEquals(array(
+            'var' => 'var-value',
+            'scalar' => 'var-value',
+            'list' => array('var-value'),
+            'list_in_list' => array(array('var-value')),
+            'map_in_list' => array(array('key' => 'var-value')),
+            'embedded_mapping' => array(array('key' => 'var-value')),
+            'map' => array('key' => 'var-value'),
+            'list_in_map' => array('key' => array('var-value')),
+            'map_in_map' => array('foo' => array('bar' => 'var-value')),
+        ), Yaml::parse(<<<EOF
+var:  &var var-value
+scalar: *var
+list: [ *var ]
+list_in_list: [[ *var ]]
+map_in_list: [ { key: *var } ]
+embedded_mapping: [ key: *var ]
+map: { key: *var }
+list_in_map: { key: [*var] }
+map_in_map: { foo: { bar: *var } }
 EOF
         ));
     }

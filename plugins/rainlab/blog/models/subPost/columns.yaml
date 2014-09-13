@@ -4,20 +4,14 @@
 
 columns:
 
-  title:
-    label: Title
-    searchable: true
-
-  author:
-    label: Author
-    relation: user
-    select: @login
+  name:
+    label: Name
     searchable: true
 
   post:
     label: Post
     relation: post
-    select: @name
+    select: name
     searchable: true
 
   created_at:

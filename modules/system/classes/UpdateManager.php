@@ -206,6 +206,16 @@ class UpdateManager
         }
         $result['plugins'] = $plugins;
 
+        /*
+         * Strip out themes that have been installed before
+         */
+        $themes = [];
+        foreach (array_get($result, 'themes', []) as $code => $info) {
+            if (!$this->isThemeInstalled($code))
+                $themes[$code] = $info;
+        }
+        $result['themes'] = $themes;
+
         Parameters::set('system::update.count', array_get($result, 'update', 0));
 
         return $result;
@@ -434,6 +444,58 @@ class UpdateManager
     }
 
     //
+    // Themes
+    //
+
+    /**
+     * Downloads a theme from the update server.
+     * @param string $name Theme name.
+     * @param string $hash Expected file hash.
+     * @return self
+     */
+    public function downloadTheme($name, $hash)
+    {
+        $fileCode = $name . $hash;
+        $this->requestServerFile('theme/get', $fileCode, $hash, ['name' => $name]);
+    }
+
+    /**
+     * Extracts a theme after it has been downloaded.
+     */
+    public function extractTheme($name, $hash)
+    {
+        $fileCode = $name . $hash;
+        $filePath = $this->getFilePath($fileCode);
+
+        if (!Zip::extract($filePath, $this->baseDirectory . '/themes/'))
+            throw new ApplicationException(Lang::get('system::lang.zip.extract_failed', ['file' => $filePath]));
+
+        $this->setThemeInstalled($name);
+        @unlink($filePath);
+    }
+
+    /**
+     * Checks if a theme has ever been installed before.
+     * @param  string  $name Theme code
+     * @return boolean
+     */
+    public function isThemeInstalled($name)
+    {
+        return array_key_exists($name, Parameters::get('system::theme.history', []));
+    }
+
+    /**
+     * Flags a theme as being installed, so it is not downloaded twice.
+     * @param string $name Theme code
+     */
+    public function setThemeInstalled($name)
+    {
+        $history = Parameters::get('system::theme.history', []);
+        $history[$name] = Carbon::now()->timestamp;
+        Parameters::set('system::theme.history', $history);
+    }
+
+    //
     // Notes
     //
 
@@ -544,7 +606,7 @@ class UpdateManager
      * @param  string $fileCode A unique file code
      * @return string           Full path on the disk
      */
-    private function getFilePath($fileCode)
+    protected function getFilePath($fileCode)
     {
         $name = md5($fileCode) . '.arc';
         return $this->tempDirectory . '/' . $name;
@@ -566,7 +628,7 @@ class UpdateManager
      * @param  string $uri URI
      * @return string      URL
      */
-    private function createServerUrl($uri)
+    protected function createServerUrl($uri)
     {
         $gateway = Config::get('cms.updateServer', 'http://octobercms.com/api');
         if (substr($gateway, -1) != '/')
@@ -581,7 +643,7 @@ class UpdateManager
      * @param  array $postData Post data
      * @return void
      */
-    private function applyHttpAttributes($http, $postData)
+    protected function applyHttpAttributes($http, $postData)
     {
         $postData['url'] = base64_encode(URL::to('/'));
 
@@ -602,7 +664,7 @@ class UpdateManager
      * Create a nonce based on millisecond time
      * @return int
      */
-    private function createNonce()
+    protected function createNonce()
     {
         $mt = explode(' ', microtime());
         return $mt[1] . substr($mt[0], 2, 6);
@@ -612,7 +674,7 @@ class UpdateManager
      * Create a unique signature for transmission.
      * @return string
      */
-    private function createSignature($data, $secret)
+    protected function createSignature($data, $secret)
     {
         return base64_encode(hash_hmac('sha512', http_build_query($data, '', '&'), base64_decode($secret), true));
     }

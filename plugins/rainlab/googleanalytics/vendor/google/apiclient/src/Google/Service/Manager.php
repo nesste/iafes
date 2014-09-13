@@ -19,12 +19,12 @@
  * Service definition for Manager (v1beta2).
  *
  * <p>
- * The Deployment Manager API allows users to declaratively configure and deploy Cloud resources on the Google Cloud Platform.
+ * The Deployment Manager API allows users to declaratively configure, deploy and run complex solutions on the Google Cloud Platform.
  * </p>
  *
  * <p>
  * For more information about this service, see the API
- * <a href="http://code.google.com/apis/cloud/manager/v1beta2/using_rest.html" target="_blank">Documentation</a>
+ * <a href="https://developers.google.com/deployment-manager/" target="_blank">Documentation</a>
  * </p>
  *
  * @author Google, Inc.
@@ -430,6 +430,7 @@ class Google_Service_Manager_AccessConfig extends Google_Model
 
 class Google_Service_Manager_Action extends Google_Collection
 {
+  protected $collection_key = 'commands';
   public $commands;
   public $timeoutMs;
 
@@ -456,6 +457,7 @@ class Google_Service_Manager_Action extends Google_Collection
 
 class Google_Service_Manager_AllowedRule extends Google_Collection
 {
+  protected $collection_key = 'ports';
   public $iPProtocol;
   public $ports;
 
@@ -604,6 +606,7 @@ class Google_Service_Manager_DeployState extends Google_Model
 
 class Google_Service_Manager_Deployment extends Google_Collection
 {
+  protected $collection_key = 'overrides';
   public $creationDate;
   public $description;
   protected $modulesType = 'Google_Service_Manager_ModuleStatus';
@@ -686,8 +689,14 @@ class Google_Service_Manager_Deployment extends Google_Collection
   }
 }
 
+class Google_Service_Manager_DeploymentModules extends Google_Model
+{
+
+}
+
 class Google_Service_Manager_DeploymentsListResponse extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $nextPageToken;
   protected $resourcesType = 'Google_Service_Manager_Deployment';
   protected $resourcesDataType = 'array';
@@ -794,6 +803,7 @@ class Google_Service_Manager_ExistingDisk extends Google_Model
 
 class Google_Service_Manager_FirewallModule extends Google_Collection
 {
+  protected $collection_key = 'targetTags';
   protected $allowedType = 'Google_Service_Manager_AllowedRule';
   protected $allowedDataType = 'array';
   public $description;
@@ -987,11 +997,13 @@ class Google_Service_Manager_HealthCheckModuleStatus extends Google_Model
 
 class Google_Service_Manager_LbModule extends Google_Collection
 {
+  protected $collection_key = 'targetModules';
   public $description;
   public $healthChecks;
   public $ipAddress;
   public $ipProtocol;
   public $portRange;
+  public $sessionAffinity;
   public $targetModules;
 
   public function setDescription($description)
@@ -1044,6 +1056,16 @@ class Google_Service_Manager_LbModule extends Google_Collection
     return $this->portRange;
   }
 
+  public function setSessionAffinity($sessionAffinity)
+  {
+    $this->sessionAffinity = $sessionAffinity;
+  }
+
+  public function getSessionAffinity()
+  {
+    return $this->sessionAffinity;
+  }
+
   public function setTargetModules($targetModules)
   {
     $this->targetModules = $targetModules;
@@ -1083,6 +1105,7 @@ class Google_Service_Manager_LbModuleStatus extends Google_Model
 
 class Google_Service_Manager_Metadata extends Google_Collection
 {
+  protected $collection_key = 'items';
   public $fingerPrint;
   protected $itemsType = 'Google_Service_Manager_MetadataItem';
   protected $itemsDataType = 'array';
@@ -1322,6 +1345,7 @@ class Google_Service_Manager_ModuleStatus extends Google_Model
 
 class Google_Service_Manager_NetworkInterface extends Google_Collection
 {
+  protected $collection_key = 'accessConfigs';
   protected $accessConfigsType = 'Google_Service_Manager_AccessConfig';
   protected $accessConfigsDataType = 'array';
   public $name;
@@ -1525,6 +1549,7 @@ class Google_Service_Manager_ParamOverride extends Google_Model
 
 class Google_Service_Manager_ReplicaPoolModule extends Google_Collection
 {
+  protected $collection_key = 'healthChecks';
   protected $envVariablesType = 'Google_Service_Manager_EnvVariable';
   protected $envVariablesDataType = 'map';
   public $healthChecks;
@@ -1584,6 +1609,11 @@ class Google_Service_Manager_ReplicaPoolModule extends Google_Collection
   }
 }
 
+class Google_Service_Manager_ReplicaPoolModuleEnvVariables extends Google_Model
+{
+
+}
+
 class Google_Service_Manager_ReplicaPoolModuleStatus extends Google_Model
 {
   public $replicaPoolUrl;
@@ -1628,6 +1658,7 @@ class Google_Service_Manager_ReplicaPoolParams extends Google_Model
 
 class Google_Service_Manager_ReplicaPoolParamsV1Beta1 extends Google_Collection
 {
+  protected $collection_key = 'serviceAccounts';
   public $autoRestart;
   public $baseInstanceName;
   public $canIpForward;
@@ -1792,6 +1823,7 @@ class Google_Service_Manager_ReplicaPoolParamsV1Beta1 extends Google_Collection
 
 class Google_Service_Manager_ServiceAccount extends Google_Collection
 {
+  protected $collection_key = 'scopes';
   public $email;
   public $scopes;
 
@@ -1818,6 +1850,7 @@ class Google_Service_Manager_ServiceAccount extends Google_Collection
 
 class Google_Service_Manager_Tag extends Google_Collection
 {
+  protected $collection_key = 'items';
   public $fingerPrint;
   public $items;
 
@@ -1892,8 +1925,19 @@ class Google_Service_Manager_Template extends Google_Model
   }
 }
 
+class Google_Service_Manager_TemplateActions extends Google_Model
+{
+
+}
+
+class Google_Service_Manager_TemplateModules extends Google_Model
+{
+
+}
+
 class Google_Service_Manager_TemplatesListResponse extends Google_Collection
 {
+  protected $collection_key = 'resources';
   public $nextPageToken;
   protected $resourcesType = 'Google_Service_Manager_Template';
   protected $resourcesDataType = 'array';

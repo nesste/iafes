@@ -67,14 +67,14 @@ class Updater
             return;
 
         require_once $file;
-        $class = $this->getClassFromFile($file);
-        return new $class;
+        if ($class = $this->getClassFromFile($file))
+            return new $class;
     }
 
     /**
      * Checks if the object is a valid update script.
      */
-    private function isValidScript($object)
+    protected function isValidScript($object)
     {
         if ($object instanceof Updates\Migration)
             return true;
@@ -137,6 +137,9 @@ class Updater
 
             }
         }
+
+        if (!strlen(trim($namespace)) && !strlen(trim($class)))
+            return false;
 
         return trim($namespace) . '\\' . trim($class);
     }

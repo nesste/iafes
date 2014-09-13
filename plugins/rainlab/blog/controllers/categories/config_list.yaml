@@ -18,10 +18,10 @@ recordUrl: rainlab/blog/categories/update/:id
 noRecordsMessage: backend::lang.list.no_records
 
 # Records to display per page
-recordsPerPage: 10
+recordsPerPage: 5
 
 # Display checkboxes next to each record
-# showCheckboxes: yes
+# showCheckboxes: true
 
 # Toolbar widget configuration
 toolbar:

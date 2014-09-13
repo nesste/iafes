@@ -1,7 +1,8 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
     "hash": "96b5e6edf945648c44d3fcbfe1ce3430",
     "packages": [
@@ -11,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "3f5306f74c24fc32480d2e44824482ad6f26a1bb"
+                "reference": "99727b0129b23eaaf916d4a665e751d5732d563c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/3f5306f74c24fc32480d2e44824482ad6f26a1bb",
-                "reference": "3f5306f74c24fc32480d2e44824482ad6f26a1bb",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/99727b0129b23eaaf916d4a665e751d5732d563c",
+                "reference": "99727b0129b23eaaf916d4a665e751d5732d563c",
                 "shasum": ""
             },
             "require": {
@@ -26,6 +27,11 @@
                 "phpunit/phpunit": "3.7.*"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "classmap": [
                     "src/"
@@ -43,7 +49,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2014-05-14 17:51:32"
+            "time": "2014-08-28 23:03:50"
         }
     ],
     "packages-dev": [

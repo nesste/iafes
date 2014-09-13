@@ -1,0 +1,16 @@
+# ===================================
+#  List Behavior Config
+# ===================================
+
+title: Galleries
+list: @/plugins/shahiemseymor/gallery/models/galleries/columns.yaml
+modelClass: ShahiemSeymor\Gallery\Models\Galleries
+recordUrl: shahiemseymor/gallery/galleries/update/:id
+noRecordsMessage: backend::lang.list.no_records
+recordsPerPage: 20
+showCheckboxes: yes
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

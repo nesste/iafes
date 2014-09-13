@@ -5,7 +5,15 @@ use RainLab\Blog\Models\Post as BlogPost;
 
 class Post extends ComponentBase
 {
+    /**
+     * @var RainLab\Blog\Models\Post The post model used for display.
+     */
     public $post;
+
+    /**
+     * @var string Reference to the page name for linking to categories.
+     */
+    public $categoryPage;
 
     public function componentDetails()
     {
@@ -24,7 +32,7 @@ class Post extends ComponentBase
                 'default'     => 'slug',
                 'type'        => 'string'
             ],
-			'SparamId' => [
+            'SparamId' => [
                 'description' => 'The URL route parameter used for looking up the post by its slug.',
                 'title'       => 'Slug param name',
                 'default'     => 'page',
@@ -39,12 +47,14 @@ class Post extends ComponentBase
     }
 
     protected function loadPost()
-    {	
-		
+    {
         $slug = $this->param($this->property('paramId'));
         if(!isset($slug)){
-			$slug = $this->param($this->property('SparamId'));
-		}
-		return BlogPost::isPublished()->where('slug', '=', $slug)->first();
+            $slug = $this->param($this->property('SparamId'));
+        }
+        if($slug == ''){
+           $slug = $this->page['page'];
+        } 
+        return BlogPost::isPublished()->where('slug', '=', $slug)->first();
     }
 }

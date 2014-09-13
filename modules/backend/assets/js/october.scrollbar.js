@@ -83,12 +83,14 @@
         })
 
         $(window).on('resize', $.proxy(this.update, this))
+        $(window).on('oc.updateUi', $.proxy(this.update, this))
 
          /*
           * Internal event, drag has started
           */
         function startDrag(event) {
             $('body').addClass('drag-noselect')
+            $el.trigger('oc.scrollStart')
 
             dragStart = event[eventElementName]
             startOffset = self.options.vertical ? $el.scrollTop() : $el.scrollLeft()
@@ -153,6 +155,7 @@
          */
         function stopDrag() {
             $('body').removeClass('drag-noselect')
+            $el.trigger('oc.scrollEnd')
 
             $(window).off('.scrollbar')
         }
@@ -160,8 +163,12 @@
         /*
          * Scroll wheel has moved by supplied offset
          */
+
+        var isWebkit = $(document.documentElement).hasClass('webkit')
+
         function scrollWheel(offset) {
             startOffset = self.options.vertical ? el.scrollTop : el.scrollLeft
+            $el.trigger('oc.scrollStart')
 
             self.options.vertical
                 ? $el.scrollTop(startOffset + offset)
@@ -172,6 +179,19 @@
                 : el.scrollLeft != startOffset
 
             self.setThumbPosition()
+            if (!isWebkit) {
+                if (self.endScrollTimeout !== undefined) {
+                    clearTimeout(self.endScrollTimeout)
+                    self.endScrollTimeout = undefined
+                }
+
+                self.endScrollTimeout = setTimeout(function() { 
+                    $el.trigger('oc.scrollEnd')
+                    self.endScrollTimeout = undefined
+                }, 50)
+            } else {
+                $el.trigger('oc.scrollEnd')
+            }
 
             return scrolled
         }
@@ -253,6 +273,57 @@
         return (this.options.vertical)
             ? this.$el.get(0).scrollHeight
             : this.$el.get(0).scrollWidth;
+    }
+
+    Scrollbar.prototype.gotoElement = function(element, callback) {
+        var $el = $(element)
+        if (!$el.length)
+            return;
+
+        var self = this,
+            offset = 0,
+            animated = false,
+            params = {
+                duration: 300, 
+                queue: false, 
+                complete: function(){
+                    if (callback !== undefined)
+                        callback()
+                }
+            }
+
+        if (!this.options.vertical) {
+            offset = $el.get(0).offsetLeft - this.$el.scrollLeft()
+
+            if (offset < 0) {
+                this.$el.animate({'scrollLeft': $el.get(0).offsetLeft}, params)
+                animated = true
+            } else {
+                offset = $el.get(0).offsetLeft + $el.outerWidth() - (this.$el.scrollLeft() + this.$el.outerWidth())
+                if (offset > 0) {
+                    this.$el.animate({'scrollLeft': $el.get(0).offsetLeft + $el.outerWidth() - this.$el.outerWidth()}, params)
+                    animated = true
+                }
+            }
+        } else {
+            offset = $el.get(0).offsetTop - this.$el.scrollTop()
+
+            if (offset < 0) {
+                this.$el.animate({'scrollTop': $el.get(0).offsetTop}, params)
+                animated = true
+            } else {
+                offset = $el.get(0).offsetTop - (this.$el.scrollTop() + this.$el.outerHeight())
+                if (offset > 0) {
+                    this.$el.animate({'scrollTop': $el.get(0).offsetTop + $el.outerHeight() - this.$el.outerHeight()}, params)
+                    animated = true
+                }
+            }
+        }
+
+        if (!animated && callback !== undefined)
+            callback()
+
+        return this
     }
 
     // SCROLLBAR PLUGIN DEFINITION

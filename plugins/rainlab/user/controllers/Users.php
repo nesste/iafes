@@ -24,6 +24,7 @@ class Users extends Controller
         parent::__construct();
 
         BackendMenu::setContext('RainLab.User', 'user', 'users');
+        
     }
 
     /**

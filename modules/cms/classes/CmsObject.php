@@ -8,10 +8,10 @@ use Validator;
 use System\Classes\SystemException;
 use System\Classes\ApplicationException;
 use October\Rain\Support\ValidationException;
-use Exception;
-use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use ArrayAccess;
+use Exception;
 
 /**
  * This is a base class for all CMS objects - content files, pages, partials and layouts.
@@ -385,6 +385,7 @@ class CmsObject implements ArrayAccess
 
         $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirPath));
         $it->setMaxDepth(1); // Support only a single level of subdirectories
+        $it->rewind();
 
         while($it->valid()) {
             if ($it->isFile() && in_array($it->getExtension(), static::$allowedExtensions)) {

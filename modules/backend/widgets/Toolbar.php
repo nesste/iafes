@@ -19,7 +19,7 @@ class Toolbar extends WidgetBase
     /**
      * @var WidgetBase Reference to the search widget object.
      */
-    private $searchWidget;
+    protected $searchWidget;
 
     /**
      * @var string Name of partial containing control panel.
@@ -83,6 +83,6 @@ class Toolbar extends WidgetBase
         if (!isset($this->config->buttons))
             return false;
 
-        return $this->controller->makePartial($this->config->buttons);
+        return $this->controller->makePartial($this->config->buttons, $this->vars);
     }
 }

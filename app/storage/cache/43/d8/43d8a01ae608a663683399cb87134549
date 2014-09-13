@@ -1,0 +1,137 @@
+9999999999s:3732:"a:5:{s:5:"mtime";i:1410108454;s:7:"content";s:1732:"title = "training"
+url = "/training/:slug?/:sub?"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "10"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[blogCategory]
+paramId = "slug"
+postPage = "training"
+postsPerPage = "10"
+noPostsMessage = "No posts found"
+
+[subPost]
+SparamId = "sub"
+subPostName = "slug"
+
+[blogPost]
+paramId = "sub"
+SparamId = "slug"
+==
+<?php
+function onStart(){
+	
+	$this['page'] ='training';
+	
+	$this['sub'] = $this->param('sub');
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    
+    if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+}
+?>
+==
+{% put nav %}
+	<ul class="unstyled second-nav nav">
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/courses">Courses</a></li>
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/enroll">Enroll</a></li>
+		<li><a href="http://vicadis.net/courses" target="_blank">VICADIS courses</a></li>
+	</ul><!-- end .second-nav -->
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% elseif sub != '' %}
+            {{ title }} > {{ sub }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+{% put mainContent %}
+    {% if (title == '') %}
+        {% component 'blogCategory' %}
+    {% else %}
+        {% if sub != '' %}
+            {% component 'subPost' %}
+        {% else %}
+            {% component 'blogPost' %}
+        {% endif %}
+    {% endif %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:8:"training";s:3:"url";s:22:"/training/:slug?/:sub?";s:6:"layout";s:6:"master";s:10:"components";a:4:{s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:2:"10";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}s:12:"blogCategory";a:4:{s:7:"paramId";s:4:"slug";s:8:"postPage";s:8:"training";s:12:"postsPerPage";s:2:"10";s:14:"noPostsMessage";s:14:"No posts found";}s:7:"subPost";a:2:{s:8:"SparamId";s:3:"sub";s:11:"subPostName";s:4:"slug";}s:8:"blogPost";a:2:{s:7:"paramId";s:3:"sub";s:8:"SparamId";s:4:"slug";}}}s:4:"code";s:377:"
+function onStart(){
+	
+	$this['page'] ='training';
+	
+	$this['sub'] = $this->param('sub');
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    
+    if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+}
+";s:6:"markup";s:934:"{% put nav %}
+	<ul class="unstyled second-nav nav">
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/courses">Courses</a></li>
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/enroll">Enroll</a></li>
+		<li><a href="http://vicadis.net/courses" target="_blank">VICADIS courses</a></li>
+	</ul><!-- end .second-nav -->
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% elseif sub != '' %}
+            {{ title }} > {{ sub }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+{% put mainContent %}
+    {% if (title == '') %}
+        {% component 'blogCategory' %}
+    {% else %}
+        {% if sub != '' %}
+            {% component 'subPost' %}
+        {% else %}
+            {% component 'blogPost' %}
+        {% endif %}
+    {% endif %}
+{% endput %}";}";

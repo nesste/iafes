@@ -8,6 +8,8 @@ use October\Rain\Database\Model;
  */
 class Group extends Model
 {
+    use \October\Rain\Database\Traits\Validation;
+
     /**
      * @var string The table associated with the model.
      */
@@ -45,14 +47,6 @@ class Group extends Model
      * @var array The attributes that aren't mass assignable.
      */
     protected $guarded = [];
-
-    /**
-     * @return mixed Returns the group's ID.
-     */
-    public function getId()
-    {
-        return $this->getKey();
-    }
 
     /**
      * See if a group has access to the passed permission(s).

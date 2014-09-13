@@ -25,5 +25,5 @@ fields:
   content:
     tab: Edit
     stretch: true
-    type: Eein\Wysiwyg\FormWidgets\Trumbowyg
+    type: ShahiemSeymor\Ckeditor\FormWidgets\Wysiwyg
     cssClass: no-padding

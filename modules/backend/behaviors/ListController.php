@@ -19,22 +19,27 @@ class ListController extends ControllerBehavior
     /**
      * @var array List definitions, keys for alias and value for configuration.
      */
-    private $listDefinitions;
+    protected $listDefinitions;
 
     /**
      * @var string The primary list alias to use. Default: list
      */
-    private $primaryDefinition;
+    protected $primaryDefinition;
 
     /**
      * @var Backend\Classes\WidgetBase Reference to the list widget object.
      */
-    private $listWidgets = [];
+    protected $listWidgets = [];
 
     /**
      * @var WidgetBase Reference to the toolbar widget objects.
      */
-    private $toolbarWidgets = [];
+    protected $toolbarWidgets = [];
+
+    /**
+     * @var WidgetBase Reference to the filter widget objects.
+     */
+    protected $filterWidgets = [];
 
     /**
      * {@inheritDoc}
@@ -128,23 +133,23 @@ class ListController extends ControllerBehavior
         /*
          * Extensibility helpers
          */
-        $widget->bindEvent('list.extendQueryBefore', function($host, $query) use ($definition) {
+        $widget->bindEvent('list.extendQueryBefore', function($query) use ($definition) {
             $this->controller->listExtendQueryBefore($query, $definition);
         });
 
-        $widget->bindEvent('list.extendQuery', function($host, $query) use ($definition) {
+        $widget->bindEvent('list.extendQuery', function($query) use ($definition) {
             $this->controller->listExtendQuery($query, $definition);
         });
 
-        $widget->bindEvent('list.injectRowClass', function($host, $record) use ($definition) {
+        $widget->bindEvent('list.injectRowClass', function($record) use ($definition) {
             return $this->controller->listInjectRowClass($record, $definition);
         });
 
-        $widget->bindEvent('list.overrideColumnValue', function($host, $record, $column, $value) use ($definition) {
+        $widget->bindEvent('list.overrideColumnValue', function($record, $column, $value) use ($definition) {
             return $this->controller->listOverrideColumnValue($record, $column->columnName, $definition);
         });
 
-        $widget->bindEvent('list.overrideHeaderValue', function($host, $column, $value) use ($definition) {
+        $widget->bindEvent('list.overrideHeaderValue', function($column, $value) use ($definition) {
             return $this->controller->listOverrideHeaderValue($column->columnName, $definition);
         });
 
@@ -164,7 +169,7 @@ class ListController extends ControllerBehavior
             if ($searchWidget = $toolbarWidget->getSearchWidget()) {
                 $searchWidget->bindEvent('search.submit', function() use ($widget, $searchWidget) {
                     $widget->setSearchTerm($searchWidget->getActiveTerm());
-                    return $widget->onRender();
+                    return $widget->onRefresh();
                 });
 
                 // Find predefined search term
@@ -172,6 +177,31 @@ class ListController extends ControllerBehavior
             }
 
             $this->toolbarWidgets[$definition] = $toolbarWidget;
+        }
+
+        /*
+         * Prepare the filter widget (optional)
+         */
+        if (isset($listConfig->filter)) {
+            $widget->cssClasses[] = 'list-flush';
+
+            $filterConfig = $this->makeConfig($listConfig->filter);
+            $filterConfig->alias = $widget->alias . 'Filter';
+            $filterWidget = $this->makeWidget('Backend\Widgets\Filter', $filterConfig);
+            $filterWidget->bindToController();
+
+            /*
+             * Filter the list when the scopes are changed
+             */
+            $filterWidget->bindEvent('filter.update', function() use ($widget, $filterWidget){
+                $widget->addFilter([$filterWidget, 'applyAllScopesToQuery']);
+                return $widget->onRefresh();
+            });
+
+            // Apply predefined filter values
+            $widget->addFilter([$filterWidget, 'applyAllScopesToQuery']);
+
+            $this->filterWidgets[$definition] = $filterWidget;
         }
 
         return $widget;
@@ -206,6 +236,9 @@ class ListController extends ControllerBehavior
         if (isset($this->toolbarWidgets[$definition]))
             $collection[] = $this->toolbarWidgets[$definition]->render();
 
+        if (isset($this->filterWidgets[$definition]))
+            $collection[] = $this->filterWidgets[$definition]->render();
+
         $collection[] = $this->listWidgets[$definition]->render();
 
         return implode(PHP_EOL, $collection);
@@ -224,7 +257,7 @@ class ListController extends ControllerBehavior
         if (!$definition || !isset($this->listDefinitions[$definition]))
             $definition = $this->primaryDefinition;
 
-        return $this->listWidgets[$definition]->onRender();
+        return $this->listWidgets[$definition]->onRefresh();
     }
 
     //

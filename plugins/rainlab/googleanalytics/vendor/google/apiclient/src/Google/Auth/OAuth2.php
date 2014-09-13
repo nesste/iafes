@@ -149,6 +149,11 @@ class Google_Auth_OAuth2 extends Google_Auth_Abstract
         'approval_prompt' => $this->client->getClassConfig($this, 'approval_prompt'),
     );
 
+    $login_hint = $this->client->getClassConfig($this, 'login_hint');
+    if ($login_hint != '') {
+      $params['login_hint'] = $login_hint;
+    }
+
     // If the list of scopes contains plus.login, add request_visible_actions
     // to auth URL.
     $rva = $this->client->getClassConfig($this, 'request_visible_actions');
@@ -320,6 +325,9 @@ class Google_Auth_OAuth2 extends Google_Auth_Abstract
         throw new Google_Auth_Exception("Invalid token format");
       }
 
+      if (isset($token['id_token'])) {
+        $this->token['id_token'] = $token['id_token'];
+      }
       $this->token['access_token'] = $token['access_token'];
       $this->token['expires_in'] = $token['expires_in'];
       $this->token['created'] = time();

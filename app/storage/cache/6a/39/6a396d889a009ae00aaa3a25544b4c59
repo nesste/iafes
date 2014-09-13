@@ -1,4 +1,4 @@
-9999999999s:8012:"a:5:{s:5:"mtime";i:1401279669;s:7:"content";s:3831:"title = "index"
+9999999999s:8006:"a:5:{s:5:"mtime";i:1402250538;s:7:"content";s:3828:"title = "index"
 url = "/:page?/:slug?/:menu?"
 layout = "master"
 
@@ -131,7 +131,7 @@ function onStart(){
                     })();
                 </script>
 	        </div>
-	    {% else %}   
+	    {% else %}
 	        {% component 'subPost' %}
 	    {% endif %}
 	{% endif %}
@@ -162,7 +162,7 @@ function onStart(){
 	    $this['vicadis'] = true;
 	}
 }
-";s:6:"markup";s:2479:"{% put nav %}
+";s:6:"markup";s:2476:"{% put nav %}
     {% if ( page == "iafes-association") %}
 		{% partial "iafes-nav.htm" crntPage = slug appPath = path %}
 	{% elseif ( page == "student-research-conference") or (page == "seminars-workshop") or (page == "netties-conference") or (page == "summer-schools") %}
@@ -227,7 +227,7 @@ function onStart(){
                     })();
                 </script>
 	        </div>
-	    {% else %}   
+	    {% else %}
 	        {% component 'subPost' %}
 	    {% endif %}
 	{% endif %}

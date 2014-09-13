@@ -80,7 +80,8 @@ class DropSchemaSqlCollector extends AbstractVisitor
             throw SchemaException::namedForeignKeyRequired($localTable, $fkConstraint);
         }
 
-        $this->constraints->attach($fkConstraint, $localTable);
+        $this->constraints->attach($fkConstraint);
+        $this->constraints[$fkConstraint] = $localTable;
     }
 
     /**

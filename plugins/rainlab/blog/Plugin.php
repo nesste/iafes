@@ -25,9 +25,9 @@ class Plugin extends PluginBase
             'RainLab\Blog\Components\Posts' => 'blogPosts',
             'RainLab\Blog\Components\Categories' => 'blogCategories',
             'RainLab\Blog\Components\Category' => 'blogCategory',
-            'RainLab\Blog\Components\subCategories' => 'blogSubCategories',
-            'RainLab\Blog\Components\subCategory' => 'blogSubCategory',
-            'RainLab\Blog\Components\subPost' => 'subPost'
+            'RainLab\Blog\Components\Subcategories' => 'blogSubCategories',
+            'RainLab\Blog\Components\Subcategory' => 'blogSubCategory',
+            'RainLab\Blog\Components\Subpost' => 'subPost'
         ];
     }
 
@@ -48,11 +48,11 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('rainlab/blog/posts'),
                         'permissions' => ['blog.access_posts'],
                     ],
-                    'subPosts' => [
-                        'label'       => 'Sub Posts',
+                    'subposts' => [
+                        'label'       => 'Sub posts',
                         'icon'        => 'icon-list-alt',
-                        'url'         => Backend::url('rainlab/blog/subPosts'),
-                        'permissions' => ['blog.access_subPosts'],
+                        'url'         => Backend::url('rainlab/blog/subposts'),
+                        'permissions' => ['blog.access_subposts'],
                     ],
                     'categories' => [
                         'label'       => 'Categories',
@@ -60,11 +60,11 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('rainlab/blog/categories'),
                         'permissions' => ['blog.access_categories'],
                     ],
-                    'subCategories' => [
-                        'label'       => 'Sub Categories',
+                    'subcategories' => [
+                        'label'       => 'Sub categories',
                         'icon'        => 'icon-th-list',
-                        'url'         => Backend::url('rainlab/blog/subCategories'),
-                        'permissions' => ['blog.access_subCategories'],
+                        'url'         => Backend::url('rainlab/blog/subcategories'),
+                        'permissions' => ['blog.access_subcategories'],
                     ],
                     'tags' => [
                         'label'       => 'Tags',
@@ -91,7 +91,7 @@ class Plugin extends PluginBase
     /**
      * Register method, called when the plugin is first registered.
      */
-    public function register() 
+    public function register()
     {
         /*
          * Register the image tag processing callback
@@ -101,7 +101,7 @@ class Plugin extends PluginBase
             if (!$preview)
                 return $input;
 
-            return preg_replace('|\<img alt="([0-9]+)" src="image" \/>|m', 
+            return preg_replace('|\<img alt="([0-9]+)" src="image"([^>]*)\/>|m',
                 '<span class="image-placeholder" data-index="$1">
                     <span class="dropzone">
                         <span class="label">Click or drop an image...</span>

@@ -20,6 +20,11 @@ noRecordsMessage: backend::lang.list.no_records
 # Records to display per page
 recordsPerPage: 20
 
+# Default sorting column
+defaultSort:
+    column: name
+    direction: asc
+
 # Display checkboxes next to each record
 showCheckboxes: true
 
@@ -31,3 +36,6 @@ toolbar:
     # Search widget configuration
     search:
         prompt: backend::lang.list.search_prompt
+
+# Filter widget configuration
+filter: config_filter.yaml

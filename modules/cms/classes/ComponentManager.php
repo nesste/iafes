@@ -3,6 +3,7 @@
 use Str;
 use Illuminate\Container\Container;
 use System\Classes\PluginManager;
+use System\Classes\SystemException;
 
 /**
  * Component manager
@@ -17,7 +18,7 @@ class ComponentManager
     /**
      * @var array Cache of registration callbacks.
      */
-    private $callbacks = [];
+    protected $callbacks = [];
 
     /**
      * @var array An array where keys are codes and values are class names.
@@ -99,6 +100,9 @@ class ComponentManager
         if (!$code)
             $code = Str::getClassId($className);
 
+        if ($code == 'viewBag' && $className != 'Cms\Classes\ViewBag')
+            throw new SystemException(sprintf('The component code viewBag is reserved. Please use another code for the component class %s.', $className));
+
         $className = Str::normalizeClassName($className);
         $this->codeMap[$code] = $className;
         $this->classMap[$className] = $code;
@@ -179,10 +183,10 @@ class ComponentManager
     {
         $className = $this->resolve($name);
         if (!$className)
-            return null;
+            throw new SystemException(sprintf('Class name is not registered for the component %s. Check the component plugin.', $name));
 
         if (!class_exists($className))
-            throw new \Exception('Component class not found '.$className);
+            throw new SystemException(sprintf('Component class not found %s.Check the component plugin.', $className));
 
         $component = new $className($cmsObject, $properties);
         $component->name = $name;

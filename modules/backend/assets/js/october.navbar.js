@@ -17,6 +17,16 @@
                 nav = $('ul.nav', navbar)
 
             nav.verticalMenu($('a.menu-toggle', navbar))
+
+            $('[data-toggle="tooltip"]', navbar).tooltip({
+                'container': 'body'
+            })
+
+            $('.layout-cell.width-fix', navbar).one('oc.widthFixed', function(){
+                var dragScroll = $('[data-control=toolbar]', navbar).data('oc.dragScroll')
+                if (dragScroll)
+                    dragScroll.goToElement($('ul.nav > li.active', navbar), undefined, {'duration': 0})
+            })
         })
     })
 })(jQuery);

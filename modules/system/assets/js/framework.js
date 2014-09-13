@@ -20,10 +20,10 @@ if (window.jQuery === undefined)
          */
 
         if (handler == undefined)
-            throw new Error('The request handler name is not specified.');
+            throw new Error('The request handler name is not specified.')
 
         if (!handler.match(/^(?:\w+\:{2})?on*/))
-            throw new Error('Invalid handler name. The correct handler name format is: "onEvent".');
+            throw new Error('Invalid handler name. The correct handler name format is: "onEvent".')
 
         /*
          * Detect if page is refreshed to stop any active ajax errors
@@ -45,7 +45,9 @@ if (window.jQuery === undefined)
             loading = options.loading !== undefined && options.loading.length ? $(options.loading) : null,
             isRedirect = options.redirect !== undefined && options.redirect.length
 
-        form.trigger('oc.beforeRequest', context)
+        var _event = jQuery.Event('oc.beforeRequest')
+        form.trigger(_event, context)
+        if (_event.isDefaultPrevented()) return
 
         var data = [form.serialize()]
 
@@ -53,8 +55,14 @@ if (window.jQuery === undefined)
             data.push($.param(paramToObj('data-request-data', $(this).data('request-data'))))
         })
 
+        if ($el.is(':input')) {
+            var inputName = $el.attr('name')
+            if (options.data[inputName] === undefined)
+                options.data[inputName] = $el.val()
+        }
+
         if (options.data !== undefined && !$.isEmptyObject(options.data))
-            data.push($.param(options.data));
+            data.push($.param(options.data))
 
         var requestOptions = {
             context: context,
@@ -161,6 +169,8 @@ if (window.jQuery === undefined)
                         var selector = (options.update[partial]) ? options.update[partial] : partial
                         if (jQuery.type(selector) == 'string' && selector.charAt(0) == '@') {
                             $(selector.substring(1)).append(data[partial]).trigger('ajaxUpdate', [context, data, textStatus, jqXHR])
+                        } else if (jQuery.type(selector) == 'string' && selector.charAt(0) == '^') {
+                            $(selector.substring(1)).prepend(data[partial]).trigger('ajaxUpdate', [context, data, textStatus, jqXHR])
                         } else
                             $(selector).html(data[partial]).trigger('ajaxUpdate', [context, data, textStatus, jqXHR])
                     }
@@ -253,12 +263,12 @@ if (window.jQuery === undefined)
      * Internal function, build a string of partials and their update elements.
      */
     Request.prototype.extractPartials = function(update) {
-        var result = [];
+        var result = []
 
         for (var partial in update)
             result.push(partial)
 
-        return result.join('&');
+        return result.join('&')
     }
 
     // REQUEST PLUGIN DEFINITION
@@ -314,28 +324,28 @@ if (window.jQuery === undefined)
     }
 
     $(document).on('change', 'select[data-request], input[type=radio][data-request], input[type=checkbox][data-request]', function(){
-        $(this).request();
-    });
+        $(this).request()
+    })
 
     $(document).on('click', 'a[data-request], button[data-request], input[type=button][data-request], input[type=submit][data-request]', function(){
-        $(this).request();
-        return false;
-    });
+        $(this).request()
+        return false
+    })
 
     $(document).on('keydown', 'input[type=text][data-request], input[type=submit][data-request], input[type=password][data-request]', function(e){
         if (e.keyCode == 13) {
             if (this.dataTrackInputTimer !== undefined)
-                window.clearTimeout(this.dataTrackInputTimer);
+                window.clearTimeout(this.dataTrackInputTimer)
 
-            $(this).request();
-            return false;
+            $(this).request()
+            return false
         }
-    });
+    })
 
     $(document).on('keyup', 'input[type=text][data-request][data-track-input], input[type=password][data-request][data-track-input]', function(e){
-        var 
+        var
             $el = $(this),
-            lastValue = $el.data('oc.lastvalue');
+            lastValue = $el.data('oc.lastvalue')
 
         if (lastValue !== undefined && lastValue == this.value)
             return
@@ -343,22 +353,22 @@ if (window.jQuery === undefined)
         $el.data('oc.lastvalue', this.value)
 
         if (this.dataTrackInputTimer !== undefined)
-            window.clearTimeout(this.dataTrackInputTimer);
+            window.clearTimeout(this.dataTrackInputTimer)
 
         var interval = $(this).data('track-input')
         if (!interval)
-            interval = 300;
+            interval = 300
 
-        var self = this;
+        var self = this
         this.dataTrackInputTimer = window.setTimeout(function(){
-            $(self).request();
-        }, interval);
-    });
+            $(self).request()
+        }, interval)
+    })
 
     $(document).on('submit', '[data-request]', function(){
-        $(this).request();
-        return false;
-    });
+        $(this).request()
+        return false
+    })
 
     /*
      * Invent our own event that unifies document.ready with window.ajaxUpdateComplete

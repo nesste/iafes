@@ -1,0 +1,31 @@
+# ===================================
+#  Field Definitions
+# ===================================
+fields:
+    effect:
+      span: left
+      type: dropdown
+      label: Effect
+      options:
+        bounce: bounce
+        fadeBig: fadeBig
+        fade: fade
+        roll: roll
+        rotate: rotate
+        flipX: flipX
+        flipY: flipY
+
+    change_speed:
+      span: left
+      placeholder: 550
+      label: Image Change speed
+
+    speed:
+      span: left
+      placeholder: 550
+      label: Speed
+
+    fullscreen:
+      span: left
+      type: checkbox
+      label: Fullscreen

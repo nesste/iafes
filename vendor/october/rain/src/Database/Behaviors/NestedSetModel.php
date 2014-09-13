@@ -5,65 +5,13 @@ use October\Rain\Database\ModelBehavior;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * Nested set model extension
  *
- * Model table must have parent_id, nest_left, nest_right and nest_depth table columns.
- * In the model class definition: 
- *
- *   public $implement = ['October.Rain.Database.Behaviors.NestedSetModel'];
- *
- *   $table->integer('parent_id')->nullable();
- *   $table->integer('nest_left')->nullable();
- *   $table->integer('nest_right')->nullable();
- *   $table->integer('nest_depth')->nullable();
- *
- * You can change the column names used by declaring:
- *
- *   public $nestedSetModelParentColumn = 'my_parent_column';
- *   public $nestedSetModelLeftColumn = 'my_left_column';
- *   public $nestedSetModelRightColumn = 'my_right_column';
- *   public $nestedSetModelDepthColumn = 'my_depth_column';
- *
- * General access methods:
- *
- *   $model->getRoot(); // Returns the highest parent of a node.
- *   $model->getRootList(); // Returns an indented array of key and value columns from root.
- *   $model->getParent(); // The direct parent node.
- *   $model->getParents(); // Returns all parents up the tree.
- *   $model->getParentsAndSelf(); // Returns all parents up the tree and self.
- *   $model->getChildren(); // Set of all direct child nodes.
- *   $model->getSiblings(); // Return all siblings (parent's children).
- *   $model->getSiblingsAndSelf(); // Return all siblings and self.
- *   $model->getLeaves(); // Returns all final nodes without children.
- *   $model->getDepth(); // Returns the depth of a current node.
- *   $model->getChildCount(); // Returns number of all children.
- *
- * Query builder methods:
- *
- *   $query->withoutNode(); // Filters a specific node from the results.
- *   $query->withoutSelf(); // Filters current node from the results.
- *   $query->withoutRoot(); // Filters root from the results.
- *   $query->children(); // Filters as direct children down the tree.
- *   $query->allChildren(); // Filters as all children down the tree.
- *   $query->parent(); // Filters as direct parent up the tree.
- *   $query->parents(); // Filters as all parents up the tree.
- *   $query->siblings(); // Filters as all siblings (parent's children).
- *   $query->leaves(); // Filters as all final nodes without children.
- *   $query->getNested(); // Returns an eager loaded collection of results.
- *   $query->listsNested(); // Returns an indented array of key and value columns.
- *   $query->orderByNested(); // Applies the default nesting sort order.
+ * DEPRECATED WARNING: This class is deprecated and should be deleted
+ * if the current year is equal to or greater than 2015.
  * 
- * Flat result access methods:
+ * @todo Delete this file if year >= 2015.
  *
- *   $model->getAll(); // Returns everything in correct order.
- *   $model->getAllRoot(); // Returns all root nodes.
- *   $model->getAllChildren(); // Returns all children down the tree.
- *   $model->getAllChildrenAndSelf(); // Returns all children and self.
- * 
- * Eager loaded access methods:
- *
- *   $model->getEagerRoot(); // Returns a list of all root nodes, with ->children eager loaded.
- *   $model->getEagerChildren(); // Returns direct child nodes, with ->children eager loaded.
+ * See trait: October\Rain\Database\Traits\NestedTree
  *
  */
 
@@ -243,36 +191,6 @@ class NestedSetModel extends ModelBehavior
                 ->decrement($rightCol, $diff)
             ;
         });
-    }
-
-    /**
-     * Converts a set of items in a Collection to a hierarchy
-     * with child nodes being added to the children relation
-     * @param  array $results Array of items in a collection
-     * @return array
-     */
-    public function makeHierarchy(&$results)
-    {
-        if ($results instanceof Collection)
-            $results = $results->all();
-
-        $collection = [];
-        if (is_array($results)) {
-            while(list($index, $result) = each($results)) {
-                $key = $result->getKey();
-                $collection[$key] = $result;
-
-                if (!$result->isLeaf())
-                    $collection[$key]->setRelation('children', new Collection($this->makeHierarchy($results)));
-
-                $nextId = key($results);
-
-                if ($nextId && $results[$nextId]->getParentId() != $result->getParentId())
-                    return $collection;
-            }
-        }
-
-        return $collection;
     }
 
     //
@@ -487,10 +405,7 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeGetNested($query)
     {
-        $results = $query->get();
-        $collection = $this->makeHierarchy($results);
-
-        return new Collection($collection);
+        return $query->orderByNested()->get()->toNested();
     }
 
     /**
@@ -502,15 +417,16 @@ class NestedSetModel extends ModelBehavior
      */
     public function scopeListsNested($query, $column, $key = null, $indent = '&nbsp;&nbsp;&nbsp;')
     {
+        $query = $query->orderByNested();
+
         $columns = [$this->getDepthColumnName(), $column];
         if ($key !== null)
             $columns[] = $key;
 
         $results = new Collection($query->getQuery()->get($columns));
-
         $values = $results->fetch($columns[1])->all();
-
         $indentation = $results->fetch($columns[0])->all();
+
         foreach ($values as $_key => $value) {
             $values[$_key] = str_repeat($indent, $indentation[$_key]) . $value;
         }

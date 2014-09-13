@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\File\File as FileObj;
  */
 class File extends Model
 {
-    public $implement = [
-        'October.Rain.Database.Behaviors.SortableModel'
-    ];
+    use \October\Rain\Database\Traits\Sortable;
 
     /**
      * @var string The table associated with the model.
@@ -53,11 +51,11 @@ class File extends Model
     protected $autoMimeTypes = [
         'docx' => 'application/msword',
         'xlsx' => 'application/excel',
-        'gif' => 'image/gif',
-        'png' => 'image/png',
-        'jpg' => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
         'jpeg' => 'image/jpeg',
-        'pdf' => 'application/pdf'
+        'pdf'  => 'application/pdf'
     ];
 
     /**
@@ -104,7 +102,7 @@ class File extends Model
         $this->content_type = $file->getMimeType();
         $this->disk_name = $this->getDiskName();
 
-        $this->putFile($uploadedFile->getRealPath(), $this->disk_name);
+        $this->putFile($file->getRealPath(), $this->disk_name);
     }
 
     /**
@@ -115,7 +113,7 @@ class File extends Model
         if ($this->disk_name !== null)
             return $this->disk_name;
 
-        $ext = $this->getExtension();
+        $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', uniqid(null, true));
 
         return $this->disk_name = $ext !== null ? $name.'.'.$ext : $name;
@@ -232,7 +230,7 @@ class File extends Model
             else
                 $this->fromFile($this->data);
 
-            $this->purgeAttributes('data');
+            unset($this->data);
         }
     }
 
@@ -277,13 +275,14 @@ class File extends Model
         if (!$this->isImage())
             return $this->getPath();
 
-        $width = (int)$width;
-        $height = (int)$height;
+        $width = (int) $width;
+        $height = (int) $height;
 
         $defaultOptions = [
-            'extension' => 'png',
-            'quality' => 95,
-            'mode' => 'auto',
+            'mode'      => 'auto',
+            'offset'    => [0, 0],
+            'quality'   => 95,
+            'extension' => 'jpg',
         ];
 
         if (!is_array($options))
@@ -293,7 +292,8 @@ class File extends Model
 
         $thumbExt = strtolower($options['extension']);
         $thumbMode = strtolower($options['mode']);
-        $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbMode . '.' . $thumbExt;
+        $thumbOffset = $options['offset'];
+        $thumbFile = 'thumb_' . $this->id . '_' . $width . 'x' . $height . '_' . $thumbOffset[0] . '_' . $thumbOffset[1] . '_' . $thumbMode . '.' . $thumbExt;
         $thumbPath = $this->getStorageDirectory() . $this->getPartitionDirectory() . $thumbFile;
         $thumbPublic = $this->getPublicDirectory() . $this->getPartitionDirectory() . $thumbFile;
 
@@ -304,7 +304,7 @@ class File extends Model
          * Generate thumbnail
          */
         $resizer = Resizer::open($this->getDiskPath());
-        $resizer->resize($width, $height, $options['mode']);
+        $resizer->resize($width, $height, $options['mode'], $options['offset']);
         $resizer->save($thumbPath, $options['quality']);
 
         return $thumbPublic;
@@ -360,7 +360,7 @@ class File extends Model
      * Checks if directory is empty then deletes it,
      * three levels up to match the partition directory.
      */
-    private function deleteEmptyDirectory($dir = null)
+    protected function deleteEmptyDirectory($dir = null)
     {
         if (!$this->isDirectoryEmpty($dir))
             return;
@@ -376,14 +376,14 @@ class File extends Model
         $dir = dirname($dir);
         if (!$this->isDirectoryEmpty($dir))
             return;
-        
+
         FileHelper::deleteDirectory($dir);
     }
 
     /**
      * Returns true if a directory contains no files.
      */
-    private function isDirectoryEmpty($dir = null)
+    protected function isDirectoryEmpty($dir = null)
     {
         if (!is_readable($dir))
             return false;

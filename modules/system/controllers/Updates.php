@@ -4,6 +4,7 @@ use Str;
 use Lang;
 use File;
 use Flash;
+use Config;
 use Backend;
 use Redirect;
 use BackendMenu;
@@ -13,6 +14,7 @@ use System\Models\PluginVersion;
 use System\Console\CacheClear;
 use System\Classes\UpdateManager;
 use System\Classes\PluginManager;
+use System\Classes\SettingsManager;
 use System\Classes\ApplicationException;
 use Exception;
 
@@ -31,6 +33,11 @@ class Updates extends Controller
 
     public $listConfig = ['list' => 'config_list.yaml', 'manage' => 'config_manage_list.yaml'];
 
+    /**
+     * @var boolean If set to true, core updates will not be downloaded or extracted.
+     */
+    protected $disableCoreUpdates = false;
+
     public function __construct()
     {
         parent::__construct();
@@ -38,6 +45,9 @@ class Updates extends Controller
         $this->addCss('/modules/system/assets/css/updates.css', 'core');
 
         BackendMenu::setContext('October.System', 'system', 'updates');
+        SettingsManager::setContext('October.System', 'updates');
+
+        $this->disableCoreUpdates = Config::get('cms.disableCoreUpdates', false);
     }
 
     /**
@@ -49,7 +59,7 @@ class Updates extends Controller
         $this->vars['project_id'] = Parameters::get('system::project.id');
         $this->vars['project_name'] = Parameters::get('system::project.name');
         $this->vars['project_owner'] = Parameters::get('system::project.owner');
-        return $this->getClassExtension('Backend.Behaviors.ListController')->index();
+        return $this->asExtension('ListController')->index();
     }
 
     /**
@@ -59,7 +69,7 @@ class Updates extends Controller
     {
         $this->pageTitle = Lang::get('system::lang.plugins.manage');
         PluginManager::instance()->clearDisabledCache();
-        return $this->getClassExtension('Backend.Behaviors.ListController')->index();
+        return $this->asExtension('ListController')->index();
     }
 
     /**
@@ -98,10 +108,12 @@ class Updates extends Controller
 
         switch ($stepCode) {
             case 'downloadCore':
+                if ($this->disableCoreUpdates) return;
                 $manager->downloadCore(post('hash'));
                 break;
 
             case 'extractCore':
+                if ($this->disableCoreUpdates) return;
                 $manager->extractCore(post('hash'), post('build'));
                 break;
 
@@ -109,8 +121,16 @@ class Updates extends Controller
                 $manager->downloadPlugin(post('name'), post('hash'));
                 break;
 
+            case 'downloadTheme':
+                $manager->downloadTheme(post('name'), post('hash'));
+                break;
+
             case 'extractPlugin':
                 $manager->extractPlugin(post('name'), post('hash'));
+                break;
+
+            case 'extractTheme':
+                $manager->extractTheme(post('name'), post('hash'));
                 break;
 
             case 'completeUpdate':
@@ -148,7 +168,8 @@ class Updates extends Controller
 
             $this->vars['core'] = array_get($result, 'core', false);
             $this->vars['hasUpdates'] = array_get($result, 'update', false);
-            $this->vars['updateList'] = array_get($result, 'plugins', []);
+            $this->vars['pluginList'] = array_get($result, 'plugins', []);
+            $this->vars['themeList'] = array_get($result, 'themes', []);
         }
         catch (Exception $ex) {
             $this->handleError($ex);
@@ -176,10 +197,16 @@ class Updates extends Controller
                 $plugins[$code] = array_get($plugin, 'hash', null);
             }
 
+            $themes = [];
+            $themeList = array_get($result, 'themes', []);
+            foreach ($themeList as $code => $theme) {
+                $themes[$code] = array_get($theme, 'hash', null);
+            }
+
             /*
              * Update steps
              */
-            $updateSteps = $this->buildUpdateSteps($core, $plugins);
+            $updateSteps = $this->buildUpdateSteps($core, $plugins, $themes);
 
             /*
              * Finish up
@@ -204,18 +231,20 @@ class Updates extends Controller
     public function onApplyUpdates()
     {
         try {
-            $plugins = post('plugins', []);
-            if (!is_array($plugins))
-                $plugins = [];
-
             $coreHash = post('hash');
             $coreBuild = post('build');
             $core = [$coreHash, $coreBuild];
 
+            $plugins = post('plugins', []);
+            if (!is_array($plugins)) $plugins = [];
+
+            $themes = post('themes', []);
+            if (!is_array($themes)) $themes = [];
+
             /*
              * Update steps
              */
-            $updateSteps = $this->buildUpdateSteps($core, $plugins);
+            $updateSteps = $this->buildUpdateSteps($core, $plugins, $themes);
 
             /*
              * Finish up
@@ -234,13 +263,16 @@ class Updates extends Controller
         return $this->makePartial('execute');
     }
 
-    private function buildUpdateSteps($core, $plugins)
+    protected function buildUpdateSteps($core, $plugins, $themes)
     {
+        if (!is_array($core))
+            $core = [null, null];
+
         if (!is_array($plugins))
             $plugins = [];
 
-        if (!is_array($core))
-            $core = [null, null];
+        if (!is_array($themes))
+            $themes = [];
 
         $updateSteps = [];
         list($coreHash, $coreBuild) = $core;
@@ -265,6 +297,15 @@ class Updates extends Controller
             ];
         }
 
+        foreach ($themes as $name => $hash) {
+            $updateSteps[] = [
+                'code'  => 'downloadTheme',
+                'label' => Lang::get('system::lang.updates.theme_downloading', compact('name')),
+                'name'  => $name,
+                'hash'  => $hash
+            ];
+        }
+
         /*
          * Extract
          */
@@ -281,6 +322,15 @@ class Updates extends Controller
             $updateSteps[] = [
                 'code' => 'extractPlugin',
                 'label' => Lang::get('system::lang.updates.plugin_extracting', compact('name')),
+                'name' => $name,
+                'hash' => $hash
+            ];
+        }
+
+        foreach ($themes as $name => $hash) {
+            $updateSteps[] = [
+                'code' => 'extractTheme',
+                'label' => Lang::get('system::lang.updates.theme_extracting', compact('name')),
                 'name' => $name,
                 'hash' => $hash
             ];
@@ -365,7 +415,7 @@ class Updates extends Controller
             /*
              * Update steps
              */
-            $updateSteps = $this->buildUpdateSteps(null, $plugins);
+            $updateSteps = $this->buildUpdateSteps(null, $plugins, []);
 
             /*
              * Finish up

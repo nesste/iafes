@@ -1,7 +1,31 @@
 /*
- * Sortable plugin 
+ * Sortable plugin, a forked version of johnny's sortable plugin. 
  *
  * Forked from: https://github.com/johnny/jquery-sortable/tree/271cd2c742439842000e6f92d4dae96bb8dcd595
+ *
+ * Note: Consider using october.simplelist.js with "is-sortable" class.
+ * 
+ * Usage:
+ *   <ol class='example'>
+ *       <li>First</li>
+ *       <li>Second</li>
+ *       <li>Third</li>
+ *   </ol>
+ *   
+ *   $(function () {
+ *       $("ol.example").sortable()
+ *   })
+ *
+ * Basic CSS requirements:
+ *
+ *  body.dragging, body.dragging * { cursor: move !important }
+ *  .dragged { position: absolute; opacity: 0.5; z-index: 2000; }
+ *  ol.example li.placeholder { position: relative; }
+ *
+ * More examples:
+ *
+ *   http://johnny.github.io/jquery-sortable/
+ *
  */
 
 +function ($) { "use strict";
@@ -31,6 +55,8 @@
             handle: "",
             // The exact css path between the item and its subcontainers
             itemPath: "",
+            // Use animation when an item is removed or inserted into the tree
+            useAnimation : false,
             // The css selector of the items
             itemSelector: "li",
             // Check if the dragged item may be inside the container.
@@ -43,6 +69,10 @@
             // This happens if pullPlaceholder is set to false and the drop occurs outside a container.
             onCancel: function ($item, container, _super, event) {
             },
+
+            tweakCursorAdjustment: function(adjustment) {
+                return adjustment
+            },
             // Called after the drag has been started,
             // that is the mouse button is beeing held down and
             // the mouse is moving.
@@ -53,33 +83,53 @@
                 var offset = $item.offset(),
                     pointer = container.rootGroup.pointer
 
-                cursorAdjustment = {
-                    left: pointer.left - offset.left,
-                    top: pointer.top - offset.top
+                if (pointer) {
+                    cursorAdjustment = {
+                        left: pointer.left - offset.left,
+                        top: pointer.top - offset.top
+                    }
                 }
+                else {
+                    cursorAdjustment = null
+                }
+
+                cursorAdjustment = this.tweakCursorAdjustment(cursorAdjustment)
 
                 $item.css({
                     height: $item.height(),
                     width: $item.width()
                 })
+
+                if (this.useAnimation)
+                    $item.data('oc.animated', true)
+
                 $item.addClass("dragged")
                 $("body").addClass("dragging")
             },
             // Executed at the beginning of a mouse move event.
             // The Placeholder has not been moved yet.
             onDrag: function ($item, position, _super, event) {
-                // Relative cursors position
-                $item.css({
-                  left: position.left - cursorAdjustment.left,
-                  top: position.top - cursorAdjustment.top
-                })
-                // Default behavior
-                // $item.css(position)
+                if (cursorAdjustment) {
+                    // Relative cursors position
+                    $item.css({
+                      left: position.left - cursorAdjustment.left,
+                      top: position.top - cursorAdjustment.top
+                    })
+                }
+                else {
+                    // Default behavior
+                    $item.css(position)
+                }
             },
-            // Called when the mouse button is beeing released
+            // Called when the mouse button is being released
             onDrop: function ($item, container, _super, event) {
                 $item.removeClass("dragged").removeAttr("style")
                 $("body").removeClass("dragging")
+
+                if ($item.data('oc.animated')) {
+                    $item.hide()
+                    $item.slideDown(200)
+                }
             },
             // Called on mousedown. If falsy value is returned, the dragging will not start.
             onMousedown: function ($item, _super, event) {
@@ -663,3 +713,32 @@
     }
 
 }(window.jQuery);
+
+/* ===================================================
+ *  jquery-sortable.js v0.9.12
+ *  http://johnny.github.com/jquery-sortable/
+ * ===================================================
+ *  Copyright (c) 2012 Jonas von Andrian
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ *  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ========================================================== */

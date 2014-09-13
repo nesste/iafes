@@ -7,7 +7,7 @@ fields:
   name:
     label: Name
     span: left
-    placeholder: New post name
+    placeholder: New post title
 
   slug:
     label: slug
@@ -35,29 +35,29 @@ fields:
 secondaryTabs:
   stretch: true
   fields:
-    #content:
-    #  tab: Edit
-    #  stretch: true
-    # type: codeeditor
-    #  span: left
-    #  cssClass: no-padding
-    #  options:
-    #    language: markdown
-    #    showGutter: false
-    #    wrapWords: true
-    #    fontSize: 13
-    #    margin: 15
     content:
       tab: Edit
       stretch: true
-      type: Eein\Wysiwyg\FormWidgets\Trumbowyg
       cssClass: no-padding
+      type: ShahiemSeymor\Ckeditor\FormWidgets\Wysiwyg
+      language: markdown
+      showGutter: false
+      wrapWords: true
+      fontSize: 13
+      margin: 15
+
+    #preview:
+    #  type: RainLab\Blog\FormWidgets\Preview
+    #  tab: Edit
+    #  stretch: true
+    #  span: right
+    #  cssClass: no-padding
 
     tags:
       tab: Tags
       label: Tags
       type: relation      
-
+      span: left
 
     categories:
       tab: Categories
@@ -65,11 +65,12 @@ secondaryTabs:
       commentAbove: Select categories the blog post belongs to
       placeholder: There are no categories, you should create one first!
 
-    subCategories:
-      tab: subCategories
+    subcategories:
+      span: left
+      tab: Sub categories
       type: relation
-      commentAbove: Select subCategories the blog post belongs to
-      placeholder: There are no subCategories, you should create one first!
+      commentAbove: Select a sub category the blog post belongs to
+      placeholder: There are no sub categories, you should create one first!
 
     published:
       tab: Manage
@@ -82,9 +83,7 @@ secondaryTabs:
       label: Published on
       span: left
       type: datepicker
-      cssClass: checkbox-align
-      options:
-        mode: date
+      mode: date
 
     excerpt:
       tab: Manage
@@ -114,7 +113,6 @@ secondaryTabs:
       tab: Manage
       label: Featured Images
       type: fileupload
-      options:
-        mode: image
-        image-width: 200
-        image-height: 200
+      mode: image
+      imageWidth: 200
+      imageHeight: 200

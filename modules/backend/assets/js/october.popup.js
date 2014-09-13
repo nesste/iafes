@@ -1,6 +1,6 @@
 /*
  * Ajax Popup plugin
- * 
+ *
  * Data attributes:
  * - data-control="popup" - enables the ajax popup plugin
  * - data-ajax="popup-content.htm" - ajax content to load
@@ -39,6 +39,11 @@
         this.isAjax = this.options.handler || this.options.ajax
 
         /*
+         * Duplicate the popup reference on the .control-popup container
+         */
+        this.$target.data('oc.popup', this)
+
+        /*
          * Hook in to BS Modal events
          */
         this.$modal.on('hide.bs.modal', function(){
@@ -50,7 +55,7 @@
                 setTimeout(function() { self.$content.empty() }, 500)
             }
         })
-        
+
         this.$modal.on('show.bs.modal', function(){
             self.isOpen = true
             self.setBackdrop(true)
@@ -94,14 +99,18 @@
             this.$el.request(this.options.handler, {
                 data: this.options.extraData,
                 success: function(data, textStatus, jqXHR) {
-                    self.setContent(data.result)
-                    $(window).trigger('ajaxUpdateComplete', [this, data, textStatus, jqXHR])
-                    self.triggerEvent('popupComplete')
+                    this.success(data, textStatus, jqXHR).done(function(){
+                        self.setContent(data.result)
+                        $(window).trigger('ajaxUpdateComplete', [this, data, textStatus, jqXHR])
+                        self.triggerEvent('popupComplete')
+                    })
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    alert(jqXHR.responseText.length ? jqXHR.responseText : jqXHR.statusText)
-                    self.hide()
-                    self.triggerEvent('popupError')
+                    this.error(jqXHR, textStatus, errorThrown).done(function(){
+                        alert(jqXHR.responseText.length ? jqXHR.responseText : jqXHR.statusText)
+                        self.hide()
+                        self.triggerEvent('popupError')
+                    })
                 }
             })
 
@@ -156,25 +165,34 @@
 
             this.$backdrop.addClass('in')
 
-            this.$backdrop.append($('<div class="popup-loading-indicator modal-content" />'))
+            this.$backdrop.append($('<div class="modal-content popup-loading-indicator" />'))
         }
         else if (!val && this.$backdrop) {
             this.$backdrop.remove()
             this.$backdrop = null;
         }
     }
-    
+
     Popup.prototype.setLoading = function(val) {
         if (!this.$backdrop)
             return;
 
-        var self = this;
+        var self = this
         if (val) {
             setTimeout(function(){ self.$backdrop.addClass('loading'); }, 100)
-        } 
+        }
         else {
             this.$backdrop.removeClass('loading');
         }
+    }
+
+    Popup.prototype.hideLoading = function(val) {
+        this.setLoading(false)
+
+        // Wait for animations to complete
+        var self = this
+        setTimeout(function() { self.setBackdrop(false) }, 250)
+        setTimeout(function() { self.hide() }, 500)
     }
 
     Popup.prototype.triggerEvent = function(eventName, params) {
@@ -264,5 +282,16 @@
 
         return false
     });
+
+    $(document)
+        .on('ajaxPromise', '[data-popup-load-indicator]', function() {
+            $(this).closest('.control-popup').removeClass('in').popup('setLoading', true)
+        })
+        .on('ajaxFail', '[data-popup-load-indicator]', function() {
+            $(this).closest('.control-popup').addClass('in').popup('setLoading', false)
+        })
+        .on('ajaxDone', '[data-popup-load-indicator]', function() {
+            $(this).closest('.control-popup').popup('hideLoading')
+        })
 
 }(window.jQuery);

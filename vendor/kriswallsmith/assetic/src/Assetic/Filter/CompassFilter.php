@@ -3,7 +3,7 @@
 /*
  * This file is part of the Assetic package, an OpenSky project.
  *
- * (c) 2010-2014 OpenSky Project Inc
+ * (c) 2010-2013 OpenSky Project Inc
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -190,9 +190,12 @@ class CompassFilter extends BaseProcessFilter implements DependencyExtractorInte
 
     public function filterLoad(AssetInterface $asset)
     {
+        $root = $asset->getSourceRoot();
+        $path = $asset->getSourcePath();
+
         $loadPaths = $this->loadPaths;
-        if ($dir = $asset->getSourceDirectory()) {
-            $loadPaths[] = $dir;
+        if ($root && $path) {
+            $loadPaths[] = dirname($root.'/'.$path);
         }
 
         // compass does not seems to handle symlink, so we use realpath()
@@ -315,7 +318,7 @@ class CompassFilter extends BaseProcessFilter implements DependencyExtractorInte
         // compass choose the type (sass or scss from the filename)
         if (null !== $this->scss) {
             $type = $this->scss ? 'scss' : 'sass';
-        } elseif ($path = $asset->getSourcePath()) {
+        } elseif ($path) {
             // FIXME: what if the extension is something else?
             $type = pathinfo($path, PATHINFO_EXTENSION);
         } else {

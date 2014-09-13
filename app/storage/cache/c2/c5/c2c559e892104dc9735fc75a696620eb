@@ -1,0 +1,137 @@
+9999999999s:3644:"a:5:{s:5:"mtime";i:1410108287;s:7:"content";s:1688:"title = "projects"
+url = "/projects/:slug?/:sub?"
+layout = "master"
+
+[blogPosts]
+postsPerPage = "10"
+categoryPage = "index"
+postPage = "index"
+noPostsMessage = "No posts found"
+
+[blogCategory]
+paramId = "slug"
+postPage = "projects"
+postsPerPage = "10"
+noPostsMessage = "No posts found"
+
+[blogPost]
+paramId = "sub"
+SparamId = "slug"
+
+[subPost]
+SparamId = "sub"
+subPostName = "slug"
+==
+<?php
+function onStart(){
+	
+	$this['page'] = 'projects';
+	
+	$this['sub'] = $this->param('sub');
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+	
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    
+    if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+	
+}
+?>
+==
+{% put nav %}
+	<ul class="unstyled second-nav nav">
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/information">Information</a></li>
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/websites-projects">Micro-websites projects</a></li>
+	</ul><!-- end .second-nav -->
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% elseif sub != '' %}
+            {{ title }} > {{ sub }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+{% put mainContent %}
+    {% if (title == '') %}
+        {% component 'blogCategory' %}
+    {% else %}
+        {% if sub != '' %}
+            {% component 'subPost' %}
+        {% else %}
+            {% component 'blogPost' %}
+        {% endif %}
+    {% endif %}
+{% endput %}";s:8:"settings";a:4:{s:5:"title";s:8:"projects";s:3:"url";s:22:"/projects/:slug?/:sub?";s:6:"layout";s:6:"master";s:10:"components";a:4:{s:9:"blogPosts";a:4:{s:12:"postsPerPage";s:2:"10";s:12:"categoryPage";s:5:"index";s:8:"postPage";s:5:"index";s:14:"noPostsMessage";s:14:"No posts found";}s:12:"blogCategory";a:4:{s:7:"paramId";s:4:"slug";s:8:"postPage";s:8:"projects";s:12:"postsPerPage";s:2:"10";s:14:"noPostsMessage";s:14:"No posts found";}s:8:"blogPost";a:2:{s:7:"paramId";s:3:"sub";s:8:"SparamId";s:4:"slug";}s:7:"subPost";a:2:{s:8:"SparamId";s:3:"sub";s:11:"subPostName";s:4:"slug";}}}s:4:"code";s:384:"
+function onStart(){
+	
+	$this['page'] = 'projects';
+	
+	$this['sub'] = $this->param('sub');
+	$this['title'] = $this->param('slug');
+	$slug = $this['title'];
+	$this['path'] =  URL::to('/');
+	
+	if($slug != ''){
+	    $this['title'] = $this->param('slug');
+	}
+    
+    if($slug != ''){
+        $this['news'] = true;
+    }else{
+        $this['news'] = false;
+    }
+	
+}
+";s:6:"markup";s:883:"{% put nav %}
+	<ul class="unstyled second-nav nav">
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/information">Information</a></li>
+		<li><a href="{{ path }}/{{ page }}/{{ title }}/websites-projects">Micro-websites projects</a></li>
+	</ul><!-- end .second-nav -->
+{% endput %}
+
+{% put news %}
+	{% component 'blogPosts' %}
+{% endput %}	
+
+
+{% put pageName %}
+    <h1>
+        {% if title == '' %}
+            {{ page }}
+        {% elseif sub != '' %}
+            {{ title }} > {{ sub }}
+        {% else %}
+            {{ title }}
+        {% endif %}
+    </h1>
+{% endput %}
+
+{% put mainContent %}
+    {% if (title == '') %}
+        {% component 'blogCategory' %}
+    {% else %}
+        {% if sub != '' %}
+            {% component 'subPost' %}
+        {% else %}
+            {% component 'blogPost' %}
+        {% endif %}
+    {% endif %}
+{% endput %}";}";

@@ -53,7 +53,7 @@ class Category extends ComponentBase
 
     public function getPostPageOptions()
     {
-        return CmsPropertyHelper::listPages();;
+        return Page::sortBy('baseFileName')->lists('baseFileName', 'baseFileName');
     }
 
     public function onRun()
@@ -63,16 +63,15 @@ class Category extends ComponentBase
 
         if ($this->category) {
             $this->posts = $this->page['blogPosts'] = $this->loadPosts();
-
-            $currentPage = $this->param('page');
-            if ($currentPage > ($lastPage = $this->posts->getLastPage()) && $currentPage > 1)
-                return Redirect::to($this->controller->currentPageUrl(['page'=>$lastPage]));
         }
     }
 
     protected function loadCategory()
     {
         $slug = $this->param($this->property('paramId'));
+        if($slug == ''){
+            $slug = $this->page['page'];
+        }
         return BlogCategory::where('slug', '=', $slug)->first();
     }
 

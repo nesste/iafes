@@ -29,7 +29,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var Identifier[]
      */
-    protected $_columns = array();
+    protected $_columns;
 
     /**
      * @var boolean
@@ -43,22 +43,21 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * Platform specific flags for indexes.
-     * array($flagName => true)
      *
      * @var array
      */
     protected $_flags = array();
 
     /**
-     * @param string   $indexName
-     * @param string[] $columns
-     * @param boolean  $isUnique
-     * @param boolean  $isPrimary
-     * @param string[] $flags
+     * @param string  $indexName
+     * @param array   $columns
+     * @param boolean $isUnique
+     * @param boolean $isPrimary
+     * @param array   $flags
      */
     public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
     {
-        $isUnique = $isUnique || $isPrimary;
+        $isUnique = ($isPrimary)?true:$isUnique;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
@@ -81,7 +80,7 @@ class Index extends AbstractAsset implements Constraint
      */
     protected function _addColumn($column)
     {
-        if (is_string($column)) {
+        if(is_string($column)) {
             $this->_columns[$column] = new Identifier($column);
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
@@ -111,7 +110,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return string[]
+     * @return array
      */
     public function getUnquotedColumns()
     {
@@ -183,7 +182,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Checks if the other index already fulfills all the indexing and constraint needs of the current one.
      *
-     * @param Index $other
+     * @param \Doctrine\DBAL\Schema\Index $other
      *
      * @return boolean
      */
@@ -205,9 +204,9 @@ class Index extends AbstractAsset implements Constraint
                 // overlaps. This means a primary or unique index can always fulfill the requirements of just an
                 // index that has no constraints.
                 return true;
-            } elseif ($other->isPrimary() != $this->isPrimary()) {
+            } else if ($other->isPrimary() != $this->isPrimary()) {
                 return false;
-            } elseif ($other->isUnique() != $this->isUnique()) {
+            } else if ($other->isUnique() != $this->isUnique()) {
                 return false;
             }
 
@@ -220,7 +219,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Detects if the other index is a non-unique, non primary index that can be overwritten by this one.
      *
-     * @param Index $other
+     * @param \Doctrine\DBAL\Schema\Index $other
      *
      * @return boolean
      */
@@ -228,7 +227,7 @@ class Index extends AbstractAsset implements Constraint
     {
         if ($other->isPrimary()) {
             return false;
-        } elseif ($this->isSimpleIndex() && $other->isUnique()) {
+        } else if ($this->isSimpleIndex() && $other->isUnique()) {
             return false;
         }
 
@@ -242,7 +241,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Returns platform specific flags for indexes.
      *
-     * @return string[]
+     * @return array
      */
     public function getFlags()
     {
@@ -256,11 +255,11 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param string $flag
      *
-     * @return Index
+     * @return \Doctrine\DBAL\Schema\Index
      */
     public function addFlag($flag)
     {
-        $this->_flags[strtolower($flag)] = true;
+        $this->flags[strtolower($flag)] = true;
 
         return $this;
     }
@@ -274,7 +273,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function hasFlag($flag)
     {
-        return isset($this->_flags[strtolower($flag)]);
+        return isset($this->flags[strtolower($flag)]);
     }
 
     /**
@@ -286,6 +285,6 @@ class Index extends AbstractAsset implements Constraint
      */
     public function removeFlag($flag)
     {
-        unset($this->_flags[strtolower($flag)]);
+        unset($this->flags[strtolower($flag)]);
     }
 }

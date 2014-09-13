@@ -1,5 +1,7 @@
 <?php namespace Backend\Classes;
 
+use Str;
+
 /**
  * Form Widget base class
  * Widgets used specifically for forms
@@ -36,6 +38,11 @@ abstract class FormWidgetBase extends WidgetBase
     public $previewMode = false;
 
     /**
+     * @var int Value returned when the widget should not contribute any save data.
+     */
+    const NO_SAVE_DATA = -1;
+
+    /**
      * Constructor
      * @param $controller Controller Active controller object.
      * @param $model Model The relevant model to reference.
@@ -50,6 +57,12 @@ abstract class FormWidgetBase extends WidgetBase
         if (isset($configuration->sessionKey)) $this->sessionKey = $configuration->sessionKey;
         if (isset($configuration->previewMode)) $this->previewMode = $configuration->previewMode;
 
+        /*
+         * Form fields originally passed their configuration via the options index.
+         * This step should be removed if year >= 2015.
+         */
+        if (isset($configuration->options)) $configuration = array_merge($configuration->options, (array)$configuration);
+
         parent::__construct($controller, $configuration);
     }
 
@@ -60,7 +73,7 @@ abstract class FormWidgetBase extends WidgetBase
     {
         $id = parent::getId($suffix);
         $id .= '-' . $this->columnName;
-        return $id;
+        return Str::evalHtmlId($id);
     }
 
     /**

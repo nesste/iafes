@@ -4,17 +4,17 @@
 
 fields:
 
-  title:
-    label: Title
+  name:
+    label: Name
     span: left
-    placeholder: New subpost title
+    placeholder: New subpost name
 
   slug:
     label: slug
     span: right
     placeholder: new-subPost-slug
     attributes:
-      data-input-preset: 'input[name="subPost[title]"]'
+      data-input-preset: 'input[name="Subpost[name]"]'
       data-input-preset-type: slug
       data-input-preset-closest-parent: form
 
@@ -50,8 +50,13 @@ secondaryTabs:
     content:
       tab: Edit
       stretch: true
-      type: Eein\Wysiwyg\FormWidgets\Trumbowyg
       cssClass: no-padding
+      type: ShahiemSeymor\Ckeditor\FormWidgets\Wysiwyg
+      language: markdown
+      showGutter: false
+      wrapWords: true
+      fontSize: 13
+      margin: 15
 
    # preview:
    #   type: RainLab\Blog\FormWidgets\Preview
@@ -63,6 +68,7 @@ secondaryTabs:
     post:
       tab: Post
       type: relation
+      span: left
       commentAbove: Select a post that this subpost belongs to
 
     # visibility:
