@@ -17,8 +17,8 @@ class Post extends Model
      * Validation
      */
     public $rules = [
-        'name' => 'required|between:3,64|unique:rainlab_blog_posts',
-        'slug' => 'required',
+        'name' => 'required|between:3,64',
+        'slug' => 'required|unique:rainlab_blog_posts',
         'content' => 'required',
         'excerpt' => ''
     ];
@@ -39,14 +39,14 @@ class Post extends Model
 
     public $belongsToMany = [
         'categories' => ['RainLab\Blog\Models\Category', 'table' => 'rainlab_blog_posts_categories', 'order' => 'name'],
-        'subcategories' => ['RainLab\Blog\Models\Subcategory', 'table' => 'rainlab_blog_posts_subcategories', 'order' => 'name'],
-        'tags' => ['RainLab\Blog\Models\Tag', 'table' => 'rainlab_blog_posts_tags', 'order' => 'name'],
+        'tags' => ['RainLab\Blog\Models\Tag', 'table' => 'rainlab_blog_posts_tags', 'order' => 'name']
     ];
 
     public $attachMany = [
         'featured_images' => ['System\Models\File'],
         'content_images' => ['System\Models\File']
     ];
+
 
     /**
      * @var array The accessors to append to the model's array form.

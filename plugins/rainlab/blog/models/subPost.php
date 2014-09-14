@@ -29,7 +29,8 @@ class Subpost extends Model
 
     public $belongsTo = [
         'user' => ['Backend\Models\User'],
-        'post' => ['RainLab\Blog\Models\Post', 'table' => 'rainlab_blog_posts', 'order' => 'name']
+        'post' => ['RainLab\Blog\Models\Post'],
+        'subcategory' => ['RainLab\Blog\Models\Subcategory', 'table' => 'rainlab_blog_subcategories', 'order' => 'name']
     ];
 
     public $attachMany = [
@@ -82,6 +83,7 @@ class Subpost extends Model
                 $query->orderBy($_sort, 'desc');
         }
 
+
         /*
          * Search
          */
@@ -114,6 +116,7 @@ class Subpost extends Model
 
         return $result;
     }
+
 
     public function afterValidate()
     {

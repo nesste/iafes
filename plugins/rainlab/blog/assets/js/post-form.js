@@ -218,6 +218,12 @@
     }
     
     $(document).ready(function(){
+
+        $('#Form-field-Subpost-post').on('change', function(){
+            //var id = $(this).find('option:selected').attr('value');
+            $('#Form-field-Subpost-subcategory').prop('disabled', false);
+        })
+
         var form = new PostForm()
 
         if ($.oc === undefined)

@@ -2,7 +2,7 @@
 #  Form Behavior Config
 # ===================================
 
-name: Blog Post
+name: Blog subCategory
 form: @/plugins/rainlab/blog/models/subpost/fields.yaml
 modelClass: RainLab\Blog\Models\Subpost
 defaultRedirect: rainlab/blog/subposts

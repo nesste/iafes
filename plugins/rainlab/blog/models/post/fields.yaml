@@ -65,13 +65,6 @@ secondaryTabs:
       commentAbove: Select categories the blog post belongs to
       placeholder: There are no categories, you should create one first!
 
-    subcategories:
-      span: left
-      tab: Sub categories
-      type: relation
-      commentAbove: Select a sub category the blog post belongs to
-      placeholder: There are no sub categories, you should create one first!
-
     published:
       tab: Manage
       label: Published

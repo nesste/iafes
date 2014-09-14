@@ -7,85 +7,43 @@ fields:
   name:
     label: Name
     span: left
-    placeholder: New subpost name
+    placeholder: New sub post name
 
   slug:
     label: slug
     span: right
-    placeholder: new-subPost-slug
+    placeholder: new-sub-post-slug
     attributes:
       data-input-preset: 'input[name="Subpost[name]"]'
       data-input-preset-type: slug
       data-input-preset-closest-parent: form
 
-  toolbar:
-    type: partial
-    path: subPost_toolbar
-    cssClass: collapse-visible
+  subcategory:
+    label: Menu
+    type: relation
+    span: right
+    commentAbove: Select the sub category for this sub post
+    attributes:
+      disabled: true
 
-# tabs:
-#   fields:
+  post:
+    label: Post
+    type: relation
+    span: left
+    commentAbove: Select a post that this sub post belongs to
+    attributes:
+      data-request: onChange
 
-#     excerpt:
-#       tab: Details
-#       label: Excerpt
-#       type: textarea
-#       size: small
+  content:
+    tab: Edit
+    stretch: true
+    cssClass: no-padding
+    type: ShahiemSeymor\Ckeditor\FormWidgets\Wysiwyg
+    language: markdown
+    showGutter: false
+    wrapWords: true
+    fontSize: 13
+    margin: 15
 
-secondaryTabs:
-  stretch: true
-  fields:
-    #content:
-    #  tab: Edit
-    #  stretch: true
-    # type: codeeditor
-    #  span: left
-    #  cssClass: no-padding
-    #  options:
-    #    language: markdown
-    #    showGutter: false
-    #    wrapWords: true
-    #    fontSize: 13
-    #    margin: 15
-    content:
-      tab: Edit
-      stretch: true
-      cssClass: no-padding
-      type: ShahiemSeymor\Ckeditor\FormWidgets\Wysiwyg
-      language: markdown
-      showGutter: false
-      wrapWords: true
-      fontSize: 13
-      margin: 15
 
-   # preview:
-   #   type: RainLab\Blog\FormWidgets\Preview
-   #   tab: Edit
-   #   stretch: true
-   #   span: right
-   #   cssClass: no-padding
-
-    post:
-      tab: Post
-      type: relation
-      span: left
-      commentAbove: Select a post that this subpost belongs to
-
-    # visibility:
-    #   tab: Manage
-    #   label: Visibility
-    #   type: balloon-selector
-    #   options:
-    #     - Public
-    #     - Sticky
-    #     - Private
-
-    # status:
-    #   tab: Manage
-    #   label: Status
-    #   type: balloon-selector
-    #   options:
-    #     - Draft
-    #     - Review
-    #     - Published
 

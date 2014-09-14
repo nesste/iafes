@@ -77,4 +77,5 @@ class Posts extends Controller
             'preview' => $previewHtml
         ];
     }
+
 }

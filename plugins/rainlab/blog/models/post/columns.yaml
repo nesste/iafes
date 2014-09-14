@@ -20,12 +20,6 @@ columns:
     select: name
     searchable: true
 
-  subcategories:
-    label: Sub categories
-    relation: subcategories
-    select: name
-    searchable: true
-
   created_at:
     label: Created
     type: date

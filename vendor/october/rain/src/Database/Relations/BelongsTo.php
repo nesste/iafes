@@ -4,5 +4,5 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo as BelongsToBase;
 
 class BelongsTo extends BelongsToBase
 {
-
+	return $this->slug;
 }

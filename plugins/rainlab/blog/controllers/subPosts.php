@@ -4,6 +4,7 @@ use Flash;
 use BackendMenu;
 use Backend\Classes\Controller;
 use RainLab\Blog\Models\Subpost;
+use RainLab\Blog\Models\Post;
 
 class Subposts extends Controller
 {
@@ -14,8 +15,6 @@ class Subposts extends Controller
 
     public $formConfig = 'config_form.yaml';
     public $listConfig = 'config_list.yaml';
-
-    public $bodyClass = 'compact-container';
 
     public function __construct()
     {
@@ -30,13 +29,6 @@ class Subposts extends Controller
 
         $this->addJs('/plugins/rainlab/blog/assets/js/post-form.js');
         $this->addJs('/plugins/rainlab/blog/assets/vendor/prettify/prettify.js');
-    }
-
-    public function index()
-    {
-        $this->vars['postsTotal'] = Subpost::count();
-
-        $this->asExtension('ListController')->index();
     }
 
     public function index_onDelete()
@@ -56,23 +48,9 @@ class Subposts extends Controller
         return $this->listRefresh();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function listInjectRowClass($record, $definition = null)
+    public function onChange()
     {
-        if (!$record->published)
-            return 'safe disabled';
+        
     }
 
-    public function onRefreshPreview()
-    {
-        $data = post('Post');
-
-        $previewHtml = Subpost::formatHtml($data['content'], true);
-
-        return [
-            'preview' => $previewHtml
-        ];
-    }
 }
