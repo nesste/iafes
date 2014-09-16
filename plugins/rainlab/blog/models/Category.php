@@ -35,8 +35,7 @@ class Category extends Model
     public function posts()
     {
         // @todo: declare this relationship as the class field when the conditions option is implemented
-        return $this->belongsToMany('RainLab\Blog\Models\Post', 'rainlab_blog_posts_categories')->isPublished()->orderBy('published_at', 'desc');
-        return $this->belongsToMany('RainLab\Blog\Models\Subcategory', 'rainlab_blog_category_subcategories')->orderBy('name', 'desc');
+        return $this->belongsToMany('RainLab\Blog\Models\Post', 'rainlab_blog_posts_categories')->isPublished()->orderBy('published_at', 'desc');   
     }
 
     public function postCount()

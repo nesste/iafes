@@ -6,6 +6,7 @@ use Model;
 use October\Rain\Support\Markdown;
 use October\Rain\Support\ValidationException;
 use RainLab\Blog\Classes\TagProcessor;
+use RainLab\Blog\Models\Post;
 
 class Subpost extends Model
 {
@@ -115,17 +116,6 @@ class Subpost extends Model
         $result = TagProcessor::instance()->processTags($result, $preview);
 
         return $result;
-    }
-
-
-    public function afterValidate()
-    {
-        
-    }
-
-    public function scopeIsPublished($query)
-    {
-
     }
 
     public function beforeSave()

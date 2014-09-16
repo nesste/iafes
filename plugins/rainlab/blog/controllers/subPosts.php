@@ -42,15 +42,10 @@ class Subposts extends Controller
                 $post->delete();
             }
 
-            Flash::success('Successfully deleted those posts.');
+            Flash::success('Successfully deleted those sub posts.');
         }
 
         return $this->listRefresh();
-    }
-
-    public function onChange()
-    {
-        
     }
 
 }

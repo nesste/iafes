@@ -23,6 +23,9 @@ recordsPerPage: 10
 # Display checkboxes next to each record
 # showCheckboxes: yes
 
+# Display checkboxes next to each record
+showCheckboxes: true
+
 # Toolbar widget configuration
 toolbar:
     # Partial for toolbar buttons

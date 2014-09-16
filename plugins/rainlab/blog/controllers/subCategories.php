@@ -1,5 +1,6 @@
 <?php namespace RainLab\Blog\Controllers;
 
+use Flash;
 use BackendMenu;
 use Backend\Classes\Controller;
 use RainLab\Blog\Models\Subcategory;
@@ -31,5 +32,22 @@ class Subcategories extends Controller
         return [
             'preview' => $previewHtml
         ];
+    }
+
+    public function index_onDelete()
+    {
+        if (($checkedIds = post('checked')) && is_array($checkedIds) && count($checkedIds)) {
+
+            foreach ($checkedIds as $postId) {
+                if (!$post = Subcategory::find($postId))
+                    continue;
+
+                $post->delete();
+            }
+
+            Flash::success('Successfully deleted those sub categories.');
+        }
+
+        return $this->listRefresh();
     }
 }

@@ -80,7 +80,7 @@ secondaryTabs:
 
     excerpt:
       tab: Manage
-      label: Excerpt
+      label: Post teaser
       type: textarea
       size: small
 

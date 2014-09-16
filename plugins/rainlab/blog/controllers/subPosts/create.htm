@@ -42,3 +42,29 @@
     <p class="flash-message static error"><?= e($this->fatalError) ?></p>
     <p><a href="<?= Backend::url('rainlab/blog/subposts') ?>" class="btn btn-default">Return to the blog sub posts list</a></p>
 <?php endif ?>
+
+<script type="text/javascript">
+    $('#Form-field-Subpost-post').on('change', function(){
+        var id = $(this).find('option:selected').attr('value');
+        var opt = $('#Form-field-Subpost-subcategory');
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url:'http://www.iafes.org/subposts/getPostId',
+            data: "postId=" + id,
+            success: function(data) {
+                opt.find('option').remove();
+                for(var i = 0; i < data.length; i++){
+                    var menu = data[i];    
+                    opt.append('<option value="' + menu.id + '">' + menu.name + '</option>');
+                }
+                
+                $('#Form-field-Subpost-subcategory').prop('disabled', false);
+            },
+            error: function(data){
+                alert('error');
+            }
+        }); 
+
+    });
+</script>

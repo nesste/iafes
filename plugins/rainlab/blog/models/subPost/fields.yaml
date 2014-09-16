@@ -31,8 +31,6 @@ fields:
     type: relation
     span: left
     commentAbove: Select a post that this sub post belongs to
-    attributes:
-      data-request: onChange
 
   content:
     tab: Edit
