@@ -5,6 +5,12 @@
 columns:
     name:
         label: Name
-        searchable: yes
+        searchable: true
 
-    code: Code
+    code:
+        label: Code
+        searchable: true
+
+    is_enabled:
+        label: Enabled
+        type: switch

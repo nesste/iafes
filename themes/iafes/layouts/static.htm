@@ -1,17 +1,36 @@
+description = "Static page for footer links"
+
 [staticPage]
 
 
 [blogPosts]
+pageParam = ":page"
 postsPerPage = "3"
+noPostsMessage = "No posts found"
 categoryPage = "index"
 postPage = "index"
-noPostsMessage = "No posts found"
 
 [mailTemplate]
-templateName = "2"
+templateName = "1"
 responseTemplate = "octodevel.octomail::mail.autoresponse"
 responseFieldName = "name"
 responseFieldEmail = "email"
+==
+<?php
+function onStart(){
+
+	$url = Request::path();
+	
+	if (strstr($url,'/') !== false){
+
+		$token = explode("/",$url);
+		
+		$this['token'] = $token[0];
+	}
+	
+		
+}
+?>
 ==
 <!DOCTYPE HTML>
 <html lang="en">
@@ -68,36 +87,45 @@ responseFieldEmail = "email"
     			<div class="col-md-3 col-lg-3 col-sm-3">
     				<div class="row">
     					<div class="col-md-12 col-lg-12">
-    					    
-    					    {% if  news  != '1' %} 
-        					    <div class="news">
-        					        <h2>News</h2>
-        					        {%	component 'blogPosts' %}
-        					    </div>
-    						{% else %}
-    						    {%  placeholder nav %}
-    				        {% endif %}	 
+    					    {% if (staticPage.title == 'iafes association') or (token != '') %}
+    					    	{% partial 'iafes-nav' %}
+    					    {% elseif (staticPage.title == 'IAFeS') or (staticPage.title == 'netties') or (staticPage.title == 'library') %}
+    					    	{% partial 'home-nav' %}
+    					    {% else %}
+	    					   	{% if  news  != '1' %} 
+	        					    <div class="news">
+	        					        <h2>News</h2>
+	        					        {%	component 'blogPosts' %}
+	        					    </div>
+	        					{% endif %}
+    					    {% endif %}
     					</div>
     					<div class="col-md-12 col-lg-12">
     						{% partial 'social-links.htm' %}
     					</div>
-    					{% if news == '1' %}
-        					<div class="col-md-12 col-lg-12">
-        					    <div class="news">
-        					        <h2>News</h2>
-        					        {%	component 'blogPosts' %}
-        					    </div>
-        					</div>
+    					{% if (staticPage.title == 'iafes association') or (staticPage.title == 'IAFeS') or (staticPage.title == 'netties') or (staticPage.title == 'library') %}
+	    					<div class="col-md-12 col-lg-12">
+	    					    <div class="news">
+	    					        <h2>News</h2>
+	    					        {%	component 'blogPosts' %}
+	    					    </div>
+	    					</div>
     					{% endif %}
     				</div>
     			</div>
     			<div class="col-md-7 col-lg-7 col-sm-7 col-xs-12">
     				<div class="main-content">
         				<div class="row pageInfo">
-        				    <div class="col-md-6 col-lg-6 col-sm-6 col-xs-7">
-                                <h1>{{ staticPage.title }}</h1>
+        				    <div class="col-md-7 col-lg-7 col-sm-7 col-xs-7">
+                                <h1>
+                                	{% if token != '' %}
+                                		{{ token }} > {{ staticPage.title }}
+                                	{% else %}
+                                		{{ staticPage.title }}
+                                	{% endif %}
+                                </h1>
                             </div>
-                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-5 login-user">
+                            <div class="col-md-5 col-lg-5 col-sm-5 col-xs-5 login-user">
                                 {% placeholder user %}
                             </div>
         				</div>

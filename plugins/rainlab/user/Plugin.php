@@ -64,13 +64,7 @@ class Plugin extends PluginBase
                         'permissions' => ['user:access_users'],
                     ],
 
-                    'locations' => [
-                        'label'       => 'All Countries',
-                        'icon'        => 'icon-globe',
-                        'url'         => Backend::url('rainlab/user/locations'),
-                        'permissions' => ['user:access_locations'],
-                    ],
-                     'universities' => [
+                    'universities' => [
                         'label'       => 'All Universities',
                         'icon'        => 'icon-globe',
                         'url'         => Backend::url('rainlab/user/universities'),
@@ -123,47 +117,41 @@ class Plugin extends PluginBase
                 'class'       => 'RainLab\User\Models\Settings',
                 'sort'        => 100
             ],
-            'locations' => [
+
+           'location' => [
                 'label'       => 'Locations',
                 'description' => 'Manage available user countries and states.',
                 'category'    => 'Users',
                 'icon'        => 'icon-globe',
                 'url'         => Backend::url('rainlab/user/locations'),
-                'sort'        => 100
-            ],
-            'universities' => [
-                'label'       => 'Universities',
-                'description' => 'Manage available user universities.',
-                'category'    => 'Users',
-                'icon'        => 'icon-globe',
-                'url'         => Backend::url('rainlab/user/universities'),
-                'sort'        => 100
-            ],
-            'informations' => [
-                'label'       => 'User Information',
-                'description' => 'Manage available user informations',
-                'category'    => 'Users',
-                'icon'        => 'icon-user',
-                'url'         => Backend::url('rainlab/user/informations'),
-                'sort'        => 100
-            ],
-             'assemblies' => [
-                'label'       => 'User General Assembly',
-                'description' => 'Manage available user general assemblies',
-                'category'    => 'Users',
-                'icon'        => 'icon-user',
-                'url'         => Backend::url('rainlab/user/assemblies'),
-                'sort'        => 100
-            ],
-             'financials' => [
-                'label'       => 'User Financial',
-                'description' => 'Manage available user financial',
-                'category'    => 'Users',
-                'icon'        => 'icon-user',
-                'url'         => Backend::url('rainlab/user/financials'),
-                'sort'        => 100
+                'order'       => 500,
             ]
 
+        ];
+    }
+
+     public function registerMailTemplates()
+    {
+        return [
+            'rainlab.user::mail.activate' => 'Activation email sent to new users.',
+            'rainlab.user::mail.welcome' => 'Welcome email sent when a user is activated.',
+            'rainlab.user::mail.restore' => 'Password reset instructions for front-end users.',
+            'rainlab.user::mail.new_user' => 'Sent to administrators when a new user joins.',
+        ];
+    }
+
+
+    /**
+     * Register new Twig variables
+     * @return array
+     */
+    public function registerMarkupTags()
+    {
+        return [
+            'functions' => [
+                'form_select_country' => ['RainLab\User\Models\Country', 'formSelect'],
+                'form_select_state' => ['RainLab\User\Models\State', 'formSelect'],
+            ]
         ];
     }
 

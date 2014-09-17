@@ -3,14 +3,15 @@
 use Auth;
 use Mail;
 use Flash;
-use Input;
 use Redirect;
 use Validator;
 use Cms\Classes\Page;
 use Cms\Classes\ComponentBase;
+use Cms\Classes\CmsPropertyHelper;
 use System\Classes\ApplicationException;
 use October\Rain\Support\ValidationException;
 use RainLab\User\Models\Settings as UserSettings;
+use RainLab\User\Models\University as UniversityName;
 use Exception;
 
 class Account extends ComponentBase
@@ -84,7 +85,7 @@ class Account extends ComponentBase
          * Validate input
          */
         $rules = [
-            'email'    => 'required|email|min:2|max:64',
+            'email' => 'required|email|between:2,64',
             'password' => 'required|min:2'
         ];
 
@@ -123,9 +124,14 @@ class Account extends ComponentBase
             $data['password_confirmation'] = post('password');
 
         $rules = [
-            'email'    => 'required|email|min:2|max:64',
+            'email'    => 'required|email|between:2,64',
             'password' => 'required|min:2'
         ];
+
+        if (!array_key_exists('login', Input::all()))
+            $data['login'] = post('email');
+        else
+            $rules['login'] = 'required|between:2,64';
 
         $validation = Validator::make($data, $rules);
         if ($validation->fails())
@@ -135,13 +141,14 @@ class Account extends ComponentBase
          * Register user
          */
         $requireActivation = UserSettings::get('require_activation', true);
-        $automaticActivation = UserSettings::get('auto_activation', true);
+        $automaticActivation = UserSettings::get('activate_mode') == UserSettings::ACTIVATE_AUTO;
+        $userActivation = UserSettings::get('activate_mode') == UserSettings::ACTIVATE_USER;
         $user = Auth::register($data, $automaticActivation);
 
         /*
-         * Activation is required, send the email
+         * Activation is by the user, send the email
          */
-        if (!$automaticActivation) {
+        if ($userActivation) {
             $this->sendActivationEmail($user);
         }
 

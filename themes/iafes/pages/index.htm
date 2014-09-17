@@ -1,12 +1,15 @@
 title = "index"
 url = "/:page?/:slug?/:menu?"
 layout = "master"
+description = "International Association for eScience"
+meta_title = "International Association for eScience"
 
 [blogPosts]
+pageParam = ":page"
 postsPerPage = "15"
+noPostsMessage = "No posts found"
 categoryPage = "index"
 postPage = "index"
-noPostsMessage = "No posts found"
 
 [blogCategory]
 paramId = "page"
@@ -23,6 +26,7 @@ SparamId = "page"
 
 [subPost]
 SparamId = "menu"
+categoryFilter = "page"
 subPostName = "slug"
 
 [like]
@@ -39,15 +43,22 @@ lang = "en"
 ==
 <?php
 function onStart(){
-
+	
     $this['page'] = $this->param('page');
+    $this['path'] =  URL::to('/');
     
     if($this['page'] == ''){
         $this['page'] = 'homepage';
     }
 	$page = $this['page'];
+	$categories = array("homepage","seminars-workshop","netties-conference","summer-schools","student-research-conference","projects","training");
    
-	$this['path'] =  URL::to('/');
+	if(!in_array($page, $categories)){
+		return Redirect::to( $this['path'] . '/404' );
+	}
+    
+   
+	
     $this['slug'] = $this->param('slug');
     $slug = $this['slug'];
 

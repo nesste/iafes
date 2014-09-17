@@ -3,7 +3,10 @@
 # ===================================
 
 fields:
-
+	is_enabled:
+        label: Enabled
+        type: checkbox
+        
     name:
         label: Name
         span: auto

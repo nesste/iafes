@@ -1,0 +1,6 @@
+9999999999s:173:"a:2:{s:5:"mtime";i:1410909363;s:7:"content";s:119:"{% if result == true %}
+    <h4>Email Sent successfully</h4>
+    <p>
+        {{confirmation_text}}
+    </p>
+{% endif %}";}";

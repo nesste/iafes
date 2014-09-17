@@ -100,11 +100,11 @@ $(document).on('ready',function(){
     searchForm(); 
     
     
-    $('.main-content').find('img').each(function(){
-    	if($('#OctoDevelOctoSliderSimple').length == 0){
-    		$(this).wrap('<div class="image-wrapper"></div>');	
-    	}
-    }) 
+   // $('.main-content').find('img').each(function(){
+   // 	if($('#OctoDevelOctoSliderSimple').length == 0){
+   // 		$(this).wrap('<div class="image-wrapper"></div>');	
+   // 	}
+   // }) 
     $('.main-content').find('iframe').each(function(){
         $(this).wrap('<div class="video-wrapper ratio-16-9"></div>');
     }) 

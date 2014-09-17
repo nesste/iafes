@@ -1,6 +1,5 @@
 {{ form_ajax('onUpdate', { model: user }) }}
 
-<div style="margin-top:20px;">
     <div class="form-group">
         <label for="accountName">Full Name</label>
         <input name="name" type="text" class="form-control" id="accountName" value="{{ form_value('name') }}">
@@ -12,8 +11,18 @@
     </div>
 
     <div class="form-group">
-        <label for="accountAddress">Address</label>
-        <input name="Address" type="text" class="form-control" id="accountAddress" value="{{ form_value('address') }}">
+        <label for="accountAddress">Street Address</label>
+        <input name="street_addr" type="text" class="form-control" id="accountAddress" value="{{ form_value('street_addr') }}">
+    </div>
+
+    <div class="form-group">
+        <label for="accountZip">Zip</label>
+        <input name="zip" type="text" class="form-control" id="accountZip" value="{{ form_value('zip') }}">
+    </div>
+
+    <div class="form-group">
+        <label for="accountPhone">Phone</label>
+        <input name="phone" type="number" class="form-control" id="accountPhone" value="{{ form_value('phone') }}">
     </div>
 
     <div class="form-group">
@@ -27,6 +36,5 @@
     </div>
 
     <button type="submit" class="btn btn-default">Save</button>
-</div>
 
 {{ form_close() }}

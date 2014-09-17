@@ -1,6 +1,8 @@
 <?php namespace RainLab\User\Models;
 
+use Mail;
 use October\Rain\Auth\Models\User as UserBase;
+use RainLab\User\Models\Settings as UserSettings;
 use RainLab\User\Models\Financial as FinancialBase;
 use RainLab\User\Models\Information as InformationBase;
 use RainLab\User\Models\Assembly as AssemblyBase;
@@ -17,8 +19,8 @@ class User extends UserBase
      */
     public $rules = [
         'email' => 'required|between:3,64|email|unique:users',
-        'password' => 'required:create|between:2,32|confirmed',
-        'password_confirmation' => 'required_with:password|between:2,32'
+        'password' => 'required:create|between:4,64|confirmed',
+        'password_confirmation' => 'required_with:password|between:4,64'
     ];
 
     /**
@@ -28,22 +30,23 @@ class User extends UserBase
         // 'groups' => ['RainLab\User\Models\Group', 'table' => 'users_groups']
     ];
 
+
     public $belongsTo = [
-    	'country' => ['RainLab\User\Models\Country', 'table' => 'rainlab_user_countries'],
-        'state' => ['RainLab\User\Models\State', 'table' => 'rainlab_user_states'],
-        'university' => ['RainLab\User\Models\University', 'table' => 'rainlab_user_universities'],
-        'position' => ['RainLab\User\Models\Position', 'table' => 'rainlab_user_positions']
+    	'country' => ['RainLab\User\Models\Country'],
+        'state' => ['RainLab\User\Models\State'],
+        'university' => ['RainLab\User\Models\University'],
+        'position' => ['RainLab\User\Models\Position']
     ];
 
 
-    public $attachOne = [
+   public $attachOne = [
         'avatar' => ['System\Models\File']
     ];
 
     /**
      * @var array The attributes that are mass assignable.
      */
-    protected $fillable = ['name', 'email', 'password', 'password_confirmation','address'];
+    protected $fillable = ['name', 'email', 'password', 'password_confirmation', 'country', 'state'];
 
     /**
      * Purge attributes from data set.
@@ -59,6 +62,16 @@ class User extends UserBase
         InformationBase::where('user_id','=', $id)->delete();
         FinancialBase::where('user_id','=', $id)->delete();
         AssemblyBase::where('user_id','=', $id)->delete();
+    }
+
+    public function getCountryOptions()
+    {
+        return Country::getNameList();
+    }
+
+    public function getStateOptions()
+    {
+        return State::getNameList($this->country_id);
     }
 
     /**
@@ -84,5 +97,29 @@ class User extends UserBase
             return '//www.gravatar.com/avatar/' . md5(strtolower(trim($this->email))) . '?s='.$size.'&d='.urlencode($default);
     }
 
+    /**
+     * Sends the confirmation email to a user, after activating
+     * @param  string $code
+     * @return void
+     */
+    public function attemptActivation($code)
+    {
+        $result = parent::attemptActivation($code);
+        if ($result === false)
+            return false;
+
+        if (!$mailTemplate = UserSettings::get('welcome_template'))
+            return;
+
+        $data = [
+            'name' => $this->name,
+            'email' => $this->email
+        ];
+
+        Mail::send($mailTemplate, $data, function($message)
+        {
+            $message->to($this->email, $this->name);
+        });
+    }
 
 }

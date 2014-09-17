@@ -1,7 +1,12 @@
 <?php namespace RainLab\User\Controllers;
 
+use Lang;
+use Flash;
+use Backend;
+use Redirect;
 use BackendMenu;
 use Backend\Classes\Controller;
+use System\Classes\SettingsManager;
 
 /**
  * Universities Back-end Controller

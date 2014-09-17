@@ -2,51 +2,84 @@
 #  Field Definitions
 # ===================================
 
-fields:
-  name:
-    span: auto
-    label: Name
+tabs:
 
-  email:
-    span: auto
-    label: Email
+    fields:
 
-  password:
-    type: password
-    span: left
-    label: Password
+      name:
+        span: full
+        label: Name
+        tab: Details
 
-  password_confirmation:
-    type: password
-    span: right
-    label: Password Confirmation
+      phone:
+        label: Phone
+        tab: Details
+        span: left
 
-  address:
-    label: Address 
+      company:
+        label: Company
+        tab: Details
+        span: right
 
-  university:
-    label: University
-    span: left
-    type: relation
-    placeholder: Select a University
+      street_addr:
+        label: Street address 
+        tab: Details
+        span: full
 
-  position:
-    label: Position
-    span: right
-    type: relation
-    placeholder: Select a Position
+      city:
+        label: City
+        tab: Details
+        span: left
 
-  country:
-    label: Country
-    type: relation
-    span: left
-    placeholder: Select a Country    
+      zip:
+        label: Zip
+        tab: Details
+        span: right
 
-  state:
-    label: State
-    type: relation
-    span: right
-    placeholder: Select a State
+      university:
+        label: University
+        span: left
+        type: relation
+        tab: Details
+        placeholder: Select a University
+
+      position:
+        label: Position
+        span: right
+        type: relation
+        tab: Details
+        placeholder: Select a Position
+
+      country:
+        label: Country
+        type: relation
+        tab: Details
+        span: left
+
+      state:
+        label: State
+        type: relation
+        tab: Details
+        span: right
+        depends: country
+
+      email:
+        span: full
+        label: Email
+        tab: Account
+
+      password:
+        type: password
+        span: left
+        label: Password
+        comment: To reset this users password, enter a new password here.
+        tab: Account
+
+      password_confirmation:
+        type: password
+        span: right
+        label: Password Confirmation
+        tab: Account
 
 secondaryTabs:
   fields:

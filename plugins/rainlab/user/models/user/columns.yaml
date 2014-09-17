@@ -3,28 +3,59 @@
 # ===================================
 
 columns:
+
+    id:
+        label: ID
+        invisible: true
+
     name:
         label: Name
         searchable: yes
 
+    email:
+        label: Email
+        searchable: true
+
+    created_at:
+        label: Registered  
+
+    street_addr:
+        label: Street Address
+        searchable: true
+        invisible: true
+
+    zip:
+        label: Zip
+        searchable: true
+        invisible: true
+
+    phone:
+        label: Phone
+        searchable: true
+        invisible: true
+
+    city:
+        label: City
+        searchable: true
+        invisible: true
+
+    company:
+        label: Company
+        searchable: true
+        invisible: true  
+
     university:
         label: university
-        relation: university
-        select: @name
         searchable: yes
+        invisible: true
 
     country:
         label: Country
-        relation: country
-        select: @name
         searchable: yes
+        invisible: true
+
     state:
         label: State
-        relation: state
-        select: @name
         searchable: yes
-    email:
-        label: Email
-        searchable: yes
-    created_at:
-        label: Registered
+        invisible: true
+

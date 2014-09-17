@@ -2,3 +2,17 @@ static-pages:
     contact-us: {  }
     privacy-policy: {  }
     about-iafes: {  }
+    iafes-association:
+        iafes-association-eata: {  }
+        iafes-association-netties-conferences: {  }
+        iafes-association-statute: {  }
+        iafes-association-how-to-join: {  }
+        iafes-association-personal: {  }
+        iafes-association-institution: {  }
+        iafes-association-members-list: {  }
+        iafes-association-board: {  }
+        iafes-association-gregory-zeibekakis-scholarship: {  }
+        iafes-association-meetings: {  }
+    iafes: {  }
+    netties: {  }
+    library: {  }

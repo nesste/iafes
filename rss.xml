@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>International Association for eScience</title>
+		<link>www.iafes.org</link>
+		<description>IAFeS</description>
+		<atom:link href="www.iafes.org/rss.xml" rel="self" type="application/rss+xml" />
+
+		<item>
+			<title>first post</title>
+			<link>www.iafes.org/netties-conference/first-post</link>
+			<guid>www.iafes.org/netties-conference/first-post</guid>
+			<pubDate>Sat, 13 Sep 2014 00:00:00 +0000</pubDate>
+			<description>This is first post&#039;s teaser</description>
+		</item>
+		<item>
+			<title>test 1</title>
+			<link>www.iafes.org/summer-schools/test-1</link>
+			<guid>www.iafes.org/summer-schools/test-1</guid>
+			<pubDate>Tue, 09 Sep 2014 00:00:00 +0000</pubDate>
+			<description>Yes</description>
+		</item>
+		<item>
+			<title>test 2</title>
+			<link>www.iafes.org/netties-conference/test-2</link>
+			<guid>www.iafes.org/netties-conference/test-2</guid>
+			<pubDate>Thu, 18 Sep 2014 00:00:00 +0000</pubDate>
+			<description>Test 2</description>
+		</item>
+		<item>
+			<title>image test</title>
+			<link>www.iafes.org/summer-schools/image-test</link>
+			<guid>www.iafes.org/summer-schools/image-test</guid>
+			<pubDate>Thu, 18 Sep 2014 00:00:00 +0000</pubDate>
+			<description>ce mai faci</description>
+		</item>
+	</channel>
+</rss>
